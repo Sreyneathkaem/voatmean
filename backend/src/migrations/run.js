@@ -44,6 +44,27 @@ const splitSqlStatements = (sql) => {
       continue;
     }
 
+    // Line comment (-- ...). Checked BEFORE quote handling below, since
+    // comments can legitimately contain apostrophes (don't, isn't, won't,
+    // ...) that would otherwise be mistaken for the start of a
+    // single-quoted string and desync the rest of the parse.
+    if (char === '-' && next === '-') {
+      const newlineIndex = sql.indexOf('\n', i);
+      const end = newlineIndex === -1 ? sql.length : newlineIndex;
+      current += sql.slice(i, end);
+      i = end - 1; // for-loop's i += 1 will land us right after
+      continue;
+    }
+
+    // Block comment (/* ... */), same rationale as above.
+    if (char === '/' && next === '*') {
+      const endIndex = sql.indexOf('*/', i + 2);
+      const end = endIndex === -1 ? sql.length : endIndex + 2;
+      current += sql.slice(i, end);
+      i = end - 1;
+      continue;
+    }
+
     if (char === "'") {
       inSingleQuote = true;
       current += char;
