@@ -1,0 +1,70 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: voatmean_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: voatmean
+      POSTGRES_USER: voatmean_user
+      POSTGRES_PASSWORD: voatmean_pass
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Auto-runs every .sql file here, in filename order, on FIRST
+      # container init only (i.e. when the postgres_data volume is
+      # empty). Re-running later requires `docker compose down -v`
+      # to wipe the volume first.
+      - ./backend/src/migrations:/docker-entrypoint-initdb.d
+
+  redis:
+    image: redis:7-alpine
+    container_name: voatmean_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+
+  mongodb:
+    image: mongo:6-jammy
+    container_name: voatmean_mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: voatmean_logs
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build: ./backend
+    container_name: voatmean_api
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+      - mongodb
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://voatmean_user:voatmean_pass@postgres:5432/voatmean
+      - REDIS_URL=redis://redis:6379
+      - MONGO_URL=mongodb://mongodb:27017/voatmean_logs
+    env_file:
+      - ./backend/.env  # supplies JWT_SECRET, GOOGLE_CLIENT_ID, etc.
+        # NOTE: the DATABASE_URL/REDIS_URL/MONGO_URL
+        # lines above intentionally override whatever
+        # localhost-based values are in .env, since
+        # inside Docker the hostname is the service
+      # name ("postgres"), not "localhost".
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:
+  redis_data:
+  mongo_data:

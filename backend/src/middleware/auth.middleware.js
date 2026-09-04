@@ -102,4 +102,43 @@ const authorizeClass = async (req, res, next) => {
   }
 };
 
-module.exports = { authenticate, authorize, authorizeClass };
+// Confirms the acting teacher owns the timetable slot they're writing to
+// (FR-08 — a teacher may only mark/remark attendance for slots they teach).
+// Admin / admin_teacher bypass, same pattern as authorizeClass. Looks for
+// slotId in the route params first (e.g. PUT /slots/:slotId/...), falling
+// back to slot_id in the body for creation-style endpoints that reference
+// an existing slot (e.g. POST /attendance { slot_id, ... }).
+const authorizeSlot = async (req, res, next) => {
+  try {
+    if (req.user.role === "admin" || req.user.role === "admin_teacher") {
+      return next();
+    }
+
+    const slotId = req.params.slotId || req.body.slot_id;
+    if (!slotId) {
+      return res.status(400).json({ error: "slot_id is required" });
+    }
+
+    const { rows } = await query(
+      "SELECT slot_id FROM timetable_slots WHERE slot_id = $1 AND teacher_id = $2",
+      [slotId, req.user.user_id],
+    );
+
+    if (rows.length === 0) {
+      securityLogger.warn({
+        event: "authz_denied", who: req.user.user_id, what: req.originalUrl,
+        outcome: "denied", reason: "not_slot_owner", slot_id: slotId,
+        ip: req.ip, timestamp: new Date().toISOString(),
+      });
+      return res
+        .status(403)
+        .json({ error: "You can only access your own timetable slot" });
+    }
+
+    next();
+  } catch (err) {
+    return next(err);
+  }
+};
+
+module.exports = { authenticate, authorize, authorizeClass, authorizeSlot };
