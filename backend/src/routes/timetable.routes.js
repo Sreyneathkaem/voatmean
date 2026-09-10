@@ -6,8 +6,9 @@ const {
   authorizeSlot,
 } = require("../middleware/auth.middleware");
 const {
-  getMyTimetable,
-  getClassTimetable,
+  getTimetableSlots,
+  getMySlots,
+  getTimetableSlot,
   createTimetableSlot,
   updateTimetableSlot,
   deleteTimetableSlot,
@@ -15,18 +16,16 @@ const {
 
 r.use(authenticate);
 
-// Any authenticated teacher/admin_teacher/admin can fetch their OWN
-// weekly schedule — no role gate needed, the query is already scoped
-// to req.user.user_id.
-r.get("/mine", getMyTimetable);
+// A teacher's own schedule — any authenticated role, scoped to self.
+r.get("/mine", getMySlots);
 
-// Everything below is admin-facing timetable management.
-r.use(authorize("admin", "admin_teacher"));
-
-r.get("/:classId", getClassTimetable);
-r.post("/", createTimetableSlot);
-r.put("/:slotId", authorizeSlot, updateTimetableSlot);
-r.delete("/:slotId", authorizeSlot, deleteTimetableSlot);
+// Everything else is admin/admin_teacher-managed, except reading a
+// single slot: authorizeSlot lets the owning teacher fetch their own
+// slot's detail too (admin/admin_teacher bypass as usual).
+r.get("/", authorize("admin", "admin_teacher"), getTimetableSlots);
+r.post("/", authorize("admin", "admin_teacher"), createTimetableSlot);
+r.get("/:slotId", authorizeSlot, getTimetableSlot);
+r.put("/:slotId", authorize("admin", "admin_teacher"), updateTimetableSlot);
+r.delete("/:slotId", authorize("admin", "admin_teacher"), deleteTimetableSlot);
 
 module.exports = r;
-

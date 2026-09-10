@@ -75,7 +75,7 @@ const start = async () => {
     process.exit(1);
   }
   app.listen(PORT, () => {
-    console.log(`\n🚀 EduAttend API → http://localhost:${PORT}`);
+    console.log(`\n🚀 voatmean API → http://localhost:${PORT}`);
     console.log(`📋 Health check → http://localhost:${PORT}/health\n`);
   });
 };
