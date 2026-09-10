@@ -1,0 +1,74 @@
+From b6a9c634f00f0b1db9593d737f186badefffb264 Mon Sep 17 00:00:00 2001
+From: Claude <claude@anthropic.com>
+Date: Thu, 10 Sep 2026 16:42:45 +0000
+Subject: [PATCH] fix: prevent RenderFlex overflow in CustomTextField and
+ CustomButton
+
+- Wrap label Text in CustomTextField with Flexible + ellipsis so the
+  trailing role badge no longer pushes it off-screen.
+- Wrap button Text in CustomButton with Flexible + ellipsis so long
+  bilingual labels (e.g. Google sign-in) don't overflow the Row.
+
+Fixes the RenderFlex overflow failures seen in the 'Flutter analyze & test'
+CI job (custom_text_field.dart:34, custom_button.dart:77).
+---
+ mobile/lib/core/widgets/custom_button.dart     | 16 ++++++++++------
+ mobile/lib/core/widgets/custom_text_field.dart | 15 +++++++++------
+ 2 files changed, 19 insertions(+), 12 deletions(-)
+
+diff --git a/mobile/lib/core/widgets/custom_button.dart b/mobile/lib/core/widgets/custom_button.dart
+index ebee08c..ba53c75 100644
+--- a/mobile/lib/core/widgets/custom_button.dart
++++ b/mobile/lib/core/widgets/custom_button.dart
+@@ -78,12 +78,16 @@ class CustomButton extends StatelessWidget {
+       mainAxisAlignment: MainAxisAlignment.center,
+       children: [
+         if (icon != null) ...[icon!, const SizedBox(width: 8)],
+-        Text(
+-          text,
+-          style: GoogleFonts.kantumruyPro(
+-            fontSize: 13,
+-            fontWeight: FontWeight.bold,
+-            color: textColor,
++        Flexible(
++          child: Text(
++            text,
++            overflow: TextOverflow.ellipsis,
++            textAlign: TextAlign.center,
++            style: GoogleFonts.kantumruyPro(
++              fontSize: 13,
++              fontWeight: FontWeight.bold,
++              color: textColor,
++            ),
+           ),
+         ),
+       ],
+diff --git a/mobile/lib/core/widgets/custom_text_field.dart b/mobile/lib/core/widgets/custom_text_field.dart
+index db38dca..71387c7 100644
+--- a/mobile/lib/core/widgets/custom_text_field.dart
++++ b/mobile/lib/core/widgets/custom_text_field.dart
+@@ -34,12 +34,15 @@ class CustomTextField extends StatelessWidget {
+         Row(
+           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+           children: [
+-            Text(
+-              labelText,
+-              style: GoogleFonts.kantumruyPro(
+-                fontSize: 12,
+-                fontWeight: FontWeight.w600,
+-                color: AppColors.textSecondary,
++            Flexible(
++              child: Text(
++                labelText,
++                overflow: TextOverflow.ellipsis,
++                style: GoogleFonts.kantumruyPro(
++                  fontSize: 12,
++                  fontWeight: FontWeight.w600,
++                  color: AppColors.textSecondary,
++                ),
+               ),
+             ),
+             ?trailingLabelWidget,
+-- 
+2.43.0
+
