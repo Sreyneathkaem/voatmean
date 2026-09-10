@@ -1,7 +1,6 @@
 const { query } = require("../config/db");
 const { AuditLog } = require("../config/mongo");
 
-<<<<<<< HEAD
 // timetable_slots has two separate UNIQUE constraints (see
 // 002_timetable_schema.sql): a class can't have two subjects in the
 // same day/period, and a teacher can't be double-booked in the same
@@ -58,22 +57,6 @@ const getTimetableSlots = async (req, res, next) => {
     const { rows } = await query(
       `${SLOT_SELECT} ${where} ORDER BY ts.day_of_week, ts.period`,
       params,
-=======
-/**
- * GET /api/admin/timetable/class/:classId
- */
-const getSlotsByClass = async (req, res, next) => {
-  try {
-    const { classId } = req.params;
-    const { rows } = await query(
-      `SELECT ts.*, s.subject_name, u.full_name as teacher_name
-       FROM timetable_slots ts
-       JOIN subjects s ON s.subject_id = ts.subject_id
-       JOIN users u ON u.user_id = ts.teacher_id
-       WHERE ts.class_id = $1
-       ORDER BY ts.day_of_week, ts.period`,
-      [classId]
->>>>>>> main
     );
     res.json(rows);
   } catch (err) {
@@ -81,33 +64,14 @@ const getSlotsByClass = async (req, res, next) => {
   }
 };
 
-<<<<<<< HEAD
 // GET /api/timetable/mine
 // A teacher's own schedule. Not gated by authorizeSlot (there's no
 // single :slotId to check) — just scoped to req.user.user_id directly.
-// Admin/admin_teacher hitting this get an empty list unless they're
-// also assigned as a teacher on some slot, which is expected.
 const getMySlots = async (req, res, next) => {
   try {
     const { rows } = await query(
       `${SLOT_SELECT} WHERE ts.teacher_id = $1 ORDER BY ts.day_of_week, ts.period`,
       [req.user.user_id],
-=======
-/**
- * GET /api/admin/timetable/teacher/:teacherId
- */
-const getSlotsByTeacher = async (req, res, next) => {
-  try {
-    const { teacherId } = req.params;
-    const { rows } = await query(
-      `SELECT ts.*, s.subject_name, hc.class_name
-       FROM timetable_slots ts
-       JOIN subjects s ON s.subject_id = ts.subject_id
-       JOIN homeroom_classes hc ON hc.class_id = ts.class_id
-       WHERE ts.teacher_id = $1
-       ORDER BY ts.day_of_week, ts.period`,
-      [teacherId]
->>>>>>> main
     );
     res.json(rows);
   } catch (err) {
@@ -115,7 +79,6 @@ const getSlotsByTeacher = async (req, res, next) => {
   }
 };
 
-<<<<<<< HEAD
 // GET /api/timetable/:slotId
 const getTimetableSlot = async (req, res, next) => {
   try {
@@ -183,65 +146,11 @@ const createTimetableSlot = async (req, res, next) => {
         .status(400)
         .json({ error: "class_id, subject_id, teacher_id, or term_id does not exist" });
     }
-=======
-/**
- * POST /api/admin/timetable
- * Body: { class_id, subject_id, teacher_id, day_of_week, period, term_id? }
- */
-const createSlot = async (req, res, next) => {
-  try {
-    const { class_id, subject_id, teacher_id, day_of_week, period, term_id } = req.body;
-
-    // 1. Basic validation
-    if (!class_id || !subject_id || !teacher_id || !day_of_week || !period) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
-
-    // 2. Conflict Check (Class or Teacher already busy at this time)
-    const { rows: conflicts } = await query(
-      `SELECT 'class' as conflict_type FROM timetable_slots
-       WHERE class_id = $1 AND day_of_week = $2 AND period = $3
-       UNION ALL
-       SELECT 'teacher' as conflict_type FROM timetable_slots
-       WHERE teacher_id = $4 AND day_of_week = $2 AND period = $3`,
-      [class_id, day_of_week, period, teacher_id]
-    );
-
-    if (conflicts.length > 0) {
-      const type = conflicts[0].conflict_type;
-      return res.status(409).json({
-        error: `Schedule conflict: The ${type} is already assigned a subject for this period.`
-      });
-    }
-
-    // 3. Insert
-    const { rows } = await query(
-      `INSERT INTO timetable_slots (class_id, subject_id, teacher_id, day_of_week, period, term_id)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING *`,
-      [class_id, subject_id, teacher_id, day_of_week, period, term_id || null]
-    );
-
-    const newSlot = rows[0];
-
-    // 4. Audit Log
-    AuditLog.create({
-      event_type: "timetable_slot_created",
-      performed_by: { user_id: req.user.user_id, role: req.user.role },
-      target: { slot_id: newSlot.slot_id, class_id: newSlot.class_id, teacher_id: newSlot.teacher_id },
-      metadata: { day_of_week, period }
-    }).catch(() => {});
-
-    res.status(201).json(newSlot);
-  } catch (err) {
->>>>>>> main
     next(err);
   }
 };
 
-<<<<<<< HEAD
 // PUT /api/timetable/:slotId
-// Body: any subset of { class_id, subject_id, teacher_id, term_id, day_of_week, period }
 const updateTimetableSlot = async (req, res, next) => {
   try {
     const { slotId } = req.params;
@@ -304,9 +213,6 @@ const updateTimetableSlot = async (req, res, next) => {
 };
 
 // DELETE /api/timetable/:slotId
-// Cascades to slot_attendance_records (ON DELETE CASCADE) — deleting a
-// slot deletes its attendance history too. Worth a confirm step on the
-// frontend; the API itself doesn't second-guess the caller here.
 const deleteTimetableSlot = async (req, res, next) => {
   try {
     const { rows } = await query(
@@ -314,44 +220,20 @@ const deleteTimetableSlot = async (req, res, next) => {
       [req.params.slotId],
     );
     if (!rows.length) return res.status(404).json({ error: "Slot not found" });
-=======
-/**
- * DELETE /api/admin/timetable/:slotId
- */
-const deleteSlot = async (req, res, next) => {
-  try {
-    const { slotId } = req.params;
-    const { rows } = await query(
-      "DELETE FROM timetable_slots WHERE slot_id = $1 RETURNING *",
-      [slotId]
-    );
-
-    if (!rows.length) {
-      return res.status(404).json({ error: "Slot not found" });
-    }
->>>>>>> main
 
     AuditLog.create({
       event_type: "timetable_slot_deleted",
       performed_by: { user_id: req.user.user_id, role: req.user.role },
-<<<<<<< HEAD
       target: { slot_id: req.params.slotId },
     }).catch(() => {});
 
     res.json({ deleted: true });
-=======
-      target: { slot_id: slotId },
-    }).catch(() => {});
-
-    res.json({ message: "Slot deleted successfully", deleted_slot: rows[0] });
->>>>>>> main
   } catch (err) {
     next(err);
   }
 };
 
 module.exports = {
-<<<<<<< HEAD
   getTimetableSlots,
   getMySlots,
   getTimetableSlot,
@@ -359,10 +241,3 @@ module.exports = {
   updateTimetableSlot,
   deleteTimetableSlot,
 };
-=======
-  getSlotsByClass,
-  getSlotsByTeacher,
-  createSlot,
-  deleteSlot
-};
->>>>>>> main
