@@ -42,7 +42,7 @@ class CustomTextField extends StatelessWidget {
                 color: AppColors.textSecondary,
               ),
             ),
-            if (trailingLabelWidget != null) trailingLabelWidget!,
+            ?trailingLabelWidget,
           ],
         ),
         const SizedBox(height: 6),
