@@ -20,6 +20,7 @@ const attendanceRoutes = require('./routes/attendance.routes');
 const scoreRoutes      = require('./routes/score.routes');
 const homeroomClassRoutes = require('./routes/homeroomClass.routes');
 const subjectRoutes       = require('./routes/subject.routes');
+const timetableRoutes     = require('./routes/timetable.routes');
 
 const { errorHandler } = require('./middleware/error.middleware');
 
@@ -59,6 +60,7 @@ app.use('/api/attendance', attendanceRoutes);
 app.use('/api/scores',     scoreRoutes);
 app.use('/api/admin/homeroom-classes', homeroomClassRoutes);
 app.use('/api/admin/subjects',         subjectRoutes);
+app.use('/api/timetable',              timetableRoutes);
 
 // ── Error Handler ──────────────────────────────────────────────────────
 app.use(errorHandler);
