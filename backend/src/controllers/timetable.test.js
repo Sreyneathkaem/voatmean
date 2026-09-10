@@ -78,4 +78,32 @@ describe('Timetable Controller', () => {
       }));
     });
   });
+
+  describe('updateTimetableSlot', () => {
+    it('should update a slot and return re-fetched result', async () => {
+      req.params.slotId = 'slot-1';
+      req.body = { day_of_week: 2 };
+
+      db.query
+        .mockResolvedValueOnce({ rows: [{ slot_id: 'slot-1' }] }) // update result
+        .mockResolvedValueOnce({ rows: [{ slot_id: 'slot-1', day_of_week: 2 }] }); // fetch result
+
+      const { updateTimetableSlot } = require('./timetable.controller');
+      await updateTimetableSlot(req, res, next);
+
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ day_of_week: 2 }));
+    });
+  });
+
+  describe('deleteTimetableSlot', () => {
+    it('should delete a slot', async () => {
+      req.params.slotId = 'slot-1';
+      db.query.mockResolvedValue({ rows: [{ slot_id: 'slot-1' }] });
+
+      const { deleteTimetableSlot } = require('./timetable.controller');
+      await deleteTimetableSlot(req, res, next);
+
+      expect(res.json).toHaveBeenCalledWith({ deleted: true });
+    });
+  });
 });
