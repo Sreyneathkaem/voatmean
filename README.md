@@ -165,3 +165,4 @@ The following are unchanged from the predecessor system and are not re-specified
 - Generic client-facing error handling, full detail logged server-side only
 - MongoDB audit-log pattern for attendance and score changes
 - Docker Compose service topology and GitHub Actions CI scaffolding
+- Docker Compose service topology and GitHub Actions CI scaffolding
