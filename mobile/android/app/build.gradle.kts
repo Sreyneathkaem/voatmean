@@ -22,7 +22,11 @@ android {
         applicationId = "kh.edu.camtech.voatmean.voatmean_mobile"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
+<<<<<<< HEAD
+        minSdk = 23
+=======
         minSdk = flutter.minSdkVersion
+>>>>>>> ce7d73122f084eaea3e4d7e13ee6f3f75cc2ceba
         targetSdk = flutter.targetSdkVersion
         // Uses the version code from pubspec.yaml. When using split APKs, 1000 * ABI_VERSION
         // is added automatically by Flutter. (https://developer.android.com/studio/build/configure-apk-splits#configure-APK-versions)
