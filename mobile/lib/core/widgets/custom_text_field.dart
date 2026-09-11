@@ -4,48 +4,61 @@ import '../constants/app_colors.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
-  final String labelText;
-  final String hintText;
+  final String? label; // Added to support new modal usage
+  final String? hint; // Added to support new modal usage
+  final String? labelText;
+  final String? hintText;
   final Widget? prefixIcon;
   final Widget? suffixIcon;
   final bool obscureText;
   final TextInputType keyboardType;
   final String? Function(String?)? validator;
   final Widget? trailingLabelWidget;
+  final bool isRequired;
 
   const CustomTextField({
     super.key,
     required this.controller,
-    required this.labelText,
-    required this.hintText,
+    this.label,
+    this.hint,
+    this.labelText,
+    this.hintText,
     this.prefixIcon,
     this.suffixIcon,
     this.obscureText = false,
     this.keyboardType = TextInputType.text,
     this.validator,
     this.trailingLabelWidget,
+    this.isRequired = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final effectiveLabel = label ?? labelText ?? '';
+    final effectiveHint = hint ?? hintText ?? '';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              labelText,
-              style: GoogleFonts.kantumruyPro(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary,
+            if (effectiveLabel.isNotEmpty)
+              Flexible(
+                child: Text(
+                  effectiveLabel,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.kantumruyPro(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
               ),
-            ),
             if (trailingLabelWidget != null) trailingLabelWidget!,
           ],
         ),
-        const SizedBox(height: 6),
+        if (effectiveLabel.isNotEmpty) const SizedBox(height: 6),
         TextFormField(
           controller: controller,
           obscureText: obscureText,
@@ -55,7 +68,7 @@ class CustomTextField extends StatelessWidget {
           decoration: InputDecoration(
             prefixIcon: prefixIcon,
             suffixIcon: suffixIcon,
-            hintText: hintText,
+            hintText: effectiveHint,
             hintStyle: GoogleFonts.kantumruyPro(
               fontSize: 12,
               color: AppColors.textSubtle,

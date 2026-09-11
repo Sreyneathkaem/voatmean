@@ -78,12 +78,16 @@ class CustomButton extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (icon != null) ...[icon!, const SizedBox(width: 8)],
-        Text(
-          text,
-          style: GoogleFonts.kantumruyPro(
-            fontSize: 13,
-            fontWeight: FontWeight.bold,
-            color: textColor,
+        Flexible(
+          child: Text(
+            text,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.kantumruyPro(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: textColor,
+            ),
           ),
         ),
       ],
