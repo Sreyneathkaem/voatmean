@@ -9,7 +9,7 @@ import 'package:voatmean_mobile/core/widgets/custom_button.dart';
 import 'package:voatmean_mobile/core/widgets/custom_text_field.dart';
 
 class LoginForm extends StatefulWidget {
-  final Function(DetectedRole role, String email) onSubmit;
+  final Function(DetectedRole role, String email, String password) onSubmit;
   final Function(String provider) onSocialLogin;
 
   const LoginForm({
@@ -61,12 +61,13 @@ class _LoginFormState extends State<LoginForm> {
 
     setState(() => _isSubmitting = true);
     final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
     final role = _detectedRole ?? DetectedRole.teacher;
 
     Future.delayed(const Duration(milliseconds: 350), () {
       if (!mounted) return;
       setState(() => _isSubmitting = false);
-      widget.onSubmit(role, email);
+      widget.onSubmit(role, email, password);
     });
   }
 

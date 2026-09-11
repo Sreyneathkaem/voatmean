@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "465237029545",
+    "project_id": "voatmean-app",
+    "storage_bucket": "voatmean-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:465237029545:android:15527d3e96585fd0b16fb8",
+        "android_client_info": {
+          "package_name": "kh.edu.camtech.voatmean.voatmean_mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "465237029545-laq6dh8hibooccngb7c7ud3rhblfcm2t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_M4KWckbDEL0A7lorXVk1OX3X9Sua-rk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "465237029545-laq6dh8hibooccngb7c7ud3rhblfcm2t.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "465237029545-62aqvtdgbno0e78qmuuf8lkjmqalkbjh.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "kh.edu.camtech.voatmean.voatmeanMobile"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

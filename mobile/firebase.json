@@ -1,0 +1,1 @@
+{"flutter":{"platforms":{"android":{"default":{"projectId":"voatmean-app","appId":"1:465237029545:android:15527d3e96585fd0b16fb8","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"voatmean-app","configurations":{"android":"1:465237029545:android:15527d3e96585fd0b16fb8","ios":"1:465237029545:ios:b0859bb2a83828e9b16fb8"}}}}}}

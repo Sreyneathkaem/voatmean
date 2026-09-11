@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 import 'core/constants/app_colors.dart';
 import 'core/constants/app_strings.dart';
@@ -7,7 +9,15 @@ import 'features/admin/presentation/widgets/admin_navbar.dart';
 import 'features/auth/presentation/screens/authentication/login_screen.dart';
 import 'features/auth/presentation/screens/authentication/register_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    debugPrint("Firebase initialization failed: $e");
+  }
   runApp(const VoatmeanApp());
 }
 

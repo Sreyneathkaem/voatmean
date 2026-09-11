@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:voatmean_mobile/core/constants/app_colors.dart';
 import 'package:voatmean_mobile/core/constants/app_strings.dart';
 import 'package:voatmean_mobile/core/utils/validators.dart';
+import 'package:voatmean_mobile/features/auth/data/services/auth_service.dart';
 import 'package:voatmean_mobile/features/auth/presentation/widgets/login_form.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -17,23 +18,43 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  void _onFormSubmit(DetectedRole role, String email) {
-    if (role == DetectedRole.dual) {
-      _showDualRoleBottomSheet(email);
+  final AuthService _authService = AuthService();
+
+  void _onFormSubmit(DetectedRole role, String email, String password) async {
+    // 1. Authenticate with Firebase first
+    final user = await _authService.signInWithEmail(email, password);
+
+    if (user != null) {
+      // 2. Handle role selection logic
+      if (role == DetectedRole.dual) {
+        _showDualRoleBottomSheet(email);
+      } else {
+        final roleStr = role == DetectedRole.admin ? 'admin' : 'teacher';
+        _showToast(
+          role == DetectedRole.admin
+              ? 'ចូលប្រើប្រាស់ជោគជ័យក្នុងនាមជា អ្នកគ្រប់គ្រង (Admin)'
+              : 'ចូលប្រើប្រាស់ជោគជ័យក្នុងនាមជា គ្រូបង្រៀន (Teacher)',
+        );
+        widget.onAuthenticated?.call(roleStr, email);
+      }
     } else {
-      final roleStr = role == DetectedRole.admin ? 'admin' : 'teacher';
-      _showToast(
-        role == DetectedRole.admin
-            ? 'ចូលប្រើប្រាស់ជោគជ័យក្នុងនាមជា អ្នកគ្រប់គ្រង (Admin)'
-            : 'ចូលប្រើប្រាស់ជោគជ័យក្នុងនាមជា គ្រូបង្រៀន (Teacher)',
-      );
-      widget.onAuthenticated?.call(roleStr, email);
+      _showToast('ការចូលមិនបានជោគជ័យ! សូមពិនិត្យអុីមែល និងពាក្យសម្ងាត់ឡើងវិញ។');
     }
   }
 
-  void _onSocialLogin(String provider) {
-    _showToast('ចូលប្រើប្រាស់តាម $provider (Firebase Auth) ជោគជ័យ!');
-    widget.onAuthenticated?.call('teacher', 'user@school.edu');
+  void _onSocialLogin(String provider) async {
+    if (provider == 'Google') {
+      final user = await _authService.signInWithGoogle();
+      if (user != null) {
+        _showToast('ចូលប្រើប្រាស់តាម Google ជោគជ័យ!');
+        // For Google, we'll default to teacher or check their custom claims/database later
+        widget.onAuthenticated?.call('teacher', user.email ?? '');
+      } else {
+        _showToast('ការចូលតាម Google ត្រូវបានបោះបង់ ឬបរាជ័យ។');
+      }
+    } else {
+      _showToast('ចូលប្រើប្រាស់តាម $provider មិនទាន់ត្រូវបានគាំទ្រពេញលេញនៅឡើយទេ។');
+    }
   }
 
   void _showToast(String message) {
