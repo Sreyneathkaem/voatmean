@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_strings.dart';
-import '../../../../core/utils/validators.dart';
-import '../../../../core/widgets/custom_button.dart';
-import '../../../../core/widgets/custom_text_field.dart';
+import 'package:voatmean_mobile/core/constants/app_colors.dart';
+import 'package:voatmean_mobile/core/constants/app_strings.dart';
+import 'package:voatmean_mobile/core/utils/validators.dart';
+import 'package:voatmean_mobile/core/widgets/custom_button.dart';
+import 'package:voatmean_mobile/core/widgets/custom_text_field.dart';
 
 class LoginForm extends StatefulWidget {
   final Function(DetectedRole role, String email) onSubmit;

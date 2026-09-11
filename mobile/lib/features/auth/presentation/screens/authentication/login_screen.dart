@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../../../core/constants/app_colors.dart';
-import '../../../../../core/constants/app_strings.dart';
-import '../../../../../core/utils/validators.dart';
-import '../../widgets/login_form.dart';
+import 'package:voatmean_mobile/core/constants/app_colors.dart';
+import 'package:voatmean_mobile/core/constants/app_strings.dart';
+import 'package:voatmean_mobile/core/utils/validators.dart';
+import 'package:voatmean_mobile/features/auth/presentation/widgets/login_form.dart';
 
 class LoginScreen extends StatefulWidget {
   final Function(String role, String email)? onAuthenticated;

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import '../../../../core/utils/validators.dart';
-import '../../../../core/widgets/custom_button.dart';
-import '../../../../core/widgets/custom_text_field.dart';
+import 'package:voatmean_mobile/core/utils/validators.dart';
+import 'package:voatmean_mobile/core/widgets/custom_button.dart';
+import 'package:voatmean_mobile/core/widgets/custom_text_field.dart';
 
 class RegisterForm extends StatefulWidget {
   const RegisterForm({super.key});

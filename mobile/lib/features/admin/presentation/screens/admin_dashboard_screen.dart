@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../../../core/constants/app_colors.dart';
-import '../../../data/models/attendance_session_model.dart';
+import 'package:voatmean_mobile/core/constants/app_colors.dart';
+import '../../data/models/attendance_session_model.dart';
 
 enum DateFilter { today, week, month }
 enum StatusFilter { all, submitted, pending }
@@ -383,7 +384,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             boxShadow: isSelected
                 ? [
               BoxShadow(
-                color: Colors.black.withOpacity(0.04),
+                color: Colors.black.withValues(alpha: 0.04),
                 blurRadius: 4,
                 offset: const Offset(0, 1),
               )
@@ -876,7 +877,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: _filteredSessions.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      separatorBuilder: (_, _) => const SizedBox(height: 8),
       itemBuilder: (ctx, index) {
         final item = _filteredSessions[index];
         return InkWell(

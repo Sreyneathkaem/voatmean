@@ -29,6 +29,11 @@ class Validators {
     return null;
   }
 
+  // Aliases for shorter usage in modals
+  static String? email(String? v) => validateEmail(v);
+  static String? required(String? v, String f) => validateRequired(v, f);
+  static String? phone(String? v) => validateRequired(v, 'លេខទូរស័ព្ទ');
+
   // Automatic role resolution based on email string
   static DetectedRole? detectRoleFromEmail(String email) {
     final clean = email.trim().toLowerCase();
