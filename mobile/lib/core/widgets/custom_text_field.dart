@@ -14,7 +14,7 @@ class CustomTextField extends StatelessWidget {
   final TextInputType keyboardType;
   final String? Function(String?)? validator;
   final Widget? trailingLabelWidget;
-  final bool isRequired; // Added
+  final bool isRequired;
 
   const CustomTextField({
     super.key,
@@ -44,12 +44,15 @@ class CustomTextField extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             if (effectiveLabel.isNotEmpty)
-              Text(
-                effectiveLabel,
-                style: GoogleFonts.kantumruyPro(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textSecondary,
+              Flexible(
+                child: Text(
+                  effectiveLabel,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.kantumruyPro(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ),
             if (trailingLabelWidget != null) trailingLabelWidget!,

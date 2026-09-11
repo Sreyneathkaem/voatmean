@@ -67,8 +67,6 @@ const getTimetableSlots = async (req, res, next) => {
 // GET /api/timetable/mine
 // A teacher's own schedule. Not gated by authorizeSlot (there's no
 // single :slotId to check) — just scoped to req.user.user_id directly.
-// Admin/admin_teacher hitting this get an empty list unless they're
-// also assigned as a teacher on some slot, which is expected.
 const getMySlots = async (req, res, next) => {
   try {
     const { rows } = await query(
@@ -153,7 +151,6 @@ const createTimetableSlot = async (req, res, next) => {
 };
 
 // PUT /api/timetable/:slotId
-// Body: any subset of { class_id, subject_id, teacher_id, term_id, day_of_week, period }
 const updateTimetableSlot = async (req, res, next) => {
   try {
     const { slotId } = req.params;
@@ -216,9 +213,6 @@ const updateTimetableSlot = async (req, res, next) => {
 };
 
 // DELETE /api/timetable/:slotId
-// Cascades to slot_attendance_records (ON DELETE CASCADE) — deleting a
-// slot deletes its attendance history too. Worth a confirm step on the
-// frontend; the API itself doesn't second-guess the caller here.
 const deleteTimetableSlot = async (req, res, next) => {
   try {
     const { rows } = await query(

@@ -130,27 +130,41 @@ const getHomeroomClassStudents = async (req, res, next) => {
 };
 
 // POST /api/admin/homeroom-classes/:classId/students
-// Body: { student_id }
+// Body: { student_ids: [] } or { student_id: string }
 const addStudentToHomeroomClass = async (req, res, next) => {
   try {
     const { classId } = req.params;
-    const { student_id } = req.body;
-    if (!student_id) {
-      return res.status(400).json({ error: "student_id is required" });
+    const { student_ids, student_id } = req.body;
+    const ids = student_ids || (student_id ? [student_id] : []);
+
+    if (!ids.length) {
+      return res.status(400).json({ error: "student_ids array or student_id is required" });
     }
 
-    const { rows } = await query(
-      `INSERT INTO class_students (class_id, student_id)
-       VALUES ($1, $2)
-       ON CONFLICT (class_id, student_id) DO NOTHING
-       RETURNING *`,
-      [classId, student_id],
-    );
-    if (!rows.length) {
-      return res.status(409).json({ error: "Student already in this class" });
+    const enrolled = [];
+    for (const sId of ids) {
+      const { rows } = await query(
+        `INSERT INTO class_students (class_id, student_id)
+         VALUES ($1, $2)
+         ON CONFLICT (class_id, student_id) DO NOTHING
+         RETURNING *`,
+        [classId, sId],
+      );
+
+      if (rows.length) {
+        enrolled.push(rows[0]);
+        AuditLog.create({
+          event_type: "student_enrolled",
+          performed_by: { user_id: req.user.user_id, role: req.user.role },
+          target: { class_id: classId, student_id: sId },
+        }).catch(() => {});
+      }
     }
 
-    res.status(201).json(rows[0]);
+    res.status(201).json({
+      message: `Successfully processed enrollment for ${ids.length} students`,
+      newly_enrolled_count: enrolled.length
+    });
   } catch (err) {
     next(err);
   }
