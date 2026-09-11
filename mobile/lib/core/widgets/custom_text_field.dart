@@ -34,15 +34,18 @@ class CustomTextField extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              labelText,
-              style: GoogleFonts.kantumruyPro(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary,
+            Flexible(
+              child: Text(
+                labelText,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.kantumruyPro(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textSecondary,
+                ),
               ),
             ),
-            if (trailingLabelWidget != null) trailingLabelWidget!,
+            ?trailingLabelWidget,
           ],
         ),
         const SizedBox(height: 6),
