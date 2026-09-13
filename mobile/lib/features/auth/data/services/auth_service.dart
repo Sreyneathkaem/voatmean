@@ -5,6 +5,16 @@ import 'package:flutter/foundation.dart';
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+  bool _isGoogleSignInInitialized = false;
+
+  Future<void> _ensureGoogleSignInInitialized() async {
+    if (!_isGoogleSignInInitialized) {
+      await _googleSignIn.initialize(
+        serverClientId: '465237029545-laq6dh8hibooccngb7c7ud3rhblfcm2t.apps.googleusercontent.com',
+      );
+      _isGoogleSignInInitialized = true;
+    }
+  }
 
   // 1. Sign in with Email & Password
   Future<User?> signInWithEmail(String email, String password) async {
@@ -23,10 +33,11 @@ class AuthService {
   // 2. Sign in with Google
   Future<User?> signInWithGoogle() async {
     try {
-      // For google_sign_in: ^7.2.0, use GoogleSignIn.instance.authenticate()
-      final GoogleSignInAccount? googleUser = await _googleSignIn.authenticate();
-      if (googleUser == null) return null;
-
+      await _ensureGoogleSignInInitialized();
+      
+      // For google_sign_in: ^7.2.0, use authenticate()
+      final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
+      
       final GoogleSignInAuthentication googleAuth = googleUser.authentication;
 
       final credential = GoogleAuthProvider.credential(
@@ -46,7 +57,7 @@ class AuthService {
   // 3. Sign Out
   Future<void> signOut() async {
     await _auth.signOut();
-    // For google_sign_in: ^7.2.0, check if there's a signOut method or similar
-    // Actually, usually it's there. Let's check.
+    // For google_sign_in: ^7.2.0, signOut is available on the instance
+    await _googleSignIn.signOut();
   }
 }
