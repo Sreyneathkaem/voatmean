@@ -58,11 +58,6 @@ class AuthService {
       // For google_sign_in: ^7.2.0, use authenticate() instead of signIn()
       final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
 
-      if (googleUser == null) {
-        debugPrint("Google Sign-In: User cancelled selection.");
-        return null;
-      }
-
       // authentication is not a Future in version 7.x
       final GoogleSignInAuthentication googleAuth = googleUser.authentication;
 

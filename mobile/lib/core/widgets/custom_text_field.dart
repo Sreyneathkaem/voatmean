@@ -55,7 +55,7 @@ class CustomTextField extends StatelessWidget {
                   ),
                 ),
               ),
-            trailingLabelWidget,
+            trailingLabelWidget?,
           ],
         ),
         if (effectiveLabel.isNotEmpty) const SizedBox(height: 6),
