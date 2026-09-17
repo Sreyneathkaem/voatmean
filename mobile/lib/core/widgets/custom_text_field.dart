@@ -55,7 +55,7 @@ class CustomTextField extends StatelessWidget {
                   ),
                 ),
               ),
-            trailingLabelWidget?,
+            if (trailingLabelWidget != null) trailingLabelWidget!,
           ],
         ),
         if (effectiveLabel.isNotEmpty) const SizedBox(height: 6),
@@ -76,7 +76,7 @@ class CustomTextField extends StatelessWidget {
             filled: true,
             fillColor: AppColors.inputBg,
             contentPadding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
               borderSide: const BorderSide(color: AppColors.border),
