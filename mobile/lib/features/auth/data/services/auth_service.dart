@@ -56,15 +56,15 @@ class AuthService {
       await _ensureGoogleSignInInitialized();
 
       // For google_sign_in: ^7.2.0, use authenticate() instead of signIn()
-      final GoogleSignInAccount? googleUser = await _googleSignIn.authenticate();
+      final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
 
       if (googleUser == null) {
         debugPrint("Google Sign-In: User cancelled selection.");
         return null;
       }
 
-      // authentication is a Future in version 7.x
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      // authentication is not a Future in version 7.x
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
 
       final credential = GoogleAuthProvider.credential(
         idToken: googleAuth.idToken,

@@ -36,7 +36,7 @@ class _CreateClassBottomSheetState extends State<CreateClassBottomSheet> {
   void initState() {
     super.initState();
     _selectedTeacherId =
-    widget.teachers.isNotEmpty ? widget.teachers.first.id : '';
+        widget.teachers.isNotEmpty ? widget.teachers.first.id : '';
   }
 
   @override
@@ -50,7 +50,7 @@ class _CreateClassBottomSheetState extends State<CreateClassBottomSheet> {
     if (!_formKey.currentState!.validate()) return;
 
     final teacher = widget.teachers.firstWhere(
-          (t) => t.id == _selectedTeacherId,
+      (t) => t.id == _selectedTeacherId,
       orElse: () => widget.teachers.first,
     );
 
@@ -110,24 +110,34 @@ class _CreateClassBottomSheetState extends State<CreateClassBottomSheet> {
                     children: [
                       Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(12)),
-                        child: const Icon(LucideIcons.graduationCap, color: AppColors.primary, size: 20),
+                        decoration: BoxDecoration(
+                            color: AppColors.primaryLight,
+                            borderRadius: BorderRadius.circular(12)),
+                        child: const Icon(LucideIcons.graduationCap,
+                            color: AppColors.primary, size: 20),
                       ),
                       const SizedBox(width: 10),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('បង្កើតថ្នាក់ថ្មី', style: GoogleFonts.kantumruyPro(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
-                          Text('បន្ថែមព័ត៌មានថ្នាក់រៀន និងមុខវិជ្ជាថ្មី', style: GoogleFonts.kantumruyPro(fontSize: 12, color: AppColors.textMuted)),
+                          Text('បង្កើតថ្នាក់ថ្មី',
+                              style: GoogleFonts.kantumruyPro(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textPrimary)),
+                          Text('បន្ថែមព័ត៌មានថ្នាក់រៀន និងមុខវិជ្ជាថ្មី',
+                              style: GoogleFonts.kantumruyPro(
+                                  fontSize: 12, color: AppColors.textMuted)),
                         ],
                       ),
                     ],
                   ),
-                  IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(LucideIcons.x, size: 20)),
+                  IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(LucideIcons.x, size: 20)),
                 ],
               ),
               const SizedBox(height: 20),
-
               _buildLabel('ឆ្នាំសិក្សា (Academic Year)'),
               _buildDropdown(
                 value: _academicYear,
@@ -135,23 +145,24 @@ class _CreateClassBottomSheetState extends State<CreateClassBottomSheet> {
                 onChanged: (v) => setState(() => _academicYear = v!),
               ),
               const SizedBox(height: 16),
-
               CustomTextField(
                 controller: _gradeController,
                 labelText: 'កម្រិតថ្នាក់ (Grade/Class) *',
                 hintText: 'e.g. Grade 10A ឬ ថ្នាក់ ១០ ក',
-                validator: (val) => val == null || val.trim().isEmpty ? 'សូមបញ្ចូលឈ្មោះកម្រិតថ្នាក់' : null,
+                validator: (val) => val == null || val.trim().isEmpty
+                    ? 'សូមបញ្ចូលឈ្មោះកម្រិតថ្នាក់'
+                    : null,
               ),
               const SizedBox(height: 16),
-
               CustomTextField(
                 controller: _subjectController,
                 labelText: 'មុខវិជ្ជា (Subject) *',
                 hintText: 'e.g. គណិតវិទ្យា (Mathematics)',
-                validator: (val) => val == null || val.trim().isEmpty ? 'សូមបញ្ចូលឈ្មោះមុខវិជ្ជា' : null,
+                validator: (val) => val == null || val.trim().isEmpty
+                    ? 'សូមបញ្ចូលឈ្មោះមុខវិជ្ជា'
+                    : null,
               ),
               const SizedBox(height: 16),
-
               _buildLabel('ជ្រើសរើសគ្រូបង្រៀន (Select Teacher)'),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -180,25 +191,32 @@ class _CreateClassBottomSheetState extends State<CreateClassBottomSheet> {
                 ),
               ),
               const SizedBox(height: 16),
-
               _buildLabel('ម៉ោងបង្រៀនក្នុងមួយសប្តាហ៍ (Hours/week)'),
               Row(
                 children: [
                   IconButton(
-                    onPressed: () { if (_hoursPerWeek > 1) setState(() => _hoursPerWeek--); },
+                    onPressed: () {
+                      if (_hoursPerWeek > 1) {
+                        setState(() => _hoursPerWeek--);
+                      }
+                    },
                     icon: const Icon(LucideIcons.minusCircle),
                     color: AppColors.primary,
                   ),
-                  Text('$_hoursPerWeek ម៉ោង', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text('$_hoursPerWeek ម៉ោង',
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
                   IconButton(
-                    onPressed: () { if (_hoursPerWeek < 40) setState(() => _hoursPerWeek++); },
+                    onPressed: () {
+                      if (_hoursPerWeek < 40) {
+                        setState(() => _hoursPerWeek++);
+                      }
+                    },
                     icon: const Icon(LucideIcons.plusCircle),
                     color: AppColors.primary,
                   ),
                 ],
               ),
               const SizedBox(height: 24),
-
               Row(
                 children: [
                   Expanded(
@@ -230,12 +248,18 @@ class _CreateClassBottomSheetState extends State<CreateClassBottomSheet> {
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         text,
-        style: GoogleFonts.kantumruyPro(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textSecondary),
+        style: GoogleFonts.kantumruyPro(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textSecondary),
       ),
     );
   }
 
-  Widget _buildDropdown({required String value, required List<String> items, required ValueChanged<String?> onChanged}) {
+  Widget _buildDropdown(
+      {required String value,
+      required List<String> items,
+      required ValueChanged<String?> onChanged}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
@@ -247,31 +271,11 @@ class _CreateClassBottomSheetState extends State<CreateClassBottomSheet> {
         child: DropdownButton<String>(
           value: value,
           isExpanded: true,
-          items: items.map((i) => DropdownMenuItem(value: i, child: Text(i))).toList(),
+          items: items
+              .map((i) => DropdownMenuItem(value: i, child: Text(i)))
+              .toList(),
           onChanged: onChanged,
         ),
-      ),
-    );
-  }
-
-  InputDecoration _inputDecoration(String hint) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: GoogleFonts.kantumruyPro(fontSize: 12, color: AppColors.textSubtle),
-      filled: true,
-      fillColor: AppColors.inputBg,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.border),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.border),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
       ),
     );
   }
@@ -321,7 +325,7 @@ class _AssignTeacherBottomSheetState extends State<AssignTeacherBottomSheet> {
 
   void _save() {
     final teacher = widget.teachers.firstWhere(
-          (t) => t.id == _selectedTeacherId,
+      (t) => t.id == _selectedTeacherId,
       orElse: () => widget.teachers.first,
     );
 
@@ -360,7 +364,9 @@ class _AssignTeacherBottomSheetState extends State<AssignTeacherBottomSheet> {
               child: Container(
                 width: 48,
                 height: 5,
-                decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(10)),
+                decoration: BoxDecoration(
+                    color: AppColors.border,
+                    borderRadius: BorderRadius.circular(10)),
               ),
             ),
             const SizedBox(height: 16),
@@ -371,38 +377,44 @@ class _AssignTeacherBottomSheetState extends State<AssignTeacherBottomSheet> {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(12)),
-                      child: const Icon(LucideIcons.graduationCap, color: AppColors.primary, size: 20),
+                      decoration: BoxDecoration(
+                          color: AppColors.primaryLight,
+                          borderRadius: BorderRadius.circular(12)),
+                      child: const Icon(LucideIcons.graduationCap,
+                          color: AppColors.primary, size: 20),
                     ),
                     const SizedBox(width: 10),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('ចាត់តាំងមុខវិជ្ជា និងគ្រូ', style: GoogleFonts.kantumruyPro(fontSize: 16, fontWeight: FontWeight.bold)),
-                        Text('សម្រាប់ថ្នាក់៖ ${widget.targetClass.grade}', style: GoogleFonts.kantumruyPro(fontSize: 12, color: AppColors.textMuted)),
+                        Text('ចាត់តាំងមុខវិជ្ជា និងគ្រូ',
+                            style: GoogleFonts.kantumruyPro(
+                                fontSize: 16, fontWeight: FontWeight.bold)),
+                        Text('សម្រាប់ថ្នាក់៖ ${widget.targetClass.grade}',
+                            style: GoogleFonts.kantumruyPro(
+                                fontSize: 12, color: AppColors.textMuted)),
                       ],
                     ),
                   ],
                 ),
-                IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(LucideIcons.x, size: 20)),
+                IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(LucideIcons.x, size: 20)),
               ],
             ),
             const SizedBox(height: 20),
-
             CustomTextField(
               controller: _academicYearController,
               labelText: 'ឆ្នាំសិក្សា (Academic Year)',
               hintText: '2026-2027',
             ),
             const SizedBox(height: 16),
-
             CustomTextField(
               controller: _subjectController,
               labelText: 'មុខវិជ្ជា (Subject)',
               hintText: 'Mathematics',
             ),
             const SizedBox(height: 16),
-
             _buildLabel('ជ្រើសរើសគ្រូបង្រៀន (Select Teacher)'),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -431,25 +443,32 @@ class _AssignTeacherBottomSheetState extends State<AssignTeacherBottomSheet> {
               ),
             ),
             const SizedBox(height: 16),
-
             _buildLabel('ម៉ោងបង្រៀនក្នុងមួយសប្តាហ៍ (Hours/week)'),
             Row(
               children: [
                 IconButton(
-                  onPressed: () { if (_hoursPerWeek > 1) setState(() => _hoursPerWeek--); },
+                  onPressed: () {
+                    if (_hoursPerWeek > 1) {
+                      setState(() => _hoursPerWeek--);
+                    }
+                  },
                   icon: const Icon(LucideIcons.minusCircle),
                   color: AppColors.primary,
                 ),
-                Text('$_hoursPerWeek ម៉ោង', style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text('$_hoursPerWeek ម៉ោង',
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
                 IconButton(
-                  onPressed: () { if (_hoursPerWeek < 40) setState(() => _hoursPerWeek++); },
+                  onPressed: () {
+                    if (_hoursPerWeek < 40) {
+                      setState(() => _hoursPerWeek++);
+                    }
+                  },
                   icon: const Icon(LucideIcons.plusCircle),
                   color: AppColors.primary,
                 ),
               ],
             ),
             const SizedBox(height: 24),
-
             Row(
               children: [
                 Expanded(
@@ -480,7 +499,10 @@ class _AssignTeacherBottomSheetState extends State<AssignTeacherBottomSheet> {
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         text,
-        style: GoogleFonts.kantumruyPro(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textSecondary),
+        style: GoogleFonts.kantumruyPro(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textSecondary),
       ),
     );
   }
@@ -516,29 +538,37 @@ class _AddTeacherBottomSheetState extends State<AddTeacherBottomSheet> {
 
   bool get _isDirty =>
       _nameKhmerCtrl.text.isNotEmpty ||
-          _nameLatinCtrl.text.isNotEmpty ||
-          _phoneCtrl.text.isNotEmpty ||
-          _emailCtrl.text.isNotEmpty;
+      _nameLatinCtrl.text.isNotEmpty ||
+      _phoneCtrl.text.isNotEmpty ||
+      _emailCtrl.text.isNotEmpty;
 
   void _handleCancel() {
     if (_isDirty) {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 width: 48,
                 height: 48,
-                decoration: const BoxDecoration(color: Color(0xFFFFF7ED), shape: BoxShape.circle),
-                child: const Icon(LucideIcons.alertCircle, color: Color(0xFFEA580C)),
+                decoration: const BoxDecoration(
+                    color: Color(0xFFFFF7ED), shape: BoxShape.circle),
+                child: const Icon(LucideIcons.alertCircle,
+                    color: Color(0xFFEA580C)),
               ),
               const SizedBox(height: 16),
-              Text('បោះបង់ការបន្ថែមគ្រូ?', style: GoogleFonts.kantumruyPro(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text('បោះបង់ការបន្ថែមគ្រូ?',
+                  style: GoogleFonts.kantumruyPro(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
-              Text('ទិន្នន័យដែលអ្នកបានបំពេញនឹងត្រូវបាត់បង់ ប្រសិនបើអ្នកបោះបង់។', textAlign: TextAlign.center, style: GoogleFonts.kantumruyPro(fontSize: 12, color: AppColors.textMuted)),
+              Text('ទិន្នន័យដែលអ្នកបានបំពេញនឹងត្រូវបាត់បង់ ប្រសិនបើអ្នកបោះបង់។',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.kantumruyPro(
+                      fontSize: 12, color: AppColors.textMuted)),
               const SizedBox(height: 24),
               Row(
                 children: [
@@ -623,7 +653,12 @@ class _AddTeacherBottomSheetState extends State<AddTeacherBottomSheet> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
-                child: Container(width: 48, height: 5, decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(10))),
+                child: Container(
+                    width: 48,
+                    height: 5,
+                    decoration: BoxDecoration(
+                        color: AppColors.border,
+                        borderRadius: BorderRadius.circular(10))),
               ),
               const SizedBox(height: 16),
               Row(
@@ -633,24 +668,32 @@ class _AddTeacherBottomSheetState extends State<AddTeacherBottomSheet> {
                     children: [
                       Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(12)),
-                        child: const Icon(LucideIcons.userPlus, color: AppColors.primary, size: 20),
+                        decoration: BoxDecoration(
+                            color: AppColors.primaryLight,
+                            borderRadius: BorderRadius.circular(12)),
+                        child: const Icon(LucideIcons.userPlus,
+                            color: AppColors.primary, size: 20),
                       ),
                       const SizedBox(width: 10),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('បន្ថែមគ្រូបង្រៀន', style: GoogleFonts.kantumruyPro(fontSize: 18, fontWeight: FontWeight.bold)),
-                          Text('បំពេញព័ត៌មានដើម្បីបង្កើតគណនីគ្រូថ្មី', style: GoogleFonts.kantumruyPro(fontSize: 12, color: AppColors.textMuted)),
+                          Text('បន្ថែមគ្រូបង្រៀន',
+                              style: GoogleFonts.kantumruyPro(
+                                  fontSize: 18, fontWeight: FontWeight.bold)),
+                          Text('បំពេញព័ត៌មានដើម្បីបង្កើតគណនីគ្រូថ្មី',
+                              style: GoogleFonts.kantumruyPro(
+                                  fontSize: 12, color: AppColors.textMuted)),
                         ],
                       ),
                     ],
                   ),
-                  IconButton(onPressed: _handleCancel, icon: const Icon(LucideIcons.x, size: 20)),
+                  IconButton(
+                      onPressed: _handleCancel,
+                      icon: const Icon(LucideIcons.x, size: 20)),
                 ],
               ),
               const SizedBox(height: 20),
-
               CustomTextField(
                 controller: _nameKhmerCtrl,
                 labelText: 'ឈ្មោះពេញ (ភាសាខ្មែរ) *',
@@ -658,14 +701,12 @@ class _AddTeacherBottomSheetState extends State<AddTeacherBottomSheet> {
                 validator: (v) => Validators.required(v, 'ឈ្មោះជាភាសាខ្មែរ'),
               ),
               const SizedBox(height: 16),
-
               CustomTextField(
                 controller: _nameLatinCtrl,
                 labelText: 'ឈ្មោះពេញ (Latin / English)',
                 hintText: 'e.g. Sok Samnang',
               ),
               const SizedBox(height: 16),
-
               Row(
                 children: [
                   Expanded(
@@ -675,7 +716,12 @@ class _AddTeacherBottomSheetState extends State<AddTeacherBottomSheet> {
                         _buildLabel('ភេទ (Gender) *'),
                         _buildDropdown(
                           value: _gender,
-                          items: const [DropdownMenuItem(value: 'M', child: Text('ប្រុស (Male)')), DropdownMenuItem(value: 'F', child: Text('ស្រី (Female)'))],
+                          items: const [
+                            DropdownMenuItem(
+                                value: 'M', child: Text('ប្រុស (Male)')),
+                            DropdownMenuItem(
+                                value: 'F', child: Text('ស្រី (Female)'))
+                          ],
                           onChanged: (v) => setState(() => _gender = v!),
                         ),
                       ],
@@ -690,20 +736,33 @@ class _AddTeacherBottomSheetState extends State<AddTeacherBottomSheet> {
                         _buildDropdown(
                           value: _subject,
                           items: const [
-                            DropdownMenuItem(value: 'Mathematics', child: Text('គណិតវិទ្យា')),
-                            DropdownMenuItem(value: 'Physics', child: Text('រូបវិទ្យា')),
-                            DropdownMenuItem(value: 'Chemistry', child: Text('គីមីវិទ្យា')),
-                            DropdownMenuItem(value: 'English Literature', child: Text('ភាសាអង់គ្លេស')),
-                            DropdownMenuItem(value: 'Khmer Literature', child: Text('ភាសាខ្មែរ')),
+                            DropdownMenuItem(
+                                value: 'Mathematics', child: Text('គណិតវិទ្យា')),
+                            DropdownMenuItem(
+                                value: 'Physics', child: Text('រូបវិទ្យា')),
+                            DropdownMenuItem(
+                                value: 'Chemistry', child: Text('គីមីវិទ្យា')),
+                            DropdownMenuItem(
+                                value: 'English Literature',
+                                child: Text('ភាសាអង់គ្លេស')),
+                            DropdownMenuItem(
+                                value: 'Khmer Literature',
+                                child: Text('ភាសាខ្មែរ')),
                           ],
                           onChanged: (v) {
                             setState(() {
                               _subject = v!;
-                              if (v == 'Mathematics') _subjectKhmer = 'គណិតវិទ្យា';
-                              else if (v == 'Physics') _subjectKhmer = 'រូបវិទ្យា';
-                              else if (v == 'Chemistry') _subjectKhmer = 'គីមីវិទ្យា';
-                              else if (v == 'English Literature') _subjectKhmer = 'ភាសាអង់ក្លេស';
-                              else if (v == 'Khmer Literature') _subjectKhmer = 'ភាសាខ្មែរ';
+                              if (v == 'Mathematics') {
+                                _subjectKhmer = 'គណិតវិទ្យា';
+                              } else if (v == 'Physics') {
+                                _subjectKhmer = 'រូបវិទ្យា';
+                              } else if (v == 'Chemistry') {
+                                _subjectKhmer = 'គីមីវិទ្យា';
+                              } else if (v == 'English Literature') {
+                                _subjectKhmer = 'ភាសាអង់ក្លេស';
+                              } else if (v == 'Khmer Literature') {
+                                _subjectKhmer = 'ភាសាខ្មែរ';
+                              }
                             });
                           },
                         ),
@@ -713,7 +772,6 @@ class _AddTeacherBottomSheetState extends State<AddTeacherBottomSheet> {
                 ],
               ),
               const SizedBox(height: 16),
-
               CustomTextField(
                 controller: _phoneCtrl,
                 labelText: 'លេខទូរស័ព្ទ (Telephone) *',
@@ -722,7 +780,6 @@ class _AddTeacherBottomSheetState extends State<AddTeacherBottomSheet> {
                 validator: (v) => Validators.required(v, 'លេខទូរស័ព្ទ'),
               ),
               const SizedBox(height: 16),
-
               CustomTextField(
                 controller: _emailCtrl,
                 labelText: 'អុីមែល (Email) *',
@@ -731,23 +788,33 @@ class _AddTeacherBottomSheetState extends State<AddTeacherBottomSheet> {
                 validator: Validators.email,
               ),
               const SizedBox(height: 16),
-
               _buildLabel('បន្ទុកថ្នាក់ (Assigned Class) - ស្រេចចិត្ត'),
               _buildDropdown(
                 value: _assignedClass,
                 items: [
-                  const DropdownMenuItem(value: '', child: Text('-- មិនទាន់កំណត់ថ្នាក់ --')),
-                  ...widget.classes.map((c) => DropdownMenuItem(value: c.grade, child: Text('${c.grade} (${c.gradeKhmer})'))),
+                  const DropdownMenuItem(
+                      value: '', child: Text('-- មិនទាន់កំណត់ថ្នាក់ --')),
+                  ...widget.classes.map((c) => DropdownMenuItem(
+                      value: c.grade,
+                      child: Text('${c.grade} (${c.gradeKhmer})'))),
                 ],
                 onChanged: (v) => setState(() => _assignedClass = v!),
               ),
               const SizedBox(height: 24),
-
               Row(
                 children: [
-                  Expanded(child: CustomButton(text: 'បោះបង់ (Cancel)', onPressed: _handleCancel, isOutlined: true)),
+                  Expanded(
+                      child: CustomButton(
+                          text: 'បោះបង់ (Cancel)',
+                          onPressed: _handleCancel,
+                          isOutlined: true)),
                   const SizedBox(width: 12),
-                  Expanded(flex: 2, child: CustomButton(text: '+ បន្ថែមគ្រូ', onPressed: _submit, isLoading: _isLoading)),
+                  Expanded(
+                      flex: 2,
+                      child: CustomButton(
+                          text: '+ បន្ថែមគ្រូ',
+                          onPressed: _submit,
+                          isLoading: _isLoading)),
                 ],
               ),
             ],
@@ -762,12 +829,18 @@ class _AddTeacherBottomSheetState extends State<AddTeacherBottomSheet> {
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         text,
-        style: GoogleFonts.kantumruyPro(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textSecondary),
+        style: GoogleFonts.kantumruyPro(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textSecondary),
       ),
     );
   }
 
-  Widget _buildDropdown({required dynamic value, required List<DropdownMenuItem<dynamic>> items, required ValueChanged<dynamic?> onChanged}) {
+  Widget _buildDropdown(
+      {required dynamic value,
+      required List<DropdownMenuItem<dynamic>> items,
+      required ValueChanged<dynamic> onChanged}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
@@ -883,7 +956,12 @@ class _EditTeacherModalState extends State<EditTeacherModal> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
-                child: Container(width: 48, height: 5, decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(10))),
+                child: Container(
+                    width: 48,
+                    height: 5,
+                    decoration: BoxDecoration(
+                        color: AppColors.border,
+                        borderRadius: BorderRadius.circular(10))),
               ),
               const SizedBox(height: 16),
               Row(
@@ -893,24 +971,32 @@ class _EditTeacherModalState extends State<EditTeacherModal> {
                     children: [
                       Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(12)),
-                        child: const Icon(LucideIcons.edit, color: AppColors.primary, size: 20),
+                        decoration: BoxDecoration(
+                            color: AppColors.primaryLight,
+                            borderRadius: BorderRadius.circular(12)),
+                        child: const Icon(LucideIcons.edit,
+                            color: AppColors.primary, size: 20),
                       ),
                       const SizedBox(width: 10),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('កែប្រែព័ត៌មានគ្រូបង្រៀន', style: GoogleFonts.kantumruyPro(fontSize: 16, fontWeight: FontWeight.bold)),
-                          Text(widget.teacher.nameKhmer, style: GoogleFonts.kantumruyPro(fontSize: 12, color: AppColors.textMuted)),
+                          Text('កែប្រែព័ត៌មានគ្រូបង្រៀន',
+                              style: GoogleFonts.kantumruyPro(
+                                  fontSize: 16, fontWeight: FontWeight.bold)),
+                          Text(widget.teacher.nameKhmer,
+                              style: GoogleFonts.kantumruyPro(
+                                  fontSize: 12, color: AppColors.textMuted)),
                         ],
                       ),
                     ],
                   ),
-                  IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(LucideIcons.x, size: 20)),
+                  IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(LucideIcons.x, size: 20)),
                 ],
               ),
               const SizedBox(height: 20),
-
               CustomTextField(
                 controller: _nameKhmerCtrl,
                 labelText: 'ឈ្មោះពេញ (ភាសាខ្មែរ) *',
@@ -918,14 +1004,12 @@ class _EditTeacherModalState extends State<EditTeacherModal> {
                 validator: (v) => Validators.required(v, 'ឈ្មោះជាភាសាខ្មែរ'),
               ),
               const SizedBox(height: 16),
-
               CustomTextField(
                 controller: _nameLatinCtrl,
                 labelText: 'ឈ្មោះពេញ (Latin / English)',
                 hintText: 'e.g. Sok Samnang',
               ),
               const SizedBox(height: 16),
-
               Row(
                 children: [
                   Expanded(
@@ -935,7 +1019,12 @@ class _EditTeacherModalState extends State<EditTeacherModal> {
                         _buildLabel('ភេទ (Gender)'),
                         _buildDropdown(
                           value: _gender,
-                          items: const [DropdownMenuItem(value: 'M', child: Text('ប្រុស (Male)')), DropdownMenuItem(value: 'F', child: Text('ស្រី (Female)'))],
+                          items: const [
+                            DropdownMenuItem(
+                                value: 'M', child: Text('ប្រុស (Male)')),
+                            DropdownMenuItem(
+                                value: 'F', child: Text('ស្រី (Female)'))
+                          ],
                           onChanged: (v) => setState(() => _gender = v!),
                         ),
                       ],
@@ -950,20 +1039,33 @@ class _EditTeacherModalState extends State<EditTeacherModal> {
                         _buildDropdown(
                           value: _subject,
                           items: const [
-                            DropdownMenuItem(value: 'Mathematics', child: Text('គណិតវិទ្យា')),
-                            DropdownMenuItem(value: 'Physics', child: Text('រូបវិទ្យា')),
-                            DropdownMenuItem(value: 'Chemistry', child: Text('គីមីវិទ្យា')),
-                            DropdownMenuItem(value: 'English Literature', child: Text('ភាសាអង់គ្លេស')),
-                            DropdownMenuItem(value: 'Khmer Literature', child: Text('ភាសាខ្មែរ')),
+                            DropdownMenuItem(
+                                value: 'Mathematics', child: Text('គណិតវិទ្យា')),
+                            DropdownMenuItem(
+                                value: 'Physics', child: Text('រូបវិទ្យា')),
+                            DropdownMenuItem(
+                                value: 'Chemistry', child: Text('គីមីវិទ្យា')),
+                            DropdownMenuItem(
+                                value: 'English Literature',
+                                child: Text('ភាសាអង់គ្លេស')),
+                            DropdownMenuItem(
+                                value: 'Khmer Literature',
+                                child: Text('ភាសាខ្មែរ')),
                           ],
                           onChanged: (v) {
                             setState(() {
                               _subject = v!;
-                              if (v == 'Mathematics') _subjectKhmer = 'គណិតវិទ្យា';
-                              else if (v == 'Physics') _subjectKhmer = 'រូបវិទ្យា';
-                              else if (v == 'Chemistry') _subjectKhmer = 'គីមីវិទ្យា';
-                              else if (v == 'English Literature') _subjectKhmer = 'ភាសាអង់ក្លេស';
-                              else if (v == 'Khmer Literature') _subjectKhmer = 'ភាសាខ្មែរ';
+                              if (v == 'Mathematics') {
+                                _subjectKhmer = 'គណិតវិទ្យា';
+                              } else if (v == 'Physics') {
+                                _subjectKhmer = 'រូបវិទ្យា';
+                              } else if (v == 'Chemistry') {
+                                _subjectKhmer = 'គីមីវិទ្យា';
+                              } else if (v == 'English Literature') {
+                                _subjectKhmer = 'ភាសាអង់ក្លេស';
+                              } else if (v == 'Khmer Literature') {
+                                _subjectKhmer = 'ភាសាខ្មែរ';
+                              }
                             });
                           },
                         ),
@@ -973,7 +1075,6 @@ class _EditTeacherModalState extends State<EditTeacherModal> {
                 ],
               ),
               const SizedBox(height: 16),
-
               CustomTextField(
                 controller: _phoneCtrl,
                 labelText: 'លេខទូរស័ព្ទ (Telephone) *',
@@ -982,7 +1083,6 @@ class _EditTeacherModalState extends State<EditTeacherModal> {
                 validator: (v) => Validators.required(v, 'លេខទូរស័ព្ទ'),
               ),
               const SizedBox(height: 16),
-
               CustomTextField(
                 controller: _emailCtrl,
                 labelText: 'អុីមែល (Email) *',
@@ -991,22 +1091,46 @@ class _EditTeacherModalState extends State<EditTeacherModal> {
                 validator: Validators.email,
               ),
               const SizedBox(height: 16),
-
               _buildLabel('ម៉ោងបង្រៀនក្នុងមួយសប្តាហ៍'),
               Row(
                 children: [
-                  IconButton(onPressed: () { if (_teachingHours > 1) setState(() => _teachingHours--); }, icon: const Icon(LucideIcons.minusCircle), color: AppColors.primary),
-                  Text('$_teachingHours ម៉ោង/សប្តាហ៍', style: const TextStyle(fontWeight: FontWeight.bold)),
-                  IconButton(onPressed: () { if (_teachingHours < 40) setState(() => _teachingHours++); }, icon: const Icon(LucideIcons.plusCircle), color: AppColors.primary),
+                  IconButton(
+                    onPressed: () {
+                      if (_teachingHours > 1) {
+                        setState(() => _teachingHours--);
+                      }
+                    },
+                    icon: const Icon(LucideIcons.minusCircle),
+                    color: AppColors.primary,
+                  ),
+                  Text('$_teachingHours ម៉ោង/សប្តាហ៍',
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                  IconButton(
+                    onPressed: () {
+                      if (_teachingHours < 40) {
+                        setState(() => _teachingHours++);
+                      }
+                    },
+                    icon: const Icon(LucideIcons.plusCircle),
+                    color: AppColors.primary,
+                  ),
                 ],
               ),
               const SizedBox(height: 24),
-
               Row(
                 children: [
-                  Expanded(child: CustomButton(text: 'បោះបង់ (Cancel)', onPressed: () => Navigator.pop(context), isOutlined: true)),
+                  Expanded(
+                      child: CustomButton(
+                          text: 'បោះបង់ (Cancel)',
+                          onPressed: () => Navigator.pop(context),
+                          isOutlined: true)),
                   const SizedBox(width: 12),
-                  Expanded(flex: 2, child: CustomButton(text: 'រក្សាទុកការកែប្រែ', onPressed: _submit, isLoading: _isLoading)),
+                  Expanded(
+                      flex: 2,
+                      child: CustomButton(
+                          text: 'រក្សាទុកការកែប្រែ',
+                          onPressed: _submit,
+                          isLoading: _isLoading)),
                 ],
               ),
             ],
@@ -1021,12 +1145,18 @@ class _EditTeacherModalState extends State<EditTeacherModal> {
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         text,
-        style: GoogleFonts.kantumruyPro(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textSecondary),
+        style: GoogleFonts.kantumruyPro(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textSecondary),
       ),
     );
   }
 
-  Widget _buildDropdown({required dynamic value, required List<DropdownMenuItem<dynamic>> items, required ValueChanged<dynamic?> onChanged}) {
+  Widget _buildDropdown(
+      {required dynamic value,
+      required List<DropdownMenuItem<dynamic>> items,
+      required ValueChanged<dynamic> onChanged}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
