@@ -10,7 +10,7 @@ class AuthService {
   Future<void> _ensureGoogleSignInInitialized() async {
     if (!_isGoogleSignInInitialized) {
       await _googleSignIn.initialize(
-        serverClientId: '465237029545-laq6dh8hibooccngb7c7ud3rhblfcm2t.apps.googleusercontent.com',
+        serverClientId: '119959634609-e7ljfkdebja9pomisdo08s2qne4l2qls.apps.googleusercontent.com',
       );
       _isGoogleSignInInitialized = true;
     }
@@ -24,8 +24,28 @@ class AuthService {
         password: password
       );
       return result.user;
+    } on FirebaseAuthException catch (e) {
+      debugPrint("Login Error [${e.code}]: ${e.message}");
+      return null;
     } catch (e) {
       debugPrint("Login Error: $e");
+      return null;
+    }
+  }
+
+  // 1b. Sign up with Email & Password
+  Future<User?> signUpWithEmail(String email, String password) async {
+    try {
+      UserCredential result = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return result.user;
+    } on FirebaseAuthException catch (e) {
+      debugPrint("Registration Error [${e.code}]: ${e.message}");
+      return null;
+    } catch (e) {
+      debugPrint("Registration Error: $e");
       return null;
     }
   }
@@ -34,20 +54,27 @@ class AuthService {
   Future<User?> signInWithGoogle() async {
     try {
       await _ensureGoogleSignInInitialized();
-      
-      // For google_sign_in: ^7.2.0, use authenticate()
-      final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
-      
-      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+
+      // For google_sign_in: ^7.2.0, use authenticate() instead of signIn()
+      final GoogleSignInAccount? googleUser = await _googleSignIn.authenticate();
+
+      if (googleUser == null) {
+        debugPrint("Google Sign-In: User cancelled selection.");
+        return null;
+      }
+
+      // authentication is a Future in version 7.x
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
       final credential = GoogleAuthProvider.credential(
         idToken: googleAuth.idToken,
-        // In 7.2.0, accessToken is in a different authorizationClient if needed, 
-        // but idToken is usually enough for Firebase.
       );
 
       UserCredential result = await _auth.signInWithCredential(credential);
       return result.user;
+    } on GoogleSignInException catch (e) {
+      debugPrint("Google Sign-In Error [${e.code}]: ${e.description}");
+      return null;
     } catch (e) {
       debugPrint("Google Sign-In Error: $e");
       return null;

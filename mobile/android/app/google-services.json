@@ -1,37 +1,45 @@
 {
   "project_info": {
-    "project_number": "465237029545",
-    "project_id": "voatmean-app",
-    "storage_bucket": "voatmean-app.firebasestorage.app"
+    "project_number": "119959634609",
+    "project_id": "testing-flutter-3037f",
+    "storage_bucket": "testing-flutter-3037f.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:465237029545:android:15527d3e96585fd0b16fb8",
+        "mobilesdk_app_id": "1:119959634609:android:2da0d2ef5b60dbd1575890",
         "android_client_info": {
           "package_name": "kh.edu.camtech.voatmean.voatmean_mobile"
         }
       },
       "oauth_client": [
         {
-          "client_id": "465237029545-laq6dh8hibooccngb7c7ud3rhblfcm2t.apps.googleusercontent.com",
+          "client_id": "119959634609-emvdkbhpbqkraarmvlqjeriadg65vmgn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "kh.edu.camtech.voatmean.voatmean_mobile",
+            "certificate_hash": "346c762cf53c35a05637d33f56c48e0655fbc66e"
+          }
+        },
+        {
+          "client_id": "119959634609-e7ljfkdebja9pomisdo08s2qne4l2qls.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyC_M4KWckbDEL0A7lorXVk1OX3X9Sua-rk"
+          "current_key": "AIzaSyDnbsGLdz1zJ1L7AUM8leLCU0RQ9WEMPQc"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "465237029545-laq6dh8hibooccngb7c7ud3rhblfcm2t.apps.googleusercontent.com",
+              "client_id": "119959634609-e7ljfkdebja9pomisdo08s2qne4l2qls.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "465237029545-62aqvtdgbno0e78qmuuf8lkjmqalkbjh.apps.googleusercontent.com",
+              "client_id": "119959634609-m218bcsrujafv66ukpjsc6to9mqg0d4s.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
                 "bundle_id": "kh.edu.camtech.voatmean.voatmeanMobile"

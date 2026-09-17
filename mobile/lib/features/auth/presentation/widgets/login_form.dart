@@ -216,6 +216,32 @@ class _LoginFormState extends State<LoginForm> {
             onPressed: () => widget.onSocialLogin('Facebook'),
             height: 44,
           ),
+          const SizedBox(height: 20),
+
+          // 8. Register Link
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "មិនទាន់មានគណនី? ",
+                style: GoogleFonts.kantumruyPro(
+                  fontSize: 12,
+                  color: AppColors.textMuted,
+                ),
+              ),
+              GestureDetector(
+                onTap: () => Navigator.pushNamed(context, '/register'),
+                child: Text(
+                  "ចុះឈ្មោះឥឡូវនេះ",
+                  style: GoogleFonts.kantumruyPro(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

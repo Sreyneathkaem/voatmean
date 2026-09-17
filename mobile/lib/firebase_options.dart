@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -28,15 +25,9 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -50,20 +41,46 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyC_M4KWckbDEL0A7lorXVk1OX3X9Sua-rk',
-    appId: '1:465237029545:android:15527d3e96585fd0b16fb8',
-    messagingSenderId: '465237029545',
-    projectId: 'voatmean-app',
-    storageBucket: 'voatmean-app.firebasestorage.app',
+    apiKey: 'AIzaSyDnbsGLdz1zJ1L7AUM8leLCU0RQ9WEMPQc',
+    appId: '1:119959634609:android:2da0d2ef5b60dbd1575890',
+    messagingSenderId: '119959634609',
+    projectId: 'testing-flutter-3037f',
+    storageBucket: 'testing-flutter-3037f.firebasestorage.app',
+  );
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyCFDssIaGb-9rOArZEwlQVILJ2rwDMsmGU',
+    appId: '1:119959634609:ios:0795bb4b8bba89c7575890',
+    messagingSenderId: '119959634609',
+    projectId: 'testing-flutter-3037f',
+    storageBucket: 'testing-flutter-3037f.firebasestorage.app',
+    iosBundleId: 'kh.edu.camtech.voatmean.voatmeanMobile',
+  );
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyBIxxK70sBKrurQU4bW7KKZbWfh9O0PQIg',
+    appId: '1:119959634609:web:a7afcf0d22f1dada575890',
+    messagingSenderId: '119959634609',
+    projectId: 'testing-flutter-3037f',
+    authDomain: 'testing-flutter-3037f.firebaseapp.com',
+    storageBucket: 'testing-flutter-3037f.firebasestorage.app',
+    measurementId: 'G-Q1L6S8NZS8',
   );
 
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDMd4S5ONeXtGBcBC_zwL-z8KU1Tq6DMfY',
-    appId: '1:465237029545:ios:b0859bb2a83828e9b16fb8',
-    messagingSenderId: '465237029545',
-    projectId: 'voatmean-app',
-    storageBucket: 'voatmean-app.firebasestorage.app',
-    iosClientId: '465237029545-62aqvtdgbno0e78qmuuf8lkjmqalkbjh.apps.googleusercontent.com',
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyCFDssIaGb-9rOArZEwlQVILJ2rwDMsmGU',
+    appId: '1:119959634609:ios:0795bb4b8bba89c7575890',
+    messagingSenderId: '119959634609',
+    projectId: 'testing-flutter-3037f',
+    storageBucket: 'testing-flutter-3037f.firebasestorage.app',
     iosBundleId: 'kh.edu.camtech.voatmean.voatmeanMobile',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyBIxxK70sBKrurQU4bW7KKZbWfh9O0PQIg',
+    appId: '1:119959634609:web:c7234c98baf313a1575890',
+    messagingSenderId: '119959634609',
+    projectId: 'testing-flutter-3037f',
+    authDomain: 'testing-flutter-3037f.firebaseapp.com',
+    storageBucket: 'testing-flutter-3037f.firebasestorage.app',
+    measurementId: 'G-MWXY1WL9N6',
   );
 }
