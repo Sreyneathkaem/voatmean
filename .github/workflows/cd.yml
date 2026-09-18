@@ -1,18 +1,26 @@
 name: CD
 
+# Only run once CI has finished on main, and only deploy if it passed —
+# previously this triggered on every push to main regardless of CI result,
+# so a red build could still get pushed to GHCR as `latest`.
 on:
-  push:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
     branches: [main]
 
 jobs:
   build-and-push:
     name: Build & push backend image
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Lowercase the repository owner
         id: owner
@@ -32,4 +40,4 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ steps.owner.outputs.lc }}/voatmean-backend:latest
-            ghcr.io/${{ steps.owner.outputs.lc }}/voatmean-backend:${{ github.sha }}
+            ghcr.io/${{ steps.owner.outputs.lc }}/voatmean-backend:${{ github.event.workflow_run.head_sha }}
