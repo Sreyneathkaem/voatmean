@@ -42,4 +42,9 @@ class AppColors {
   // Social
   static const Color facebook = Color(0xFF1877F2);
   static const Color googleRed = Color(0xFFEA4335);
+
+  // Status & Actions
+  static const Color success = Color(0xFF059669);
+  static const Color danger = Color(0xFFDC2626);
+  static const Color dangerLight = Color(0xFFFEF2F2);
 }

@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_strings.dart';
-import '../../../../core/utils/validators.dart';
-import '../../../../core/widgets/custom_button.dart';
-import '../../../../core/widgets/custom_text_field.dart';
+import 'package:voatmean_mobile/core/constants/app_colors.dart';
+import 'package:voatmean_mobile/core/constants/app_strings.dart';
+import 'package:voatmean_mobile/core/utils/validators.dart';
+import 'package:voatmean_mobile/core/widgets/custom_button.dart';
+import 'package:voatmean_mobile/core/widgets/custom_text_field.dart';
 
 class LoginForm extends StatefulWidget {
-  final Function(DetectedRole role, String email) onSubmit;
+  final Function(DetectedRole role, String email, String password) onSubmit;
   final Function(String provider) onSocialLogin;
 
   const LoginForm({
@@ -61,12 +61,13 @@ class _LoginFormState extends State<LoginForm> {
 
     setState(() => _isSubmitting = true);
     final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
     final role = _detectedRole ?? DetectedRole.teacher;
 
     Future.delayed(const Duration(milliseconds: 350), () {
       if (!mounted) return;
       setState(() => _isSubmitting = false);
-      widget.onSubmit(role, email);
+      widget.onSubmit(role, email, password);
     });
   }
 
@@ -214,6 +215,32 @@ class _LoginFormState extends State<LoginForm> {
                 size: 18, color: AppColors.facebook),
             onPressed: () => widget.onSocialLogin('Facebook'),
             height: 44,
+          ),
+          const SizedBox(height: 20),
+
+          // 8. Register Link
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "មិនទាន់មានគណនី? ",
+                style: GoogleFonts.kantumruyPro(
+                  fontSize: 12,
+                  color: AppColors.textMuted,
+                ),
+              ),
+              GestureDetector(
+                onTap: () => Navigator.pushNamed(context, '/register'),
+                child: Text(
+                  "ចុះឈ្មោះឥឡូវនេះ",
+                  style: GoogleFonts.kantumruyPro(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

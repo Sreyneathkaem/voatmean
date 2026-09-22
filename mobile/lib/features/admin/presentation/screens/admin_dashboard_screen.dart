@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../../../core/constants/app_colors.dart';
-import '../../../data/models/attendance_session_model.dart';
+import 'package:voatmean_mobile/core/constants/app_colors.dart';
+import '../../data/models/attendance_session_model.dart';
 
 enum DateFilter { today, week, month }
 enum StatusFilter { all, submitted, pending }
