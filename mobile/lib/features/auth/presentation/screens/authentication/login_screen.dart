@@ -52,11 +52,11 @@ class _LoginScreenState extends State<LoginScreen> {
   void _handleLoginSuccess(Map<String, dynamic> userData) {
     final role = userData['role'] ?? 'teacher';
     final email = userData['email'] ?? '';
-    
+
     _showToast('ចូលប្រើប្រាស់ជោគជ័យ!');
-    
-    if (role == 'admin' || role == 'dual') {
-      if (role == 'dual') {
+
+    if (role == 'admin' || role == 'admin_teacher') {
+      if (role == 'admin_teacher') {
         _showDualRoleBottomSheet(email);
       } else {
         widget.onAuthenticated?.call('admin', email);
@@ -272,7 +272,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   constraints: const BoxConstraints(maxWidth: 440),
                   child: Container(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
                     decoration: BoxDecoration(
                       color: AppColors.card,
                       borderRadius: BorderRadius.circular(28),
