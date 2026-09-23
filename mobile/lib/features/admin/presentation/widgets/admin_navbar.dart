@@ -37,9 +37,8 @@ class _AdminMainShellState extends State<AdminMainShell> {
       AdminSettingsScreen(
         onSignOut: () async {
           await _authService.signOut();
-          if (mounted) {
-            Navigator.pushReplacementNamed(context, '/');
-          }
+          if (!context.mounted) return;
+          Navigator.pushReplacementNamed(context, '/');
         },
         onSwitchToTeacherPortal: () {
           Navigator.pushReplacementNamed(context, '/teacher');

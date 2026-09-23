@@ -67,7 +67,7 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
             child: ListView.separated(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               itemCount: _students.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              separatorBuilder: (_, _) => const SizedBox(height: 10),
               itemBuilder: (ctx, index) {
                 final student = _students[index];
                 return Card(

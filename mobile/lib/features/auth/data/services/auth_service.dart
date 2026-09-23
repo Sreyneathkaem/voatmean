@@ -25,15 +25,10 @@ class AuthService {
       
       debugPrint("Google Sign-In: Triggering account picker...");
       // In 7.2.0, use authenticate() instead of signIn()
-      final GoogleSignInAccount? googleUser = await _googleSignIn.authenticate();
+      final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
       
-      if (googleUser == null) {
-        debugPrint("Google Sign-In: Cancelled by user.");
-        return null;
-      }
-
       debugPrint("Google Sign-In: Success. Getting tokens...");
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
       final String? idToken = googleAuth.idToken;
 
       if (idToken == null) {
