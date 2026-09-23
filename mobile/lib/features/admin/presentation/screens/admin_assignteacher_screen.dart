@@ -371,13 +371,15 @@ class _AdminAssignTeacherScreenState extends State<AdminAssignTeacherScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 6,
+                      runSpacing: 4,
                       children: [
                         Text(
                           teacher.nameKhmer,
                           style: GoogleFonts.kantumruyPro(fontSize: 15, fontWeight: FontWeight.bold),
                         ),
-                        const SizedBox(width: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
@@ -391,6 +393,7 @@ class _AdminAssignTeacherScreenState extends State<AdminAssignTeacherScreen> {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 2),
                     Text(
                       '${teacher.name} • ${teacher.gender == 'M' ? 'ប្រុស (Male)' : 'ស្រី (Female)'}',
                       style: TextStyle(fontSize: 11, color: AppColors.textSubtle),

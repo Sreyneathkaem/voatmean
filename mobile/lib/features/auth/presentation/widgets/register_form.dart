@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:voatmean_mobile/core/constants/app_colors.dart';
 import 'package:voatmean_mobile/core/utils/validators.dart';
 import 'package:voatmean_mobile/core/widgets/custom_button.dart';
 import 'package:voatmean_mobile/core/widgets/custom_text_field.dart';
-import 'package:voatmean_mobile/features/auth/data/services/auth_service.dart';
+import '../../data/services/auth_service.dart';
 
 class RegisterForm extends StatefulWidget {
   const RegisterForm({super.key});
@@ -14,42 +16,43 @@ class RegisterForm extends StatefulWidget {
 
 class _RegisterFormState extends State<RegisterForm> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final AuthService _authService = AuthService();
+  final _confirmPasswordController = TextEditingController();
+  final _authService = AuthService();
 
+  bool _obscurePassword = true;
   bool _isSubmitting = false;
 
-  void _onRegister() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isSubmitting = true);
-      
-      final email = _emailController.text.trim();
-      final password = _passwordController.text.trim();
-      
-      final user = await _authService.signUpWithEmail(email, password);
-      
-      if (!mounted) return;
-      setState(() => _isSubmitting = false);
+  void _handleSubmit() async {
+    if (!_formKey.currentState!.validate()) return;
 
-      if (user != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('បង្កើតគណនីជោគជ័យ! សូមចូលប្រើប្រាស់។'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        Navigator.pop(context);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('ការបង្កើតគណនីមិនបានជោគជ័យ។ សូមព្យាយាមម្តងទៀត។'),
-            backgroundColor: Colors.redAccent,
-          ),
-        );
-      }
+    setState(() => _isSubmitting = true);
+
+    final success = await _authService.register(
+      _emailController.text.trim(),
+      _passwordController.text.trim(),
+    );
+
+    if (!mounted) return;
+    setState(() => _isSubmitting = false);
+
+    if (success) {
+      _showToast('កំណត់ពាក្យសម្ងាត់ជោគជ័យ! សូមចូលប្រើប្រាស់។', isError: false);
+      Navigator.pop(context);
+    } else {
+      _showToast('មិនអាចកំណត់ពាក្យសម្ងាត់បានទេ។ សូមពិនិត្យអុីមែលម្តងទៀត។');
     }
+  }
+
+  void _showToast(String message, {bool isError = true}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: GoogleFonts.kantumruyPro(fontSize: 12)),
+        backgroundColor: isError ? AppColors.danger : Colors.green,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
@@ -59,35 +62,45 @@ class _RegisterFormState extends State<RegisterForm> {
       child: Column(
         children: [
           CustomTextField(
-            controller: _nameController,
-            labelText: "Full Name",
-            hintText: "John Doe",
-            validator: (value) => Validators.validateRequired(value, "ឈ្មោះពេញ"),
-            prefixIcon: const Icon(LucideIcons.user, size: 18),
-          ),
-          const SizedBox(height: 20),
-          CustomTextField(
             controller: _emailController,
-            labelText: "Email",
-            hintText: "example@mail.com",
+            labelText: 'អុីមែល (Email)',
+            hintText: 'បញ្ចូលអុីមែលដែលបានចុះឈ្មោះ',
             validator: Validators.validateEmail,
-            keyboardType: TextInputType.emailAddress,
             prefixIcon: const Icon(LucideIcons.mail, size: 18),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           CustomTextField(
             controller: _passwordController,
-            labelText: "Password",
-            hintText: "••••••••",
+            labelText: 'ពាក្យសម្ងាត់ថ្មី (New Password)',
+            hintText: '••••••••',
+            obscureText: _obscurePassword,
             validator: Validators.validatePassword,
-            obscureText: true,
             prefixIcon: const Icon(LucideIcons.lock, size: 18),
+          ),
+          const SizedBox(height: 16),
+          CustomTextField(
+            controller: _confirmPasswordController,
+            labelText: 'បញ្ជាក់ពាក្យសម្ងាត់ (Confirm Password)',
+            hintText: '••••••••',
+            obscureText: _obscurePassword,
+            validator: (val) {
+              if (val != _passwordController.text) return 'ពាក្យសម្ងាត់មិនដូចគ្នាទេ';
+              return null;
+            },
+            prefixIcon: const Icon(LucideIcons.shieldCheck, size: 18),
+            suffixIcon: IconButton(
+              icon: Icon(
+                _obscurePassword ? LucideIcons.eyeOff : LucideIcons.eye,
+                size: 18,
+              ),
+              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+            ),
           ),
           const SizedBox(height: 32),
           CustomButton(
-            text: "Sign Up",
+            text: 'កំណត់ពាក្យសម្ងាត់',
+            onPressed: _handleSubmit,
             isLoading: _isSubmitting,
-            onPressed: _onRegister,
           ),
         ],
       ),

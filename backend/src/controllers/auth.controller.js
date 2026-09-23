@@ -1,5 +1,6 @@
 const { securityLogger } = require("../config/logger");
 const { OAuth2Client } = require("google-auth-library");
+const bcrypt = require("bcryptjs");
 const { query } = require("../config/db");
 const { AuditLog } = require("../config/mongo");
 const { createSession, getSession, deleteSession } = require("../config/redis");
@@ -16,10 +17,7 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const normalizeEmail = (value) => (value || "").trim().toLowerCase();
 
-// Turn a verified Google user into a logged-in session:
-//  • mint a unique session id (jti)
-//  • store the session in Redis (revocable, expiring)
-//  • set ONE HttpOnly session cookie (the JWT is never exposed to JS)
+// Turn a verified user into a logged-in session:
 const startSession = async (res, user, picture) => {
   const jti = newJti();
   const payload = { user_id: user.user_id, email: user.email, role: user.role };
@@ -39,10 +37,10 @@ const startSession = async (res, user, picture) => {
   return { user_id: user.user_id, name: user.full_name, email: user.email, role: user.role, avatar: picture };
 };
 
-// POST /api/auth/google — Body: { credential } (Google ID token)
+// POST /api/auth/google — Body: { idToken }
 const googleLogin = async (req, res, next) => {
   try {
-    const credential = req.body.credential || req.body.idToken;
+    const credential = req.body.idToken;
     if (!credential)
       return res.status(400).json({ error: "Google credential is required" });
 
@@ -73,10 +71,6 @@ const googleLogin = async (req, res, next) => {
     }
 
     const user = rows[0];
-    if (user.email !== normalizedEmailValue) {
-      await query(`UPDATE users SET email = $2 WHERE user_id = $1`, [user.user_id, normalizedEmailValue]);
-    }
-
     const me = await startSession(res, user, picture);
 
     AuditLog.create({
@@ -84,20 +78,98 @@ const googleLogin = async (req, res, next) => {
       performed_by: { user_id: user.user_id, name: user.full_name, role: user.role },
     }).catch(() => {});
 
-    securityLogger.info({
-      event: "login", who: user.email, what: "/api/auth/google",
-      outcome: "success", ip: req.ip, timestamp: new Date().toISOString(),
-    });
-
     res.json({ user: me });
   } catch (err) {
     next(err);
   }
 };
 
-// POST /api/auth/logout — clears the session cookie completely AND deletes
-// the session from Redis. After this, even a captured token is worthless
-// because the server-side session no longer exists.
+// POST /api/auth/login — Body: { email, password }
+const login = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password are required" });
+    }
+
+    const normalizedEmailValue = normalizeEmail(email);
+
+    const { rows } = await query(
+      `SELECT u.user_id, u.email, u.full_name, u.role, u.password_hash
+       FROM users u
+       WHERE LOWER(u.email) = LOWER($1)`,
+      [normalizedEmailValue]
+    );
+
+    if (rows.length === 0) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    const user = rows[0];
+
+    if (!user.password_hash) {
+      return res.status(401).json({ error: "Account not activated. Please set your password first." });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password_hash);
+    if (!isMatch) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    const me = await startSession(res, user, null);
+    res.json({ user: me });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// POST /api/auth/register — Set password for an existing whitelisted email
+const register = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password are required" });
+    }
+
+    const normalizedEmailValue = normalizeEmail(email);
+
+    // 1. Check if the user is in the whitelisted users table
+    const { rows } = await query(
+      `SELECT user_id, password_hash FROM users WHERE LOWER(email) = LOWER($1)`,
+      [normalizedEmailValue]
+    );
+
+    if (rows.length === 0) {
+      return res.status(403).json({ error: "Your email is not in the system. Please contact Admin." });
+    }
+
+    const user = rows[0];
+
+    // 2. Prevent overwriting if already registered (optional, or allow reset)
+    if (user.password_hash) {
+      return res.status(400).json({ error: "Account already active. Use Forgot Password if needed." });
+    }
+
+    // 3. Hash the new password and update the user record
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(password, salt);
+
+    await query(
+      `UPDATE users SET password_hash = $1 WHERE user_id = $2`,
+      [hash, user.user_id]
+    );
+
+    securityLogger.info({
+      event: "registration", who: normalizedEmailValue, what: "/api/auth/register",
+      outcome: "success", ip: req.ip, timestamp: new Date().toISOString(),
+    });
+
+    res.json({ message: "Account activated successfully! You can now log in." });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const logout = async (req, res, next) => {
   try {
     const token = req.cookies[SESSION_COOKIE];
@@ -105,42 +177,27 @@ const logout = async (req, res, next) => {
     if (token) {
       try {
         jti = verifyToken(token).jti;
-      } catch {
-        /* expired/invalid token — still clear the cookie below */
-      }
+      } catch { /* ignore */ }
     }
-
     if (jti) await deleteSession(jti);
-
-    // Expire the cookie immediately so the browser drops it.
     res.clearCookie(SESSION_COOKIE, clearSessionCookie);
-
-    securityLogger.info({
-      event: "logout", who: req.user?.user_id || jti || "unknown",
-      what: "/api/auth/logout", outcome: "success", ip: req.ip,
-      timestamp: new Date().toISOString(),
-    });
-
     res.json({ message: "Logged out" });
   } catch (err) {
     next(err);
   }
 };
 
-// GET /api/auth/me — returns the current user from the session cookie.
 const getMe = async (req, res, next) => {
   try {
     const { rows } = await query(
-      `SELECT u.user_id, u.email, u.full_name, u.role
-       FROM users u WHERE u.user_id = $1`,
+      `SELECT u.user_id, u.email, u.full_name, u.role FROM users u WHERE u.user_id = $1`,
       [req.user.user_id]
     );
     if (!rows.length) return res.status(404).json({ error: "User not found" });
-    const u = rows[0];
-    res.json({ user_id: u.user_id, name: u.full_name, email: u.email, role: u.role });
+    res.json(rows[0]);
   } catch (err) {
     next(err);
   }
 };
 
-module.exports = { googleLogin, logout, getMe };
+module.exports = { googleLogin, login, register, logout, getMe };

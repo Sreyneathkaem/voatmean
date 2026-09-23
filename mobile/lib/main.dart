@@ -1,72 +1,68 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-  import 'package:flutter/material.dart';
-  import 'package:google_fonts/google_fonts.dart';
-  import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'core/constants/app_colors.dart';
+import 'core/constants/app_strings.dart';
+import 'features/admin/presentation/widgets/admin_navbar.dart';
+import 'features/auth/presentation/screens/authentication/login_screen.dart';
+import 'features/auth/presentation/screens/authentication/register_screen.dart';
+import 'features/teacher/presentation/widgets/teacher_navbar.dart';
 
-  import 'firebase_options.dart';
-  import 'core/constants/app_colors.dart';
-  import 'core/constants/app_strings.dart';
-  import 'features/admin/presentation/widgets/admin_navbar.dart';
-  import 'features/auth/presentation/screens/authentication/login_screen.dart';
-  import 'features/auth/presentation/screens/authentication/register_screen.dart';
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-    Future<void> main() async {
-    WidgetsFlutterBinding.ensureInitialized();
-
-    try {
+  try {
     await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-      );
-
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
     debugPrint('Firebase initialized successfully');
-    } catch (e, stackTrace) {
+  } catch (e, stackTrace) {
     debugPrint('Firebase initialization failed: $e');
     debugPrintStack(stackTrace: stackTrace);
-    }
+  }
 
-    runApp(const VoatmeanApp());
-    }
+  runApp(const VoatmeanApp());
+}
 
-    class VoatmeanApp extends StatelessWidget {
-      const VoatmeanApp({super.key});
+class VoatmeanApp extends StatelessWidget {
+  const VoatmeanApp({super.key});
 
-      @override
-      Widget build(BuildContext context) {
-        return MaterialApp(
-          title: '${AppStrings.appName} • វត្តមាន',
-          debugShowCheckedModeBanner: false,
-
-          theme: ThemeData(
-            useMaterial3: true,
-            scaffoldBackgroundColor: AppColors.background,
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: AppColors.primary,
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: '${AppStrings.appName} • វត្តមាន',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
+        scaffoldBackgroundColor: AppColors.background,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: AppColors.primary,
+        ),
+        textTheme: GoogleFonts.kantumruyProTextTheme(
+          ThemeData.light().textTheme,
+        ),
+      ),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => LoginScreen(
+              onAuthenticated: (role, email) {
+                if (role == 'admin') {
+                  Navigator.pushReplacementNamed(context, '/admin');
+                } else {
+                  Navigator.pushReplacementNamed(context, '/teacher');
+                }
+                
+                if (role != 'admin' && role != 'teacher') {
+                  debugPrint('Logged in as $role: $email');
+                }
+              },
             ),
-            textTheme: GoogleFonts.kantumruyProTextTheme(
-              ThemeData
-                  .light()
-                  .textTheme,
-            ),
-          ),
-
-          initialRoute: '/',
-
-          routes: {
-            '/': (context) =>
-                LoginScreen(
-                  onAuthenticated: (role, email) {
-                    Navigator.pushReplacementNamed(
-                      context,
-                      '/admin',
-                    );
-                  },
-                ),
-
-            '/register': (context) => const RegisterScreen(),
-
-            '/admin': (context) => const AdminMainShell(),
-          },
-        );
-      }
-    }
-
+        '/register': (context) => const RegisterScreen(),
+        '/admin': (context) => const AdminMainShell(),
+        '/teacher': (context) => const TeacherMainShell(),
+      },
+    );
+  }
+}

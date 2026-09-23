@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-
 import 'package:voatmean_mobile/core/constants/app_colors.dart';
 import 'package:voatmean_mobile/core/constants/app_strings.dart';
 import 'package:voatmean_mobile/core/utils/validators.dart';
@@ -24,12 +23,10 @@ class LoginForm extends StatefulWidget {
 
 class _LoginFormState extends State<LoginForm> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController =
-      TextEditingController(text: 'sok.samnang@school.edu');
-  final _passwordController = TextEditingController(text: 'password123');
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   bool _obscurePassword = true;
-  bool _rememberMe = true;
   bool _isSubmitting = false;
 
   DetectedRole? _detectedRole;
@@ -38,7 +35,6 @@ class _LoginFormState extends State<LoginForm> {
   void initState() {
     super.initState();
     _emailController.addListener(_onEmailChanged);
-    _onEmailChanged();
   }
 
   @override
@@ -64,10 +60,13 @@ class _LoginFormState extends State<LoginForm> {
     final password = _passwordController.text.trim();
     final role = _detectedRole ?? DetectedRole.teacher;
 
-    Future.delayed(const Duration(milliseconds: 350), () {
-      if (!mounted) return;
-      setState(() => _isSubmitting = false);
-      widget.onSubmit(role, email, password);
+    widget.onSubmit(role, email, password);
+    
+    // We don't reset _isSubmitting here because the parent LoginScreen 
+    // will handle the loading state or navigation.
+    // However, to be safe if login fails:
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) setState(() => _isSubmitting = false);
     });
   }
 
@@ -110,60 +109,7 @@ class _LoginFormState extends State<LoginForm> {
                   setState(() => _obscurePassword = !_obscurePassword),
             ),
           ),
-          const SizedBox(height: 10),
-
-          // 3. Remember Me & Forgot Password
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: Checkbox(
-                      value: _rememberMe,
-                      activeColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4)),
-                      side: const BorderSide(color: AppColors.borderHover),
-                      onChanged: (v) => setState(() => _rememberMe = v ?? true),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    AppStrings.rememberMe,
-                    style: GoogleFonts.kantumruyPro(
-                      fontSize: 12,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-              GestureDetector(
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'តំណភ្ជាប់កំណត់ពាក្យសម្ងាត់ត្រូវបានផ្ញើ',
-                        style: GoogleFonts.kantumruyPro(),
-                      ),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                },
-                child: Text(
-                  AppStrings.forgotPassword,
-                  style: GoogleFonts.kantumruyPro(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.primary,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
 
           // 4. Submit Button
           CustomButton(
@@ -172,7 +118,7 @@ class _LoginFormState extends State<LoginForm> {
             icon: const Icon(LucideIcons.logIn, size: 16),
             onPressed: _handleFormSubmit,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
 
           // 5. Divider
           Row(
@@ -191,7 +137,7 @@ class _LoginFormState extends State<LoginForm> {
               const Expanded(child: Divider(color: AppColors.border)),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
 
           // 6. Google Sign-In Button
           CustomButton(
@@ -201,46 +147,31 @@ class _LoginFormState extends State<LoginForm> {
             textColor: AppColors.textSecondary,
             icon: _buildGoogleIcon(),
             onPressed: () => widget.onSocialLogin('Google'),
-            height: 44,
+            height: 52,
           ),
-          const SizedBox(height: 10),
-
-          // 7. Facebook Sign-In Button
-          CustomButton(
-            text: AppStrings.facebookSignIn,
-            isOutlined: true,
-            backgroundColor: Colors.white,
-            textColor: AppColors.textSecondary,
-            icon: const Icon(Icons.facebook,
-                size: 18, color: AppColors.facebook),
-            onPressed: () => widget.onSocialLogin('Facebook'),
-            height: 44,
-          ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
 
           // 8. Register Link
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "មិនទាន់មានគណនី? ",
-                style: GoogleFonts.kantumruyPro(
-                  fontSize: 12,
-                  color: AppColors.textMuted,
+          Center(
+            child: GestureDetector(
+              onTap: () => Navigator.pushNamed(context, '/register'),
+              child: RichText(
+                text: TextSpan(
+                  text: 'ចូលប្រើប្រាស់លើកដំបូង? ',
+                  style: GoogleFonts.kantumruyPro(fontSize: 12, color: AppColors.textMuted),
+                  children: [
+                    TextSpan(
+                      text: 'កំណត់ពាក្យសម្ងាត់',
+                      style: GoogleFonts.kantumruyPro(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              GestureDetector(
-                onTap: () => Navigator.pushNamed(context, '/register'),
-                child: Text(
-                  "ចុះឈ្មោះឥឡូវនេះ",
-                  style: GoogleFonts.kantumruyPro(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ],
       ),
@@ -248,7 +179,7 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   Widget? _buildRoleBadge() {
-    if (_detectedRole == null) return null;
+    if (_detectedRole == null || _emailController.text.isEmpty) return null;
 
     Color bg;
     Color border;
@@ -307,8 +238,8 @@ class _LoginFormState extends State<LoginForm> {
 
   Widget _buildGoogleIcon() {
     return SizedBox(
-      width: 18,
-      height: 18,
+      width: 20,
+      height: 20,
       child: CustomPaint(painter: _GoogleIconPainter()),
     );
   }

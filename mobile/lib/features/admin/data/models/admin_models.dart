@@ -111,3 +111,29 @@ class TeacherModel {
     );
   }
 }
+
+class StudentModel {
+  final String id;
+  final String studentId; // School ID (e.g. S12345)
+  final String name;
+  final String nameKhmer;
+  final String gender;
+  final String phone;
+  final String currentClass;
+  final String guardianPhone;
+  final String status;
+  final String avatarUrl;
+
+  StudentModel({
+    required this.id,
+    required this.studentId,
+    required this.name,
+    required this.nameKhmer,
+    required this.gender,
+    required this.phone,
+    required this.currentClass,
+    required this.guardianPhone,
+    this.status = 'active',
+    required this.avatarUrl,
+  });
+}

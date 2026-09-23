@@ -1,10 +1,11 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/foundation.dart';
+import 'package:dio/dio.dart';
+import '../../../../core/services/api_service.dart';
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+  final Dio _dio = ApiService().dio;
   bool _isGoogleSignInInitialized = false;
 
   Future<void> _ensureGoogleSignInInitialized() async {
@@ -16,70 +17,102 @@ class AuthService {
     }
   }
 
-  // 1. Sign in with Email & Password
-  Future<User?> signInWithEmail(String email, String password) async {
+  // 1. Login with Google -> Our Backend
+  Future<Map<String, dynamic>?> signInWithGoogle() async {
     try {
-      UserCredential result = await _auth.signInWithEmailAndPassword(
-        email: email, 
-        password: password
-      );
-      return result.user;
-    } on FirebaseAuthException catch (e) {
-      debugPrint("Login Error [${e.code}]: ${e.message}");
-      return null;
-    } catch (e) {
-      debugPrint("Login Error: $e");
-      return null;
-    }
-  }
-
-  // 1b. Sign up with Email & Password
-  Future<User?> signUpWithEmail(String email, String password) async {
-    try {
-      UserCredential result = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      return result.user;
-    } on FirebaseAuthException catch (e) {
-      debugPrint("Registration Error [${e.code}]: ${e.message}");
-      return null;
-    } catch (e) {
-      debugPrint("Registration Error: $e");
-      return null;
-    }
-  }
-
-  // 2. Sign in with Google
-  Future<User?> signInWithGoogle() async {
-    try {
+      debugPrint("Google Sign-In: Initializing...");
       await _ensureGoogleSignInInitialized();
+      
+      debugPrint("Google Sign-In: Triggering account picker...");
+      // In 7.2.0, use authenticate() instead of signIn()
+      final GoogleSignInAccount? googleUser = await _googleSignIn.authenticate();
+      
+      if (googleUser == null) {
+        debugPrint("Google Sign-In: Cancelled by user.");
+        return null;
+      }
 
-      // For google_sign_in: ^7.2.0, use authenticate() instead of signIn()
-      final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
+      debugPrint("Google Sign-In: Success. Getting tokens...");
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final String? idToken = googleAuth.idToken;
 
-      // authentication is not a Future in version 7.x
-      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+      if (idToken == null) {
+        debugPrint("Google Sign-In: Could not obtain idToken.");
+        return null;
+      }
 
-      final credential = GoogleAuthProvider.credential(
-        idToken: googleAuth.idToken,
-      );
+      debugPrint("Google Sign-In: Sending idToken to backend...");
+      final response = await _dio.post('/api/auth/google', data: {'idToken': idToken});
 
-      UserCredential result = await _auth.signInWithCredential(credential);
-      return result.user;
-    } on GoogleSignInException catch (e) {
-      debugPrint("Google Sign-In Error [${e.code}]: ${e.description}");
+      if (response.statusCode == 200 && response.data is Map) {
+        return response.data['user'];
+      }
+      
+      debugPrint("Google Sign-In: Backend error: ${response.data}");
       return null;
     } catch (e) {
-      debugPrint("Google Sign-In Error: $e");
+      debugPrint("Google Sign-In Exception: $e");
       return null;
     }
   }
 
-  // 3. Sign Out
+  // 2. Login with Email/Password -> Our Backend
+  Future<Map<String, dynamic>?> signInWithEmail(String email, String password) async {
+    try {
+      debugPrint("Email Login: Sending request for $email...");
+      final response = await _dio.post('/api/auth/login', data: {
+        'email': email,
+        'password': password,
+      });
+
+      debugPrint("Email Login: Backend response status: ${response.statusCode}");
+      if (response.statusCode == 200 && response.data is Map) {
+        return response.data['user'];
+      }
+      
+      _handleDioError(response);
+      return null;
+    } catch (e) {
+      debugPrint("Email Login Exception: $e");
+      return null;
+    }
+  }
+
+  // 3. Register (Activate Account)
+  Future<bool> register(String email, String password) async {
+    try {
+      debugPrint("Registration: Activating account for $email...");
+      final response = await _dio.post('/api/auth/register', data: {
+        'email': email,
+        'password': password,
+      });
+
+      debugPrint("Registration: Backend response status: ${response.statusCode}");
+      if (response.statusCode == 200) return true;
+      
+      _handleDioError(response);
+      return false;
+    } catch (e) {
+      debugPrint("Registration Exception: $e");
+      return false;
+    }
+  }
+
+  // 4. Sign Out
   Future<void> signOut() async {
-    await _auth.signOut();
-    // For google_sign_in: ^7.2.0, signOut is available on the instance
-    await _googleSignIn.signOut();
+    try {
+      await _dio.post('/api/auth/logout');
+      await _googleSignIn.signOut();
+    } catch (e) {
+      debugPrint("SignOut Error: $e");
+    }
+  }
+
+  void _handleDioError(Response response) {
+    String msg = "Unknown error";
+    if (response.data is Map) {
+      msg = response.data['error'] ?? msg;
+    }
+    debugPrint("Auth API Error: $msg");
   }
 }

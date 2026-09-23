@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:voatmean_mobile/core/constants/app_colors.dart';
+import 'package:voatmean_mobile/features/auth/data/services/auth_service.dart';
 import '../screens/admin_dashboard_screen.dart';
 import '../screens/admin_assignclass_screen.dart';
 import '../screens/admin_assignteacher_screen.dart';
+import '../screens/admin_students_screen.dart';
 import '../screens/admin_settings_screen.dart';
 
 class AdminMainShell extends StatefulWidget {
@@ -17,6 +19,7 @@ class AdminMainShell extends StatefulWidget {
 
 class _AdminMainShellState extends State<AdminMainShell> {
   late int _currentIndex;
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
@@ -30,18 +33,16 @@ class _AdminMainShellState extends State<AdminMainShell> {
       const AdminDashboardScreen(),
       const AdminAssignClassScreen(),
       const AdminAssignTeacherScreen(),
+      const AdminStudentsScreen(),
       AdminSettingsScreen(
-        onSignOut: () {
-          Navigator.pushReplacementNamed(context, '/');
+        onSignOut: () async {
+          await _authService.signOut();
+          if (mounted) {
+            Navigator.pushReplacementNamed(context, '/');
+          }
         },
         onSwitchToTeacherPortal: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('បានប្តូរទៅកាន់ផ្ទាំងគ្រូបង្រៀន (Teacher Portal)'),
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: AppColors.primary,
-            ),
-          );
+          Navigator.pushReplacementNamed(context, '/teacher');
         },
       ),
     ];
@@ -96,6 +97,11 @@ class AdminMainShellNavBar extends StatelessWidget {
             icon: Icon(LucideIcons.users),
             selectedIcon: Icon(LucideIcons.users, color: AppColors.primary),
             label: 'គ្រូបង្រៀន',
+          ),
+          NavigationDestination(
+            icon: Icon(LucideIcons.graduationCap),
+            selectedIcon: Icon(LucideIcons.graduationCap, color: AppColors.primary),
+            label: 'សិស្ស',
           ),
           NavigationDestination(
             icon: Icon(LucideIcons.settings),

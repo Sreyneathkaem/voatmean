@@ -19,24 +19,15 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final AuthService _authService = AuthService();
+  bool _isLoading = false;
 
   void _onFormSubmit(DetectedRole role, String email, String password) async {
-    // 1. Authenticate with Firebase first
-    final user = await _authService.signInWithEmail(email, password);
+    setState(() => _isLoading = true);
+    final userData = await _authService.signInWithEmail(email, password);
+    setState(() => _isLoading = false);
 
-    if (user != null) {
-      // 2. Handle role selection logic
-      if (role == DetectedRole.dual) {
-        _showDualRoleBottomSheet(email);
-      } else {
-        final roleStr = role == DetectedRole.admin ? 'admin' : 'teacher';
-        _showToast(
-          role == DetectedRole.admin
-              ? 'ចូលប្រើប្រាស់ជោគជ័យក្នុងនាមជា អ្នកគ្រប់គ្រង (Admin)'
-              : 'ចូលប្រើប្រាស់ជោគជ័យក្នុងនាមជា គ្រូបង្រៀន (Teacher)',
-        );
-        widget.onAuthenticated?.call(roleStr, email);
-      }
+    if (userData != null) {
+      _handleLoginSuccess(userData);
     } else {
       _showToast('ការចូលមិនបានជោគជ័យ! សូមពិនិត្យអុីមែល និងពាក្យសម្ងាត់ឡើងវិញ។');
     }
@@ -44,16 +35,34 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _onSocialLogin(String provider) async {
     if (provider == 'Google') {
-      final user = await _authService.signInWithGoogle();
-      if (user != null) {
-        _showToast('ចូលប្រើប្រាស់តាម Google ជោគជ័យ!');
-        // For Google, we'll default to teacher or check their custom claims/database later
-        widget.onAuthenticated?.call('teacher', user.email ?? '');
+      setState(() => _isLoading = true);
+      final userData = await _authService.signInWithGoogle();
+      setState(() => _isLoading = false);
+
+      if (userData != null) {
+        _handleLoginSuccess(userData);
       } else {
         _showToast('ការចូលតាម Google ត្រូវបានបោះបង់ ឬបរាជ័យ។');
       }
     } else {
-      _showToast('ចូលប្រើប្រាស់តាម $provider មិនទាន់ត្រូវបានគាំទ្រពេញលេញនៅឡើយទេ។');
+      _showToast('ចូលប្រើប្រាស់តាម $provider មិនទាន់ត្រូវបានគាំទ្រនៅឡើយទេ។');
+    }
+  }
+
+  void _handleLoginSuccess(Map<String, dynamic> userData) {
+    final role = userData['role'] ?? 'teacher';
+    final email = userData['email'] ?? '';
+    
+    _showToast('ចូលប្រើប្រាស់ជោគជ័យ!');
+    
+    if (role == 'admin' || role == 'dual') {
+      if (role == 'dual') {
+        _showDualRoleBottomSheet(email);
+      } else {
+        widget.onAuthenticated?.call('admin', email);
+      }
+    } else {
+      widget.onAuthenticated?.call('teacher', email);
     }
   }
 
@@ -254,55 +263,65 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 440),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
-                decoration: BoxDecoration(
-                  color: AppColors.card,
-                  borderRadius: BorderRadius.circular(28),
-                  border: Border.all(color: AppColors.border),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF64748B).withValues(alpha: 0.08),
-                      blurRadius: 24,
-                      offset: const Offset(0, 10),
+        child: Stack(
+          children: [
+            Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 440),
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+                    decoration: BoxDecoration(
+                      color: AppColors.card,
+                      borderRadius: BorderRadius.circular(28),
+                      border: Border.all(color: AppColors.border),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF64748B).withValues(alpha: 0.08),
+                          blurRadius: 24,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Logo & Headers
-                    _buildHeader(),
-                    const SizedBox(height: 20),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Logo & Headers
+                        _buildHeader(),
+                        const SizedBox(height: 32),
 
-                    // Credentials form & Social buttons
-                    LoginForm(
-                      onSubmit: _onFormSubmit,
-                      onSocialLogin: _onSocialLogin,
-                    ),
-                    const SizedBox(height: 16),
+                        LoginForm(
+                          onSubmit: _onFormSubmit,
+                          onSocialLogin: _onSocialLogin,
+                        ),
+                        const SizedBox(height: 16),
 
-                    // Footer Notice
-                    Text(
-                      AppStrings.footerNotice,
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.kantumruyPro(
-                        fontSize: 11,
-                        color: AppColors.textMuted,
-                        height: 1.5,
-                      ),
+                        // Footer Notice
+                        Text(
+                          AppStrings.footerNotice,
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.kantumruyPro(
+                            fontSize: 11,
+                            color: AppColors.textMuted,
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
+            if (_isLoading)
+              Container(
+                color: Colors.black26,
+                child: const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+          ],
         ),
       ),
     );

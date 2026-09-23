@@ -44,6 +44,7 @@ class Validators {
         clean.contains('teacher.admin') ||
         clean == 'admin.teacher@voatmean.edu.kh' ||
         clean == 'makra.seng@voatmean.edu.kh' ||
+        clean == 'sreyneathk24@gmail.com' ||
         (clean.contains('admin') && clean.contains('teacher'))) {
       return DetectedRole.dual;
     } else if (clean.contains('admin') ||
