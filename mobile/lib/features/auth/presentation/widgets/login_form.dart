@@ -188,7 +188,7 @@ class _LoginFormState extends State<LoginForm> {
                         },
                         borderRadius: BorderRadius.circular(10),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
                           decoration: BoxDecoration(
                             color: AppColors.blueBg,
                             borderRadius: BorderRadius.circular(10),
@@ -199,12 +199,18 @@ class _LoginFormState extends State<LoginForm> {
                             children: [
                               const Icon(LucideIcons.shield, size: 14, color: AppColors.blueText),
                               const SizedBox(width: 6),
-                              Text(
-                                'Admin (គ្រប់គ្រង)',
-                                style: GoogleFonts.kantumruyPro(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.blueText,
+                              Flexible(
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    'Admin (គ្រប់គ្រង)',
+                                    maxLines: 1,
+                                    style: GoogleFonts.kantumruyPro(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.blueText,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ],
@@ -222,7 +228,7 @@ class _LoginFormState extends State<LoginForm> {
                         },
                         borderRadius: BorderRadius.circular(10),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
                           decoration: BoxDecoration(
                             color: AppColors.emeraldBg,
                             borderRadius: BorderRadius.circular(10),
@@ -233,12 +239,18 @@ class _LoginFormState extends State<LoginForm> {
                             children: [
                               const Icon(LucideIcons.graduationCap, size: 14, color: AppColors.emeraldText),
                               const SizedBox(width: 6),
-                              Text(
-                                'Teacher (គ្រូ)',
-                                style: GoogleFonts.kantumruyPro(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.emeraldText,
+                              Flexible(
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    'Teacher (គ្រូ)',
+                                    maxLines: 1,
+                                    style: GoogleFonts.kantumruyPro(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.emeraldText,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ],
