@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../constants/app_colors.dart';
+import '../constants/app_typography.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -48,8 +48,7 @@ class CustomTextField extends StatelessWidget {
                 child: Text(
                   effectiveLabel,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.kantumruyPro(
-                    fontSize: 12,
+                  style: AppTypography.labelSmall.copyWith(
                     fontWeight: FontWeight.w600,
                     color: AppColors.textSecondary,
                   ),
@@ -64,14 +63,19 @@ class CustomTextField extends StatelessWidget {
           obscureText: obscureText,
           keyboardType: keyboardType,
           validator: validator,
-          style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
+          style: AppTypography.font(
+            fontSize: 14,
+            color: AppColors.textPrimary,
+            height: 1.4,
+          ),
           decoration: InputDecoration(
             prefixIcon: prefixIcon,
             suffixIcon: suffixIcon,
             hintText: effectiveHint,
-            hintStyle: GoogleFonts.kantumruyPro(
-              fontSize: 12,
+            hintStyle: AppTypography.font(
+              fontSize: 13,
               color: AppColors.textSubtle,
+              height: 1.4,
             ),
             filled: true,
             fillColor: AppColors.inputBg,

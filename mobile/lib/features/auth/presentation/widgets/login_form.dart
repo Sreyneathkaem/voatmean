@@ -149,7 +149,109 @@ class _LoginFormState extends State<LoginForm> {
             onPressed: () => widget.onSocialLogin('Google'),
             height: 52,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
+
+          // Quick Demo Shortcuts
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.slateBg,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(LucideIcons.sparkles, size: 14, color: AppColors.primary),
+                    const SizedBox(width: 6),
+                    Text(
+                      'ចូលសាកល្បងរហ័ស (Quick Demo):',
+                      style: GoogleFonts.kantumruyPro(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: InkWell(
+                        onTap: () {
+                          _emailController.text = 'admin@voatmean.edu.kh';
+                          _passwordController.text = 'admin123';
+                          _handleFormSubmit();
+                        },
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          decoration: BoxDecoration(
+                            color: AppColors.blueBg,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: AppColors.blueBorder),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(LucideIcons.shield, size: 14, color: AppColors.blueText),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Admin (គ្រប់គ្រង)',
+                                style: GoogleFonts.kantumruyPro(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.blueText,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: InkWell(
+                        onTap: () {
+                          _emailController.text = 'teacher@voatmean.edu.kh';
+                          _passwordController.text = 'teacher123';
+                          _handleFormSubmit();
+                        },
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          decoration: BoxDecoration(
+                            color: AppColors.emeraldBg,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: AppColors.emeraldBorder),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(LucideIcons.graduationCap, size: 14, color: AppColors.emeraldText),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Teacher (គ្រូ)',
+                                style: GoogleFonts.kantumruyPro(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.emeraldText,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
 
           // 8. Register Link
           Center(

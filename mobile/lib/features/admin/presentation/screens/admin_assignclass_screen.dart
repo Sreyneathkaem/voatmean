@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:voatmean_mobile/core/constants/app_colors.dart';
+import 'package:voatmean_mobile/core/constants/app_typography.dart';
 import '../../data/models/admin_models.dart';
 import '../widgets/admin_modals.dart';
 
@@ -101,16 +101,37 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
     }).toList();
   }
 
-  void _deleteClass(String id) {
-    setState(() {
-      _classes.removeWhere((c) => c.id == id);
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('បានលុបថ្នាក់រៀនដោយជោគជ័យ',
-            style: GoogleFonts.kantumruyPro()),
-        backgroundColor: Colors.redAccent,
-        behavior: SnackBarBehavior.floating,
+  void _deleteClass(String id, String className) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text('លុបថ្នាក់រៀន?', style: AppTypography.titleMedium),
+        content: Text('តើអ្នកប្រាកដថាចង់លុបថ្នាក់ $className?', style: AppTypography.bodyMedium),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('បោះបង់', style: AppTypography.labelMedium.copyWith(color: AppColors.textMuted)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _classes.removeWhere((c) => c.id == id);
+              });
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('បានលុបថ្នាក់រៀនដោយជោគជ័យ', style: AppTypography.bodySmall.copyWith(color: Colors.white)),
+                  backgroundColor: AppColors.danger,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger, foregroundColor: Colors.white),
+            child: Text('លុប', style: AppTypography.labelMedium.copyWith(color: Colors.white)),
+          ),
+        ],
       ),
     );
   }
@@ -206,12 +227,8 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
-          'ចាត់តាំងវគ្គសិក្សា (Course Assignment)',
-          style: GoogleFonts.kantumruyPro(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-            color: AppColors.textPrimary,
-          ),
+          'ចាត់តាំងថ្នាក់រៀន',
+          style: AppTypography.titleMedium,
         ),
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
@@ -244,8 +261,9 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(color: AppColors.border),
+        boxShadow: AppColors.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -253,46 +271,52 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  const Icon(LucideIcons.graduationCap,
-                      color: AppColors.primary, size: 24),
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'ចាត់តាំងវគ្គសិក្សា និងគ្រូ',
-                        style: GoogleFonts.kantumruyPro(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryLight,
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      Text(
-                        'គ្រប់គ្រងការបែងចែកថ្នាក់រៀន និងម៉ោងបង្រៀន',
-                        style: GoogleFonts.kantumruyPro(
-                          fontSize: 11,
-                          color: AppColors.textMuted,
-                        ),
+                      child: const Icon(LucideIcons.graduationCap,
+                          color: AppColors.primary, size: 20),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'ចាត់តាំងវគ្គសិក្សា និងគ្រូ',
+                            style: AppTypography.titleSmall,
+                          ),
+                          Text(
+                            'គ្រប់គ្រងការបែងចែកថ្នាក់រៀន និងម៉ោងបង្រៀន',
+                            style: AppTypography.caption,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               ElevatedButton.icon(
                 onPressed: _openCreateClassModal,
                 icon: const Icon(LucideIcons.plus, size: 14),
                 label: Text(
                   'ថ្នាក់ថ្មី',
-                  style: GoogleFonts.kantumruyPro(
-                      fontSize: 11, fontWeight: FontWeight.bold),
+                  style: AppTypography.labelSmall.copyWith(color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
                 ),
@@ -318,11 +342,7 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _selectedAcademicYear,
-                    style: GoogleFonts.kantumruyPro(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
-                    ),
+                    style: AppTypography.titleSmall,
                     items: ['2026–2027', '2025–2026', '2024–2025'].map((y) {
                       return DropdownMenuItem(
                           value: y, child: Text('ឆ្នាំសិក្សា $y'));
@@ -365,16 +385,14 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
       onTap: () => setState(() => _selectedGradeFilter = value),
       borderRadius: BorderRadius.circular(10),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary : const Color(0xFFF1F5F9),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Text(
           label,
-          style: GoogleFonts.kantumruyPro(
-            fontSize: 11,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          style: AppTypography.captionBold.copyWith(
             color: isSelected ? Colors.white : AppColors.textSecondary,
           ),
         ),
@@ -386,19 +404,16 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
     return TextField(
       controller: _searchController,
       onChanged: (v) => setState(() => _searchQuery = v),
-      style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
+      style: AppTypography.bodyMedium,
       decoration: InputDecoration(
         prefixIcon: const Icon(LucideIcons.search,
             size: 18, color: AppColors.textSubtle),
         hintText: 'ស្វែងរកតាមឈ្មោះថ្នាក់ មុខវិជ្ជា ឬគ្រូបង្រៀន...',
-        hintStyle: GoogleFonts.kantumruyPro(
-          fontSize: 12,
-          color: AppColors.textSubtle,
-        ),
+        hintStyle: AppTypography.bodySmall.copyWith(color: AppColors.textSubtle),
         filled: true,
         fillColor: Colors.white,
         contentPadding:
-        const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: AppColors.border),
@@ -418,7 +433,7 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(color: AppColors.border),
         ),
         child: Column(
@@ -428,11 +443,7 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
             const SizedBox(height: 8),
             Text(
               'មិនមានទិន្នន័យថ្នាក់រៀនទេ',
-              style: GoogleFonts.kantumruyPro(
-                fontSize: 13,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textSecondary,
-              ),
+              style: AppTypography.bodyMedium,
             ),
           ],
         ),
@@ -443,202 +454,300 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: _filteredClasses.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 10),
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (ctx, index) {
         final item = _filteredClasses[index];
         return Container(
-          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: AppColors.cardShadow,
             border: Border.all(color: AppColors.border),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Class title & actions
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        item.grade,
-                        style: GoogleFonts.kantumruyPro(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryLight,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: AppColors.primaryBorder),
-                        ),
-                        child: Text(
-                          item.subject,
-                          style: GoogleFonts.kantumruyPro(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primary,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Stack(
+              children: [
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: 5,
+                  child: Container(color: const Color(0xFF4F46E5)),
+                ),
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => _openAssignTeacherModal(item),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 18, right: 16, top: 16, bottom: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                    // Class title & actions
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Text(
+                                item.grade,
+                                style: AppTypography.titleMedium.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFF0F172A),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Flexible(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFEEF2FF),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                        color: const Color(0xFFC7D2FE)),
+                                  ),
+                                  child: Text(
+                                    item.subject,
+                                    style: AppTypography.captionBold.copyWith(
+                                      color: const Color(0xFF4F46E5),
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: () => _openAssignTeacherModal(item),
-                        icon: const Icon(LucideIcons.edit3, size: 16),
-                        color: AppColors.primary,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                      ),
-                      const SizedBox(width: 12),
-                      IconButton(
-                        onPressed: () => _deleteClass(item.id),
-                        icon: const Icon(LucideIcons.trash2, size: 16),
-                        color: Colors.redAccent,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            IconButton(
+                              onPressed: () => _openAssignTeacherModal(item),
+                              icon: const Icon(LucideIcons.edit3, size: 17),
+                              color: AppColors.primary,
+                              tooltip: 'កែសម្រួល',
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                            ),
+                            const SizedBox(width: 14),
+                            IconButton(
+                              onPressed: () => _deleteClass(
+                                  item.id, '${item.grade} (${item.subject})'),
+                              icon: const Icon(LucideIcons.trash2, size: 17),
+                              color: AppColors.danger,
+                              tooltip: 'លុប',
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
 
-              // Teacher & hours detail grid
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.inputBg,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: const Color(0xFFF1F5F9)),
-                ),
-                child: Row(
-                  children: [
-                    // Teacher
-                    Expanded(
-                      flex: 4,
+                    // Teacher & hours detail grid
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                      ),
                       child: Row(
                         children: [
-                          const Icon(LucideIcons.user,
-                              size: 14, color: AppColors.primary),
-                          const SizedBox(width: 6),
+                          // Teacher
                           Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            flex: 5,
+                            child: Row(
                               children: [
-                                Text('គ្រូបង្រៀន',
-                                    style: GoogleFonts.kantumruyPro(
-                                        fontSize: 9,
-                                        color: AppColors.textSubtle)),
-                                Text(
-                                  item.assignedTeacherKhmer,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: GoogleFonts.kantumruyPro(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.textPrimary,
+                                Container(
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFEFF6FF),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Icon(LucideIcons.userCheck,
+                                      size: 14, color: AppColors.primary),
+                                ),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'គ្រូបង្រៀន',
+                                        style: AppTypography.caption.copyWith(
+                                          color: AppColors.textSubtle,
+                                          fontSize: 10.5,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 1),
+                                      Text(
+                                        item.assignedTeacherKhmer,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style:
+                                            AppTypography.labelSmall.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: const Color(0xFF0F172A),
+                                          fontSize: 11.5,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
 
-                    // Hours
-                    Expanded(
-                      flex: 3,
-                      child: Row(
-                        children: [
-                          const Icon(LucideIcons.clock,
-                              size: 14, color: AppColors.primary),
-                          const SizedBox(width: 6),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('ម៉ោង/សប្តាហ៍',
-                                  style: GoogleFonts.kantumruyPro(
-                                      fontSize: 9,
-                                      color: AppColors.textSubtle)),
-                              Text(
-                                '${item.hoursPerWeek} ម៉ោង',
-                                style: GoogleFonts.kantumruyPro(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.textPrimary,
+                          // Divider
+                          Container(
+                            height: 24,
+                            width: 1,
+                            color: const Color(0xFFE2E8F0),
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                          ),
+
+                          // Hours
+                          Expanded(
+                            flex: 4,
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFEF3C7),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Icon(LucideIcons.clock,
+                                      size: 14, color: Color(0xFFD97706)),
+                                ),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'ម៉ោង/សប្តាហ៍',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: AppTypography.caption.copyWith(
+                                          color: AppColors.textSubtle,
+                                          fontSize: 10.5,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 1),
+                                      Text(
+                                        '${item.hoursPerWeek} ម៉ោង',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style:
+                                            AppTypography.labelSmall.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: const Color(0xFF0F172A),
+                                          fontSize: 11.5,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Divider
+                          Container(
+                            height: 24,
+                            width: 1,
+                            color: const Color(0xFFE2E8F0),
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                          ),
+
+                          // Students
+                          Expanded(
+                            flex: 4,
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFECFDF5),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Icon(LucideIcons.users,
+                                      size: 14, color: Color(0xFF059669)),
+                                ),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'សិស្សសរុប',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: AppTypography.caption.copyWith(
+                                          color: AppColors.textSubtle,
+                                          fontSize: 10.5,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    const SizedBox(height: 1),
+                                    Text(
+                                      '${item.totalStudents} នាក់',
+                                      style:
+                                          AppTypography.labelSmall.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color(0xFF0F172A),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
                           ),
+                        ),
                         ],
                       ),
                     ),
+                    const SizedBox(height: 10),
 
-                    // Students
-                    Expanded(
-                      flex: 3,
-                      child: Row(
-                        children: [
-                          const Icon(LucideIcons.users,
-                              size: 14, color: AppColors.primary),
-                          const SizedBox(width: 6),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('សិស្សសរុប',
-                                  style: GoogleFonts.kantumruyPro(
-                                      fontSize: 9,
-                                      color: AppColors.textSubtle)),
-                              Text(
-                                '${item.totalStudents} នាក់',
-                                style: GoogleFonts.kantumruyPro(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.textPrimary,
-                                ),
-                              ),
-                            ],
+                    // Reassign action button
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton.icon(
+                        onPressed: () => _openAssignTeacherModal(item),
+                        icon: const Icon(LucideIcons.arrowRight, size: 14),
+                        label: Text(
+                          'ប្តូរគ្រូបង្រៀន ឬម៉ោងសិក្សា',
+                          style: AppTypography.labelSmall.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
                           ),
-                        ],
+                        ),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 8),
-
-              // Reassign action button
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton.icon(
-                  onPressed: () => _openAssignTeacherModal(item),
-                  icon: const Icon(LucideIcons.arrowRight, size: 14),
-                  label: Text(
-                    'ប្តូរគ្រូបង្រៀន ឬម៉ោងសិក្សា',
-                    style: GoogleFonts.kantumruyPro(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                  style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                ),
-              ),
-            ],
+            ),
           ),
-        );
-      },
-    );
+        ],
+      ),
+    ),
+  );
+},
+);
   }
 }

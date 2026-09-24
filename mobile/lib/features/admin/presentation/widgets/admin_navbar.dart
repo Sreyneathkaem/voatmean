@@ -85,7 +85,7 @@ class AdminMainShellNavBar extends StatelessWidget {
           NavigationDestination(
             icon: Icon(LucideIcons.layoutDashboard),
             selectedIcon: Icon(LucideIcons.layoutDashboard, color: AppColors.primary),
-            label: 'ផ្ទាំងទិន្នន័យ',
+            label: 'ផ្ទាំងគ្រប់គ្រង',
           ),
           NavigationDestination(
             icon: Icon(LucideIcons.bookOpen),

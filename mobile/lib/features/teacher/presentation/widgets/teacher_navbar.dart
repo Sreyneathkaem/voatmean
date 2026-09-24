@@ -3,25 +3,50 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:voatmean_mobile/core/constants/app_colors.dart';
 import 'package:voatmean_mobile/features/auth/data/services/auth_service.dart';
 import '../screens/teacher_dashboard_screen.dart';
+import '../screens/teacher_students_screen.dart';
+import '../screens/teacher_reports_screen.dart';
+import '../screens/teacher_settings_screen.dart';
 
 class TeacherMainShell extends StatefulWidget {
-  const TeacherMainShell({super.key});
+  final int initialIndex;
+
+  const TeacherMainShell({super.key, this.initialIndex = 0});
 
   @override
   State<TeacherMainShell> createState() => _TeacherMainShellState();
 }
 
 class _TeacherMainShellState extends State<TeacherMainShell> {
-  int _currentIndex = 0;
+  late int _currentIndex;
   final AuthService _authService = AuthService();
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+  }
+
+  void _handleSignOut() async {
+    await _authService.signOut();
+    if (mounted) {
+      Navigator.pushReplacementNamed(context, '/');
+    }
+  }
+
+  void _handleSwitchToAdmin() {
+    Navigator.pushReplacementNamed(context, '/admin');
+  }
 
   @override
   Widget build(BuildContext context) {
     final List<Widget> screens = [
       const TeacherDashboardScreen(),
-      _buildPlaceholder('បញ្ជីសិស្ស'),
-      _buildPlaceholder('របាយការណ៍'),
-      _buildSettings(context),
+      const TeacherStudentsScreen(),
+      const TeacherReportsScreen(),
+      TeacherSettingsScreen(
+        onSignOut: _handleSignOut,
+        onSwitchToAdminPortal: _handleSwitchToAdmin,
+      ),
     ];
 
     return Scaffold(
@@ -62,34 +87,6 @@ class _TeacherMainShellState extends State<TeacherMainShell> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildPlaceholder(String title) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(child: Text('កំពុងអភិវឌ្ឍផ្ទាំង $title...')),
-    );
-  }
-
-  Widget _buildSettings(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('ការកំណត់')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          ListTile(
-            leading: const Icon(LucideIcons.logOut, color: Colors.red),
-            title: const Text('ចាកចេញពីកម្មវិធី', style: TextStyle(color: Colors.red)),
-            onTap: () async {
-              await _authService.signOut();
-              if (context.mounted) {
-                Navigator.pushReplacementNamed(context, '/');
-              }
-            },
-          ),
-        ],
       ),
     );
   }

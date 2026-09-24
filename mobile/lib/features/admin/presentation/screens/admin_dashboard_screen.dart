@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-
 import 'package:voatmean_mobile/core/constants/app_colors.dart';
+import 'package:voatmean_mobile/core/constants/app_typography.dart';
 import '../../data/models/attendance_session_model.dart';
 
 enum DateFilter { today, week, month }
@@ -21,11 +20,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
-  // Mock sessions matching the current web app
+  // Mock sessions matching the web app
   final List<AttendanceSession> _sessions = [
     AttendanceSession(
       id: 'sess-1',
-      className: 'ថ្នាក់ ១០ ក (Grade 10A)',
+      className: 'Grade 10A (ថ្នាក់ ១០ ក)',
       subject: 'គណិតវិទ្យា',
       teacherName: 'លោកគ្រូ សុខ សំណាង',
       submitted: true,
@@ -33,7 +32,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     ),
     AttendanceSession(
       id: 'sess-2',
-      className: 'ថ្នាក់ ១០ ខ (Grade 10B)',
+      className: 'Grade 10B (ថ្នាក់ ១០ ខ)',
       subject: 'រូបវិទ្យា',
       teacherName: 'អ្នកគ្រូ កែវ បុប្ផា',
       submitted: true,
@@ -41,7 +40,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     ),
     AttendanceSession(
       id: 'sess-3',
-      className: 'ថ្នាក់ ១១ ក (Grade 11A)',
+      className: 'Grade 11A (ថ្នាក់ ១១ ក)',
       subject: 'ភាសាខ្មែរ',
       teacherName: 'លោកគ្រូ ហេង ពិសិដ្ឋ',
       submitted: false,
@@ -49,7 +48,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     ),
     AttendanceSession(
       id: 'sess-4',
-      className: 'ថ្នាក់ ១១ ខ (Grade 11B)',
+      className: 'Grade 11B (ថ្នាក់ ១១ ខ)',
       subject: 'គីមីវិទ្យា',
       teacherName: 'អ្នកគ្រូ ចាន់ ស្រីមុំ',
       submitted: true,
@@ -57,7 +56,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     ),
     AttendanceSession(
       id: 'sess-5',
-      className: 'ថ្នាក់ ១២ ក (Grade 12A)',
+      className: 'Grade 12A (ថ្នាក់ ១២ ក)',
       subject: 'ជីវវិទ្យា',
       teacherName: 'លោកគ្រូ ជា វណ្ណៈ',
       submitted: false,
@@ -104,8 +103,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       final matchesStatus = _statusFilter == StatusFilter.all
           ? true
           : _statusFilter == StatusFilter.submitted
-          ? s.submitted
-          : !s.submitted;
+              ? s.submitted
+              : !s.submitted;
 
       return matchesSearch && matchesStatus;
     }).toList();
@@ -116,13 +115,44 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       SnackBar(
         content: Text(
           'បានទាញយករបាយការណ៍សង្ខេបវត្តមាន Excel (.xlsx) ជោគជ័យ',
-          style: GoogleFonts.kantumruyPro(),
+          style: AppTypography.bodySmall.copyWith(color: Colors.white),
         ),
-        backgroundColor: const Color(0xFF059669),
+        backgroundColor: AppColors.successDark,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
+  }
+
+  DateTime _selectedDate = DateTime.now();
+
+  Future<void> _pickCustomDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2025),
+      lastDate: DateTime(2030),
+      helpText: 'ជ្រើសរើសកាលបរិច្ឆេទត្រួតពិនិត្យ',
+      cancelText: 'បោះបង់',
+      confirmText: 'យល់ព្រម',
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedDate = picked;
+      });
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'បានជ្រើសរើសកាលបរិច្ឆេទ៖ ${picked.day}/${picked.month}/${picked.year}',
+            style: AppTypography.bodySmall.copyWith(color: Colors.white),
+          ),
+          backgroundColor: AppColors.primary,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+    }
   }
 
   void _showSessionDetailModal(AttendanceSession session) {
@@ -131,37 +161,41 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(22),
         decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      session.className,
-                      style: GoogleFonts.kantumruyPro(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(session.className, style: AppTypography.titleMedium),
+                      const SizedBox(height: 2),
+                      Text(
+                        'មុខវិជ្ជា៖ ${session.subject} • ${session.teacherName}',
+                        style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
                       ),
-                    ),
-                    Text(
-                      '${session.subject} • ${session.teacherName}',
-                      style: GoogleFonts.kantumruyPro(
-                        fontSize: 12,
-                        color: AppColors.textMuted,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(ctx),
@@ -173,25 +207,76 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.inputBg,
+                color: AppColors.slateBg,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: AppColors.border),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildModalStatItem('វត្តមាន', session.stats.present,
-                      const Color(0xFF059669)),
-                  _buildModalStatItem('យឺត', session.stats.late,
-                      const Color(0xFFD97706)),
-                  _buildModalStatItem('អវត្តមាន', session.stats.absent,
-                      const Color(0xFFDC2626)),
-                  _buildModalStatItem('សរុប', session.stats.total,
-                      AppColors.textPrimary),
+                  _buildModalStatItem('វត្តមាន', session.stats.present, AppColors.success),
+                  _buildModalStatItem('យឺត', session.stats.late, AppColors.warning),
+                  _buildModalStatItem('អវត្តមាន', session.stats.absent, AppColors.danger),
+                  _buildModalStatItem('សរុប', session.stats.total, AppColors.textPrimary),
                 ],
               ),
             ),
             const SizedBox(height: 20),
+            Row(
+              children: [
+                if (!session.submitted)
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'បានផ្ញើការរំលឹកស្រង់វត្តមានទៅកាន់ ${session.teacherName} ជោគជ័យ',
+                              style: AppTypography.bodySmall.copyWith(color: Colors.white),
+                            ),
+                            backgroundColor: AppColors.warningDark,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                        );
+                      },
+                      icon: const Icon(LucideIcons.bellRing, size: 16),
+                      label: Text('រំលឹកគ្រូ', style: AppTypography.labelMedium.copyWith(color: Colors.white)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.warningDark,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ),
+                if (!session.submitted) const SizedBox(width: 10),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('បានបើកបញ្ជីសិស្សលម្អិតសម្រាប់ ${session.className}', style: AppTypography.bodySmall.copyWith(color: Colors.white)),
+                          backgroundColor: AppColors.primary,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      );
+                    },
+                    icon: const Icon(LucideIcons.users, size: 16),
+                    label: Text('បញ្ជីសិស្ស', style: AppTypography.labelMedium.copyWith(color: AppColors.textPrimary)),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      side: const BorderSide(color: AppColors.border),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
           ],
         ),
       ),
@@ -203,19 +288,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       children: [
         Text(
           '$count',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
+          style: AppTypography.displayMedium.copyWith(color: color, fontSize: 20),
         ),
         const SizedBox(height: 2),
         Text(
           label,
-          style: GoogleFonts.kantumruyPro(
-            fontSize: 11,
-            color: AppColors.textMuted,
-          ),
+          style: AppTypography.captionBold.copyWith(color: AppColors.textSecondary),
         ),
       ],
     );
@@ -229,12 +307,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
-          'ផ្ទាំងគ្រប់គ្រង (Admin Dashboard)',
-          style: GoogleFonts.kantumruyPro(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-            color: AppColors.textPrimary,
-          ),
+          'ផ្ទាំងគ្រប់គ្រង',
+          style: AppTypography.titleMedium,
         ),
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
@@ -284,7 +358,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         dateLabel = '31 Aug 2026 (ថ្ងៃនេះ)';
         break;
       case DateFilter.week:
-        dateLabel = 'សប្តាហ៍នេះ (25-31 Aug)';
+        dateLabel = 'សប្តាហ៍នេះ (25 - 31 Aug)';
         break;
       case DateFilter.month:
         dateLabel = 'ខែសីហា 2026';
@@ -295,36 +369,40 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(color: AppColors.border),
+        boxShadow: AppColors.cardShadow,
       ),
       child: Column(
         children: [
           Row(
             children: [
-              const Icon(LucideIcons.calendar,
-                  size: 20, color: AppColors.primary),
+              InkWell(
+                onTap: _pickCustomDate,
+                borderRadius: BorderRadius.circular(10),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryLight,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.primaryBorder),
+                  ),
+                  child: const Icon(LucideIcons.calendar, size: 18, color: AppColors.primary),
+                ),
+              ),
               const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'កាលបរិច្ឆេទត្រួតពិនិត្យ',
-                    style: GoogleFonts.kantumruyPro(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textSubtle,
-                    ),
+              Expanded(
+                child: InkWell(
+                  onTap: _pickCustomDate,
+                  borderRadius: BorderRadius.circular(8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('កាលបរិច្ឆេទត្រួតពិនិត្យ (ចុចដើម្បីជ្រើស)', style: AppTypography.caption),
+                      Text(dateLabel, style: AppTypography.titleSmall),
+                    ],
                   ),
-                  Text(
-                    dateLabel,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ],
           ),
@@ -335,7 +413,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(3),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
+                    color: AppColors.slateBg,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -350,16 +428,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               const SizedBox(width: 8),
               InkWell(
                 onTap: _exportExcel,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
                 child: Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(9),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: AppColors.border),
                   ),
-                  child: const Icon(LucideIcons.sheet,
-                      size: 18, color: AppColors.textSecondary),
+                  child: const Icon(LucideIcons.sheet, size: 18, color: AppColors.textSecondary),
                 ),
               ),
             ],
@@ -382,21 +459,20 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             borderRadius: BorderRadius.circular(9),
             boxShadow: isSelected
                 ? [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 4,
-                offset: const Offset(0, 1),
-              )
-            ]
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 4,
+                      offset: const Offset(0, 1),
+                    )
+                  ]
                 : null,
           ),
           child: Text(
             label,
             textAlign: TextAlign.center,
-            style: GoogleFonts.kantumruyPro(
-              fontSize: 11,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            style: AppTypography.labelSmall.copyWith(
               color: isSelected ? AppColors.primary : AppColors.textSecondary,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
             ),
           ),
         ),
@@ -409,140 +485,147 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         ? ((_submittedSessions.length / _sessions.length) * 100).round()
         : 0;
 
+    final isSubmittedSelected = _statusFilter == StatusFilter.submitted;
+    final isPendingSelected = _statusFilter == StatusFilter.pending;
+
     return Row(
       children: [
-        // 1. Submitted Classes Card (Emerald)
+        // 1. Submitted Classes Card (Emerald - Interactive)
         Expanded(
-          child: Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: const Color(0xFFECFDF5),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFFA7F3D0)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                setState(() {
+                  _statusFilter = isSubmittedSelected ? StatusFilter.all : StatusFilter.submitted;
+                });
+              },
+              borderRadius: BorderRadius.circular(18),
+              child: Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: AppColors.successBg,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(
+                    color: isSubmittedSelected ? AppColors.success : AppColors.successBorder,
+                    width: isSubmittedSelected ? 2 : 1,
+                  ),
+                  boxShadow: isSubmittedSelected ? AppColors.elevatedShadow : AppColors.cardShadow,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF10B981),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(LucideIcons.checkCircle2,
-                          color: Colors.white, size: 20),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFD1FAE5),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        '$submittedPct%',
-                        style: const TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF047857),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: AppColors.success,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(LucideIcons.checkCircle2, color: Colors.white, size: 20),
                         ),
-                      ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppColors.successBorder),
+                          ),
+                          child: Text(
+                            '$submittedPct%',
+                            style: AppTypography.captionBold.copyWith(color: AppColors.successText),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      '${_submittedSessions.length}',
+                      style: AppTypography.displayLarge.copyWith(color: AppColors.successText, fontSize: 24),
+                    ),
+                    Text(
+                      'ថ្នាក់ Submit រួច (ចុចច្រោះ)',
+                      style: AppTypography.labelSmall.copyWith(color: AppColors.successText),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  '${_submittedSessions.length}',
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF064E3B),
-                  ),
-                ),
-                Text(
-                  'ថ្នាក់ដែល Submit រួច',
-                  style: GoogleFonts.kantumruyPro(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF065F46),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),
         const SizedBox(width: 12),
 
-        // 2. Pending Classes Card (Amber)
+        // 2. Pending Classes Card (Amber - Interactive)
         Expanded(
-          child: Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFFBEB),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFFFDE68A)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF59E0B),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(LucideIcons.clock,
-                          color: Colors.white, size: 20),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFEF3C7),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        '${_pendingSessions.length} ថ្នាក់',
-                        style: GoogleFonts.kantumruyPro(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFFB45309),
-                        ),
-                      ),
-                    ),
-                  ],
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                setState(() {
+                  _statusFilter = isPendingSelected ? StatusFilter.all : StatusFilter.pending;
+                });
+              },
+              borderRadius: BorderRadius.circular(18),
+              child: Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: AppColors.warningBg,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(
+                    color: isPendingSelected ? AppColors.warning : AppColors.warningBorder,
+                    width: isPendingSelected ? 2 : 1,
+                  ),
+                  boxShadow: isPendingSelected ? AppColors.elevatedShadow : AppColors.cardShadow,
                 ),
-                const SizedBox(height: 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: AppColors.warning,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(LucideIcons.clock, color: Colors.white, size: 20),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppColors.warningBorder),
+                          ),
+                          child: Text(
+                            '${_pendingSessions.length} ថ្នាក់',
+                            style: AppTypography.captionBold.copyWith(color: AppColors.warningText),
+                          ),
+                        ),
+                      ],
+                    ),
+                const SizedBox(height: 10),
                 Text(
                   '${_pendingSessions.length}',
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF78350F),
-                  ),
+                  style: AppTypography.displayLarge.copyWith(color: AppColors.warningText, fontSize: 24),
                 ),
                 Text(
                   'ថ្នាក់មិនទាន់រួច (Pending)',
-                  style: GoogleFonts.kantumruyPro(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF92400E),
-                  ),
+                  style: AppTypography.labelSmall.copyWith(color: AppColors.warningText),
                 ),
               ],
             ),
           ),
         ),
-      ],
-    );
+      ),
+    ),
+  ],
+);
   }
 
   Widget _buildAttendanceProgressCard() {
@@ -550,7 +633,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(color: AppColors.border),
       ),
       child: Column(
@@ -565,71 +648,53 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: AppColors.primaryLight,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(LucideIcons.trendingUp,
-                        size: 18, color: AppColors.primary),
+                    child: const Icon(LucideIcons.trendingUp, size: 18, color: AppColors.primary),
                   ),
                   const SizedBox(width: 10),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'ស្ថិតិវត្តមានសិស្សទូទាំងសាលា',
-                        style: GoogleFonts.kantumruyPro(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      Text(
-                        'សរុប $_totalStudents នាក់ក្នុងប្រព័ន្ធ',
-                        style: GoogleFonts.kantumruyPro(
-                          fontSize: 11,
-                          color: AppColors.textMuted,
-                        ),
-                      ),
+                      Text('ស្ថិតិវត្តមានសិស្សទូទាំងសាលា', style: AppTypography.titleSmall),
+                      Text('សរុប $_totalStudents នាក់ក្នុងប្រព័ន្ធ', style: AppTypography.caption),
                     ],
                   ),
                 ],
               ),
               Text(
                 '$_presentPercentage%',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
-                ),
+                style: AppTypography.displayMedium.copyWith(color: AppColors.primary, fontSize: 18),
               ),
             ],
           ),
           const SizedBox(height: 14),
 
-          // Multi-color Segmented Progress Bar
+          // Segmented Progress Bar
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: SizedBox(
-              height: 12,
+              height: 10,
               child: Row(
                 children: [
                   if (_presentPercentage > 0)
                     Expanded(
                       flex: _presentPercentage,
-                      child: Container(color: const Color(0xFF10B981)),
+                      child: Container(color: AppColors.success),
                     ),
                   if (_latePercentage > 0)
                     Expanded(
                       flex: _latePercentage,
-                      child: Container(color: const Color(0xFFF59E0B)),
+                      child: Container(color: AppColors.warning),
                     ),
                   if (_absentPercentage > 0)
                     Expanded(
                       flex: _absentPercentage,
-                      child: Container(color: const Color(0xFFEF4444)),
+                      child: Container(color: AppColors.danger),
                     ),
                   if (_totalStudents == 0)
                     Expanded(
-                      child: Container(color: const Color(0xFFE2E8F0)),
+                      child: Container(color: AppColors.border),
                     ),
                 ],
               ),
@@ -644,24 +709,27 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 'វត្តមាន',
                 _totalPresent,
                 '$_presentPercentage%',
-                const Color(0xFF059669),
-                const Color(0xFFECFDF5),
+                AppColors.successText,
+                AppColors.successBg,
+                AppColors.successBorder,
               ),
               const SizedBox(width: 8),
               _buildMetricBreakdown(
                 'យឺត',
                 _totalLate,
                 '$_latePercentage%',
-                const Color(0xFFD97706),
-                const Color(0xFFFFFBEB),
+                AppColors.warningText,
+                AppColors.warningBg,
+                AppColors.warningBorder,
               ),
               const SizedBox(width: 8),
               _buildMetricBreakdown(
                 'អវត្តមាន',
                 _totalAbsent,
                 '$_absentPercentage%',
-                const Color(0xFFDC2626),
-                const Color(0xFFFEF2F2),
+                AppColors.dangerText,
+                AppColors.dangerBg,
+                AppColors.dangerBorder,
               ),
             ],
           ),
@@ -671,13 +739,20 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   Widget _buildMetricBreakdown(
-      String label, int count, String pct, Color color, Color bg) {
+    String label,
+    int count,
+    String pct,
+    Color color,
+    Color bg,
+    Color border,
+  ) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
           color: bg,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: border),
         ),
         child: Column(
           children: [
@@ -692,11 +767,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 const SizedBox(width: 4),
                 Text(
                   label,
-                  style: GoogleFonts.kantumruyPro(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
+                  style: AppTypography.captionBold.copyWith(color: color),
                 ),
               ],
             ),
@@ -704,20 +775,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             RichText(
               text: TextSpan(
                 text: '$count ',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                  fontFamily: GoogleFonts.kantumruyPro().fontFamily,
-                ),
+                style: AppTypography.labelMedium.copyWith(color: AppColors.textPrimary),
                 children: [
                   TextSpan(
                     text: '($pct)',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.normal,
-                      color: color,
-                    ),
+                    style: AppTypography.caption.copyWith(color: color),
                   ),
                 ],
               ),
@@ -735,24 +797,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            RichText(
-              text: TextSpan(
-                text: 'ស្ថានភាពវត្តមានតាមថ្នាក់រៀន ',
-                style: GoogleFonts.kantumruyPro(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
-                children: [
-                  TextSpan(
-                    text: '(${_filteredSessions.length})',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.normal,
-                      color: AppColors.textMuted,
-                    ),
-                  ),
-                ],
+            Text('ស្ថានភាពវត្តមានតាមថ្នាក់រៀន', style: AppTypography.titleSmall),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: AppColors.primaryLight,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                '${_filteredSessions.length} ថ្នាក់',
+                style: AppTypography.captionBold.copyWith(color: AppColors.primary),
               ),
             ),
           ],
@@ -763,7 +817,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         Container(
           padding: const EdgeInsets.all(3),
           decoration: BoxDecoration(
-            color: const Color(0xFFF1F5F9),
+            color: AppColors.slateBg,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
@@ -791,26 +845,25 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           borderRadius: BorderRadius.circular(9),
           boxShadow: isSelected
               ? [
-            BoxShadow(
-              color: Colors.black,
-              blurRadius: 4,
-              offset: const Offset(0, 1),
-            )
-          ]
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 3,
+                    offset: const Offset(0, 1),
+                  )
+                ]
               : null,
         ),
         child: Text(
           label,
-          style: GoogleFonts.kantumruyPro(
-            fontSize: 11,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+          style: AppTypography.labelSmall.copyWith(
             color: isSelected
                 ? (filter == StatusFilter.submitted
-                ? const Color(0xFF059669)
-                : filter == StatusFilter.pending
-                ? const Color(0xFFD97706)
-                : AppColors.primary)
+                    ? AppColors.successText
+                    : filter == StatusFilter.pending
+                        ? AppColors.warningText
+                        : AppColors.primary)
                 : AppColors.textSecondary,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
           ),
         ),
       ),
@@ -821,19 +874,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return TextField(
       controller: _searchController,
       onChanged: (val) => setState(() => _searchQuery = val),
-      style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
+      style: AppTypography.bodyMedium,
       decoration: InputDecoration(
-        prefixIcon: const Icon(LucideIcons.search,
-            size: 18, color: AppColors.textSubtle),
+        prefixIcon: const Icon(LucideIcons.search, size: 18, color: AppColors.textSubtle),
         hintText: 'ស្វែងរកតាមថ្នាក់ មុខវិជ្ជា ឬឈ្មោះគ្រូ...',
-        hintStyle: GoogleFonts.kantumruyPro(
-          fontSize: 12,
-          color: AppColors.textSubtle,
-        ),
+        hintStyle: AppTypography.bodySmall.copyWith(color: AppColors.textSubtle),
         filled: true,
         fillColor: Colors.white,
-        contentPadding:
-        const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: AppColors.border),
@@ -853,20 +901,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         padding: const EdgeInsets.all(28),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(color: AppColors.border),
         ),
         child: Column(
           children: [
             const Icon(LucideIcons.users, size: 36, color: Color(0xFFCBD5E1)),
             const SizedBox(height: 8),
-            Text(
-              'មិនមានទិន្នន័យថ្នាក់ត្រូវនឹងការស្វែងរកទេ',
-              style: GoogleFonts.kantumruyPro(
-                fontSize: 12,
-                color: AppColors.textMuted,
-              ),
-            ),
+            Text('មិនមានទិន្នន័យថ្នាក់ត្រូវនឹងការស្វែងរកទេ', style: AppTypography.bodySmall),
           ],
         ),
       );
@@ -879,113 +921,115 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       separatorBuilder: (_, _) => const SizedBox(height: 8),
       itemBuilder: (ctx, index) {
         final item = _filteredSessions[index];
-        return InkWell(
-          onTap: () => _showSessionDetailModal(item),
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            item.className,
-                            style: GoogleFonts.kantumruyPro(
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            '(${item.subject})',
-                            style: GoogleFonts.kantumruyPro(
-                              fontSize: 11,
-                              color: AppColors.textMuted,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          Text(
-                            'គ្រូ៖ ${item.teacherName}',
-                            style: GoogleFonts.kantumruyPro(
-                              fontSize: 11,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                          const Text(' • ',
-                              style: TextStyle(color: AppColors.textSubtle)),
-                          Text(
-                            'វត្តមាន ${item.stats.present}/${item.stats.total} នាក់',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: AppColors.textMuted,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-
-                // Status Badge
-                Container(
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        final isSubmitted = item.submitted;
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.border),
+            boxShadow: AppColors.cardShadow,
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => _showSessionDetailModal(item),
+                child: Container(
                   decoration: BoxDecoration(
-                    color: item.submitted
-                        ? const Color(0xFFECFDF5)
-                        : const Color(0xFFFFFBEB),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: item.submitted
-                          ? const Color(0xFFA7F3D0)
-                          : const Color(0xFFFDE68A),
+                    border: Border(
+                      left: BorderSide(
+                        color: isSubmitted ? AppColors.success : AppColors.warning,
+                        width: 4.5,
+                      ),
                     ),
                   ),
+                  padding: const EdgeInsets.all(14),
                   child: Row(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        item.submitted
-                            ? LucideIcons.checkCircle2
-                            : LucideIcons.clock,
-                        size: 12,
-                        color: item.submitted
-                            ? const Color(0xFF059669)
-                            : const Color(0xFFD97706),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        item.submitted ? 'Submit រួច' : 'មិនទាន់ Submit',
-                        style: GoogleFonts.kantumruyPro(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: item.submitted
-                              ? const Color(0xFF047857)
-                              : const Color(0xFFB45309),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    item.className,
+                                    style: AppTypography.titleSmall,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.slateBg,
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    item.subject,
+                                    style: AppTypography.captionBold.copyWith(color: AppColors.textSecondary),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    item.teacherName,
+                                    style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const Text(' • ', style: TextStyle(color: AppColors.border)),
+                                Text(
+                                  'វត្តមាន ${item.stats.present}/${item.stats.total} នាក់',
+                                  style: AppTypography.caption.copyWith(color: AppColors.textMuted),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
+                      const SizedBox(width: 8),
+
+                      // Status Badge
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: item.submitted ? AppColors.successBg : AppColors.warningBg,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: item.submitted ? AppColors.successBorder : AppColors.warningBorder,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              item.submitted ? LucideIcons.checkCircle2 : LucideIcons.clock,
+                              size: 12,
+                              color: item.submitted ? AppColors.successText : AppColors.warningText,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              item.submitted ? 'Submit រួច' : 'មិនទាន់ Submit',
+                              style: AppTypography.captionBold.copyWith(
+                                color: item.submitted ? AppColors.successText : AppColors.warningText,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      const Icon(LucideIcons.chevronRight, size: 16, color: AppColors.textSubtle),
                     ],
                   ),
                 ),
-                const SizedBox(width: 6),
-                const Icon(LucideIcons.chevronRight,
-                    size: 16, color: AppColors.textSubtle),
-              ],
+              ),
             ),
           ),
         );

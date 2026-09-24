@@ -8,7 +8,8 @@ class AuthService {
   final Dio _dio = ApiService().dio;
   bool _isGoogleSignInInitialized = false;
 
-  Future<void> _ensureGoogleSignInInitialized() async {
+  Future<void> _ensureInitialized() async {
+    await ApiService().initPersistentCookies();
     if (!_isGoogleSignInInitialized) {
       await _googleSignIn.initialize(
         serverClientId: '119959634609-e7ljfkdebja9pomisdo08s2qne4l2qls.apps.googleusercontent.com',
@@ -17,14 +18,30 @@ class AuthService {
     }
   }
 
-  // 1. Login with Google -> Our Backend
+  /// 0. Check existing session on app startup (GET /api/auth/me)
+  Future<Map<String, dynamic>?> getCurrentUser() async {
+    try {
+      await ApiService().initPersistentCookies();
+      debugPrint("AuthService: Checking active session with GET /api/auth/me...");
+      final response = await _dio.get('/api/auth/me');
+
+      if (response.statusCode == 200 && response.data is Map) {
+        return response.data as Map<String, dynamic>;
+      }
+      return null;
+    } catch (e) {
+      debugPrint("AuthService: Active session check failed: $e");
+      return null;
+    }
+  }
+
+  /// 1. Login with Google -> Backend (POST /api/auth/google)
   Future<Map<String, dynamic>?> signInWithGoogle() async {
     try {
       debugPrint("Google Sign-In: Initializing...");
-      await _ensureGoogleSignInInitialized();
+      await _ensureInitialized();
       
       debugPrint("Google Sign-In: Triggering account picker...");
-      // In 7.2.0, use authenticate() instead of signIn()
       final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
       
       debugPrint("Google Sign-In: Success. Getting tokens...");
@@ -51,9 +68,10 @@ class AuthService {
     }
   }
 
-  // 2. Login with Email/Password -> Our Backend
+  /// 2. Login with Email/Password -> Backend (POST /api/auth/login)
   Future<Map<String, dynamic>?> signInWithEmail(String email, String password) async {
     try {
+      await ApiService().initPersistentCookies();
       debugPrint("Email Login: Sending request for $email...");
       final response = await _dio.post('/api/auth/login', data: {
         'email': email,
@@ -73,9 +91,10 @@ class AuthService {
     }
   }
 
-  // 3. Register (Activate Account)
+  /// 3. Activate whitelisted account with password (POST /api/auth/register)
   Future<bool> register(String email, String password) async {
     try {
+      await ApiService().initPersistentCookies();
       debugPrint("Registration: Activating account for $email...");
       final response = await _dio.post('/api/auth/register', data: {
         'email': email,
@@ -93,9 +112,10 @@ class AuthService {
     }
   }
 
-  // 4. Sign Out
+  /// 4. Sign Out (POST /api/auth/logout)
   Future<void> signOut() async {
     try {
+      await ApiService().initPersistentCookies();
       await _dio.post('/api/auth/logout');
       await _googleSignIn.signOut();
     } catch (e) {

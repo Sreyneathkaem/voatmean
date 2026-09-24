@@ -44,19 +44,14 @@ const splitSqlStatements = (sql) => {
       continue;
     }
 
-    // Line comment (-- ...). Checked BEFORE quote handling below, since
-    // comments can legitimately contain apostrophes (don't, isn't, won't,
-    // ...) that would otherwise be mistaken for the start of a
-    // single-quoted string and desync the rest of the parse.
     if (char === '-' && next === '-') {
       const newlineIndex = sql.indexOf('\n', i);
       const end = newlineIndex === -1 ? sql.length : newlineIndex;
       current += sql.slice(i, end);
-      i = end - 1; // for-loop's i += 1 will land us right after
+      i = end - 1;
       continue;
     }
 
-    // Block comment (/* ... */), same rationale as above.
     if (char === '/' && next === '*') {
       const endIndex = sql.indexOf('*/', i + 2);
       const end = endIndex === -1 ? sql.length : endIndex + 2;
@@ -105,10 +100,13 @@ const splitSqlStatements = (sql) => {
 };
 
 const runMigrations = async () => {
-  console.log('Running migrations...');
+  const isSeedOnly = process.argv.includes('--seed');
+  console.log(isSeedOnly ? 'Running demo seed script...' : 'Running migrations...');
+
   const files = fs
     .readdirSync(__dirname)
     .filter((f) => f.endsWith('.sql'))
+    .filter((f) => (isSeedOnly ? f === 'seed.sql' : f !== 'seed.sql'))
     .sort();
 
   const client = await pool.connect();
@@ -132,15 +130,14 @@ const runMigrations = async () => {
     client.release();
   }
 
-  console.log('✅ Migrations complete!');
-  console.log('⚠️  Update the placeholder emails in backend/src/migrations/001_schema.sql if needed.');
+  console.log(isSeedOnly ? '✅ Demo seed complete!' : '✅ Migrations complete!');
 };
 
 if (require.main === module) {
   runMigrations()
     .then(() => pool.end())
     .catch((err) => {
-      console.error('❌ Migration failed:', err.message);
+      console.error('❌ Operation failed:', err.message);
       process.exit(1);
     });
 }

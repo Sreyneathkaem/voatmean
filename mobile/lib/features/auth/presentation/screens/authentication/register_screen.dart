@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:voatmean_mobile/core/constants/app_colors.dart';
+import 'package:voatmean_mobile/core/constants/app_typography.dart';
+import 'package:voatmean_mobile/core/widgets/app_logo.dart';
 import '../../widgets/register_form.dart';
 
 class RegisterScreen extends StatelessWidget {
@@ -58,32 +59,17 @@ class RegisterScreen extends StatelessWidget {
   Widget _buildHeader() {
     return Column(
       children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: AppColors.primaryLight,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: const Icon(LucideIcons.userPlus, color: AppColors.primary, size: 28),
-        ),
-        const SizedBox(height: 16),
+        const AppLogo(size: 56, showBadge: false),
+        const SizedBox(height: 14),
         Text(
           'កំណត់ពាក្យសម្ងាត់',
-          style: GoogleFonts.kantumruyPro(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
-          ),
+          style: AppTypography.displayMedium,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         Text(
           'សម្រាប់អ្នកចូលប្រើប្រាស់លើកដំបូង សូមកំណត់ពាក្យសម្ងាត់ដើម្បីធ្វើការចូលប្រើប្រព័ន្ធ',
           textAlign: TextAlign.center,
-          style: GoogleFonts.kantumruyPro(
-            fontSize: 12,
-            color: AppColors.textMuted,
-            height: 1.5,
-          ),
+          style: AppTypography.caption,
         ),
       ],
     );

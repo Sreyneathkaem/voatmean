@@ -237,14 +237,15 @@ const createTerm = async (req, res, next) => {
   }
 };
 
+
 // POST /api/admin/teachers
 const createTeacher = async (req, res, next) => {
   try {
     const { full_name, email, gender, class_id } = req.body;
-    if (!full_name || !email || !class_id) {
+    if (!full_name || !email) {
       return res
         .status(400)
-        .json({ error: "full_name, email and class_id are required" });
+        .json({ error: "full_name and email are required" });
     }
     // Upsert user
     const userRes = await query(
@@ -257,11 +258,13 @@ const createTeacher = async (req, res, next) => {
       [full_name, email],
     );
     const teacher = userRes.rows[0];
-    // Assign to course
-    await query("UPDATE courses SET teacher_id = $1 WHERE course_id = $2", [
-      teacher.user_id,
-      class_id,
-    ]);
+    // Assign to course if provided
+    if (class_id) {
+      await query("UPDATE courses SET teacher_id = $1 WHERE course_id = $2", [
+        teacher.user_id,
+        class_id,
+      ]);
+    }
     res.status(201).json({ teacher, class_id });
   } catch (err) {
     next(err);

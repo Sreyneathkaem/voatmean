@@ -7,6 +7,7 @@ import 'package:voatmean_mobile/core/utils/validators.dart';
 import 'package:voatmean_mobile/core/widgets/custom_button.dart';
 import 'package:voatmean_mobile/core/widgets/custom_text_field.dart';
 import '../../data/models/admin_models.dart';
+import '../../data/services/admin_service.dart';
 
 /// Modal 1: Create Class Modal
 class CreateClassBottomSheet extends StatefulWidget {
@@ -46,7 +47,7 @@ class _CreateClassBottomSheetState extends State<CreateClassBottomSheet> {
     super.dispose();
   }
 
-  void _submit() {
+  void _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
     final teacher = widget.teachers.firstWhere(
@@ -54,10 +55,20 @@ class _CreateClassBottomSheetState extends State<CreateClassBottomSheet> {
       orElse: () => widget.teachers.first,
     );
 
+    final gradeText = _gradeController.text.trim();
+
+    // Persist to backend database
+    final adminService = AdminService();
+    await adminService.createHomeroomClass(
+      className: gradeText,
+      academicYear: _academicYear,
+      homeroomTeacherId: teacher.id.startsWith('tch-') ? null : teacher.id,
+    );
+
     final newClass = ClassItem(
       id: 'c-${DateTime.now().millisecondsSinceEpoch}',
-      grade: _gradeController.text.trim(),
-      gradeKhmer: _gradeController.text.trim().replaceAll('Grade ', 'ថ្នាក់ '),
+      grade: gradeText,
+      gradeKhmer: gradeText.replaceAll('Grade ', 'ថ្នាក់ '),
       subject: _subjectController.text.trim(),
       subjectKhmer: _subjectController.text.trim(),
       academicYear: _academicYear,
@@ -69,6 +80,7 @@ class _CreateClassBottomSheetState extends State<CreateClassBottomSheet> {
     );
 
     widget.onCreated(newClass);
+    if (!mounted) return;
     Navigator.pop(context);
   }
 
@@ -607,17 +619,29 @@ class _AddTeacherBottomSheetState extends State<AddTeacherBottomSheet> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(milliseconds: 500));
 
+    final latinName = _nameLatinCtrl.text.trim();
+    final khmerName = _nameKhmerCtrl.text.trim();
+    final fullName = latinName.isNotEmpty ? '$khmerName ($latinName)' : khmerName;
+    final email = _emailCtrl.text.trim();
+
+    // 1. Persist teacher to database so they are whitelisted and can register/log in
+    final adminService = AdminService();
+    await adminService.createTeacher(
+      fullName: fullName,
+      email: email,
+      gender: _gender,
+      classId: _assignedClass.isNotEmpty ? _assignedClass : null,
+    );
+
+    // 2. Build model for local UI list
     final newTeacher = TeacherModel(
       id: 'tch-${DateTime.now().millisecondsSinceEpoch}',
-      name: _nameLatinCtrl.text.trim().isNotEmpty
-          ? _nameLatinCtrl.text.trim()
-          : _nameKhmerCtrl.text.trim(),
-      nameKhmer: _nameKhmerCtrl.text.trim(),
+      name: latinName.isNotEmpty ? latinName : khmerName,
+      nameKhmer: khmerName,
       gender: _gender,
       phone: _phoneCtrl.text.trim(),
-      email: _emailCtrl.text.trim(),
+      email: email,
       subject: _subject,
       subjectKhmer: _subjectKhmer,
       assignedClasses: _assignedClass.isNotEmpty ? [_assignedClass] : [],
