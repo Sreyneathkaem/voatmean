@@ -27,7 +27,9 @@ const getAllConfigs = async (req, res, next) => {
   try {
     const { rows } = await query(
       `SELECT sfc.config_id, sfc.subject_id, s.subject_name,
-              sfc.mode, sfc.attendance_weight, sfc.teacher_score_weight, sfc.updated_at
+              sfc.mode, sfc.attendance_weight, sfc.teacher_score_weight,
+              sfc.permission_deduction, sfc.late_deduction, sfc.absent_deduction,
+              sfc.updated_at
        FROM score_formula_config sfc
        LEFT JOIN subjects s ON s.subject_id = sfc.subject_id
        ORDER BY sfc.subject_id NULLS FIRST, s.subject_name`,
@@ -81,16 +83,27 @@ const getEffectiveConfig = async (req, res, next) => {
 // Updates the system-wide fallback row.
 const updateDefaultConfig = async (req, res, next) => {
   try {
-    const { mode, attendance_weight, teacher_score_weight } = req.body;
+    const {
+      mode,
+      attendance_weight,
+      teacher_score_weight,
+      permission_deduction = 30.0,
+      late_deduction = 50.0,
+      absent_deduction = 100.0,
+    } = req.body;
     const error = validateWeights(mode, attendance_weight, teacher_score_weight);
     if (error) return res.status(400).json({ error });
 
     const { rows } = await query(
       `UPDATE score_formula_config
-       SET mode = $1, attendance_weight = $2, teacher_score_weight = $3, updated_at = NOW()
+       SET mode = $1, attendance_weight = $2, teacher_score_weight = $3,
+           permission_deduction = COALESCE($4, permission_deduction),
+           late_deduction = COALESCE($5, late_deduction),
+           absent_deduction = COALESCE($6, absent_deduction),
+           updated_at = NOW()
        WHERE subject_id IS NULL
        RETURNING *`,
-      [mode, attendance_weight, teacher_score_weight],
+      [mode, attendance_weight, teacher_score_weight, permission_deduction, late_deduction, absent_deduction],
     );
     if (!rows.length) {
       return res.status(404).json({ error: "System-wide default row is missing — run migrations" });
@@ -99,7 +112,7 @@ const updateDefaultConfig = async (req, res, next) => {
     AuditLog.create({
       event_type: "score_formula_default_updated",
       performed_by: { user_id: req.user.user_id, role: req.user.role },
-      change: { mode, attendance_weight, teacher_score_weight },
+      change: { mode, attendance_weight, teacher_score_weight, permission_deduction, late_deduction, absent_deduction },
     }).catch(() => {});
 
     res.json(rows[0]);
@@ -114,27 +127,40 @@ const updateDefaultConfig = async (req, res, next) => {
 const upsertSubjectConfig = async (req, res, next) => {
   try {
     const { subjectId } = req.params;
-    const { mode, attendance_weight, teacher_score_weight } = req.body;
+    const {
+      mode,
+      attendance_weight,
+      teacher_score_weight,
+      permission_deduction = 30.0,
+      late_deduction = 50.0,
+      absent_deduction = 100.0,
+    } = req.body;
     const error = validateWeights(mode, attendance_weight, teacher_score_weight);
     if (error) return res.status(400).json({ error });
 
     const { rows } = await query(
-      `INSERT INTO score_formula_config (subject_id, mode, attendance_weight, teacher_score_weight)
-       VALUES ($1, $2, $3, $4)
+      `INSERT INTO score_formula_config (
+         subject_id, mode, attendance_weight, teacher_score_weight,
+         permission_deduction, late_deduction, absent_deduction
+       )
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
        ON CONFLICT (subject_id) WHERE subject_id IS NOT NULL DO UPDATE SET
          mode                 = EXCLUDED.mode,
          attendance_weight    = EXCLUDED.attendance_weight,
          teacher_score_weight = EXCLUDED.teacher_score_weight,
+         permission_deduction = EXCLUDED.permission_deduction,
+         late_deduction       = EXCLUDED.late_deduction,
+         absent_deduction     = EXCLUDED.absent_deduction,
          updated_at           = NOW()
        RETURNING *`,
-      [subjectId, mode, attendance_weight, teacher_score_weight],
+      [subjectId, mode, attendance_weight, teacher_score_weight, permission_deduction, late_deduction, absent_deduction],
     );
 
     AuditLog.create({
       event_type: "score_formula_subject_override_set",
       performed_by: { user_id: req.user.user_id, role: req.user.role },
       target: { subject_id: subjectId },
-      change: { mode, attendance_weight, teacher_score_weight },
+      change: { mode, attendance_weight, teacher_score_weight, permission_deduction, late_deduction, absent_deduction },
     }).catch(() => {});
 
     res.json(rows[0]);

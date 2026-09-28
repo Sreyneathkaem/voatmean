@@ -190,13 +190,13 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                 // Default demonstration classes
                 _buildClassCard(
                   context,
-                  slotId: '1',
+                  slotId: '51741c9f-4179-48bf-bb06-237b0b5821cf',
                   grade: 'Grade 10A',
                   gradeKhmer: 'ថ្នាក់ ១០ ក',
                   subject: 'គណិតវិទ្យា (Mathematics)',
                   time: '08:00 - 09:30 AM',
                   room: 'បន្ទប់ 302',
-                  studentCount: 36,
+                  studentCount: 5,
                   isCompleted: false,
                 ),
                 const SizedBox(height: 12),

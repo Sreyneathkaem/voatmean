@@ -10,7 +10,9 @@ const {
   addStudent,
   updateStudent,
 } = require("../controllers/student.controller");
+r.get("/class/:classId", authenticate, authorizeClass, getStudentsByClass);
 r.get("/:classId", authenticate, authorizeClass, getStudentsByClass);
+r.post("/class/:classId", authenticate, authorizeClass, addStudent);
 r.post("/:classId", authenticate, authorizeClass, addStudent);
 r.put("/:studentId", authenticate, updateStudent);
 module.exports = r;

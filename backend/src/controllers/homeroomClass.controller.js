@@ -17,9 +17,16 @@ const getHomeroomClasses = async (req, res, next) => {
     const { rows } = await query(
       `SELECT hc.class_id, hc.class_name, hc.grade_level, hc.academic_year_id,
               hc.school_id, hc.created_at,
-              COUNT(cs.student_id) AS student_count
+              COUNT(DISTINCT cs.student_id) AS student_count,
+              COUNT(DISTINCT ts.slot_id) AS hours_per_week,
+              string_agg(DISTINCT u.user_id::text, ', ') AS teacher_ids,
+              string_agg(DISTINCT u.full_name, ', ') AS teacher_names,
+              string_agg(DISTINCT s.subject_name, ', ') AS subject_names
        FROM homeroom_classes hc
        LEFT JOIN class_students cs ON cs.class_id = hc.class_id
+       LEFT JOIN timetable_slots ts ON ts.class_id = hc.class_id
+       LEFT JOIN users u ON u.user_id = ts.teacher_id
+       LEFT JOIN subjects s ON s.subject_id = ts.subject_id
        GROUP BY hc.class_id
        ORDER BY hc.academic_year_id DESC, hc.class_name`,
     );
@@ -44,16 +51,23 @@ const getHomeroomClass = async (req, res, next) => {
 };
 
 // POST /api/admin/homeroom-classes
-// Body: { class_name, grade_level?, academic_year_id, school_id? }
+// Body: { class_name, grade_level?, academic_year_id, school_id?, homeroom_teacher_id?, subject_id?, hours_per_week? }
 const createHomeroomClass = async (req, res, next) => {
   try {
-    const { class_name, grade_level, academic_year_id, school_id } = req.body;
-    if (!class_name || !academic_year_id) {
-      return res
-        .status(400)
-        .json({ error: "class_name and academic_year_id are required" });
+    const {
+      class_name,
+      grade_level,
+      academic_year_id,
+      school_id,
+      homeroom_teacher_id,
+      subject_id,
+      hours_per_week,
+    } = req.body;
+    if (!class_name) {
+      return res.status(400).json({ error: "class_name is required" });
     }
 
+    const normalizedYear = (academic_year_id || "2026-2027").replace(/[–—]/g, "-");
     const resolvedSchoolId = school_id || (await getDefaultSchoolId());
     if (!resolvedSchoolId) {
       return res
@@ -65,16 +79,38 @@ const createHomeroomClass = async (req, res, next) => {
       `INSERT INTO homeroom_classes (school_id, class_name, grade_level, academic_year_id)
        VALUES ($1, $2, $3, $4)
        RETURNING *`,
-      [resolvedSchoolId, class_name, grade_level || null, academic_year_id],
+      [resolvedSchoolId, class_name, grade_level || null, normalizedYear],
     );
+
+    const createdClass = rows[0];
+
+    // If teacher and/or subject are passed, link them in timetable_slots
+    if (homeroom_teacher_id) {
+      let subId = subject_id;
+      if (!subId) {
+        const subRes = await query(`SELECT subject_id FROM subjects ORDER BY created_at LIMIT 1`);
+        subId = subRes.rows[0]?.subject_id;
+      }
+      if (subId) {
+        const hours = Number(hours_per_week) || 4;
+        for (let p = 1; p <= Math.min(hours, 5); p++) {
+          await query(
+            `INSERT INTO timetable_slots (class_id, subject_id, teacher_id, day_of_week, period)
+             VALUES ($1, $2, $3, $4, 1)
+             ON CONFLICT DO NOTHING`,
+            [createdClass.class_id, subId, homeroom_teacher_id, p],
+          );
+        }
+      }
+    }
 
     AuditLog.create({
       event_type: "homeroom_class_created",
       performed_by: { user_id: req.user.user_id, role: req.user.role },
-      target: { class_id: rows[0].class_id, class_name: rows[0].class_name },
+      target: { class_id: createdClass.class_id, class_name: createdClass.class_name },
     }).catch(() => {});
 
-    res.status(201).json(rows[0]);
+    res.status(201).json(createdClass);
   } catch (err) {
     next(err);
   }

@@ -2,14 +2,36 @@ const { query } = require("../config/db");
 
 const getStudentsByClass = async (req, res, next) => {
   try {
-    const { rows } = await query(
-      `SELECT student_id, roll_number, full_name, gender, date_of_birth, phone_number, major_id
-       FROM students 
-       WHERE course_id = $1 
-          OR (course_id IS NULL AND major_id IN (SELECT major_id FROM course_majors WHERE course_id = $1))
-       ORDER BY roll_number`,
-      [req.params.classId],
-    );
+    const { classId } = req.params;
+    let sql;
+    let params = [];
+
+    if (!classId || classId === 'all') {
+      sql = `
+        SELECT s.student_id, s.roll_number, s.full_name, s.gender, s.date_of_birth, s.phone_number, s.major_id,
+               COALESCE(hc.class_name, 'Grade 10A') AS class_name
+        FROM students s
+        LEFT JOIN class_students cs ON cs.student_id = s.student_id
+        LEFT JOIN homeroom_classes hc ON hc.class_id = cs.class_id
+        ORDER BY s.roll_number
+      `;
+    } else {
+      params = [classId];
+      sql = `
+        SELECT s.student_id, s.roll_number, s.full_name, s.gender, s.date_of_birth, s.phone_number, s.major_id,
+               COALESCE(hc.class_name, 'Grade 10A') AS class_name
+        FROM students s
+        LEFT JOIN class_students cs ON cs.student_id = s.student_id
+        LEFT JOIN homeroom_classes hc ON hc.class_id = cs.class_id
+        WHERE s.course_id = $1 
+           OR (s.course_id IS NULL AND s.major_id IN (SELECT major_id FROM course_majors WHERE course_id = $1))
+           OR cs.class_id::text = $1
+           OR hc.class_name = $1
+        ORDER BY s.roll_number
+      `;
+    }
+
+    const { rows } = await query(sql, params);
     res.json(rows);
   } catch (err) {
     next(err);

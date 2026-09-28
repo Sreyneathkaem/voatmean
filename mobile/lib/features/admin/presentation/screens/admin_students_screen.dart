@@ -3,6 +3,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:voatmean_mobile/core/constants/app_colors.dart';
 import 'package:voatmean_mobile/core/constants/app_typography.dart';
 import '../../data/models/admin_models.dart';
+import '../../data/services/admin_service.dart';
+import '../widgets/admin_bulk_import_modal.dart';
 
 class AdminStudentsScreen extends StatefulWidget {
   const AdminStudentsScreen({super.key});
@@ -12,8 +14,47 @@ class AdminStudentsScreen extends StatefulWidget {
 }
 
 class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
+  final AdminService _adminService = AdminService();
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStudents();
+  }
+
+  Future<void> _loadStudents() async {
+    final studentsData = await _adminService.getStudents();
+    if (!mounted) return;
+    if (studentsData.isNotEmpty) {
+      setState(() {
+        _students.clear();
+        for (final s in studentsData) {
+          final fullName = s['full_name']?.toString() ?? 'សិស្ស';
+          final gender = s['gender']?.toString() == 'Female' ? 'F' : 'M';
+          final phone = (s['phone_number'] as String?)?.isNotEmpty == true
+              ? s['phone_number'].toString()
+              : '012 345 678';
+          final roll = s['roll_number']?.toString() ?? '1';
+          final currentClass = s['current_class']?.toString() ?? 'Grade 10A';
+          _students.add(
+            StudentModel(
+              id: s['student_id']?.toString() ?? '',
+              studentId: 'STU${roll.padLeft(3, '0')}',
+              name: fullName,
+              nameKhmer: fullName,
+              gender: gender,
+              phone: phone,
+              currentClass: currentClass,
+              guardianPhone: phone,
+              avatarUrl: 'https://i.pravatar.cc/150?u=$roll',
+            ),
+          );
+        }
+      });
+    }
+  }
 
   final List<StudentModel> _students = [
     StudentModel(
@@ -462,8 +503,10 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(student.nameKhmer, style: AppTypography.titleLarge),
-                      const SizedBox(height: 2),
-                      Text(student.name, style: AppTypography.bodySmall.copyWith(color: AppColors.textSubtle)),
+                      if (student.name.trim().isNotEmpty && student.name.trim() != student.nameKhmer.trim()) ...[
+                        const SizedBox(height: 2),
+                        Text(student.name, style: AppTypography.bodySmall.copyWith(color: AppColors.textSubtle)),
+                      ],
                       const SizedBox(height: 6),
                       Row(
                         children: [
@@ -483,7 +526,7 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
                               borderRadius: BorderRadius.circular(6),
                               border: Border.all(color: AppColors.border),
                             ),
-                            child: Text('ID: ${student.studentId}', style: AppTypography.captionBold.copyWith(color: AppColors.textSecondary)),
+                            child: Text('អត្តលេខ: ${student.studentId}', style: AppTypography.captionBold.copyWith(color: AppColors.textSecondary)),
                           ),
                         ],
                       ),
@@ -658,19 +701,40 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
         ),
         actions: [
           Padding(
+            padding: const EdgeInsets.only(right: 6),
+            child: OutlinedButton.icon(
+              onPressed: () => AdminBulkImportModal.show(
+                context,
+                importType: BulkImportType.students,
+                onImportSuccess: _loadStudents,
+              ),
+              icon: const Icon(LucideIcons.fileSpreadsheet, size: 14, color: Color(0xFF16A34A)),
+              label: Text(
+                'នាំចូល Sheet',
+                style: AppTypography.labelSmall.copyWith(color: const Color(0xFF16A34A), fontWeight: FontWeight.bold),
+              ),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: Color(0xFF86EFAC)),
+                backgroundColor: const Color(0xFFF0FDF4),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+          ),
+          Padding(
             padding: const EdgeInsets.only(right: 8),
             child: ElevatedButton.icon(
               onPressed: _showAddStudentModal,
               icon: const Icon(LucideIcons.plus, size: 15),
               label: Text(
-                'បន្ថែមសិស្ស',
+                'បន្ថែម',
                 style: AppTypography.labelSmall.copyWith(color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 elevation: 0,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
             ),
@@ -817,18 +881,39 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
                                         const SizedBox(height: 4),
                                         Row(
                                           children: [
-                                            Text(
-                                              'ID: ${student.studentId}',
-                                              style: AppTypography.captionBold.copyWith(color: AppColors.textSecondary),
-                                            ),
-                                            const Text(' • ', style: TextStyle(color: Color(0xFFCBD5E1))),
-                                            Text(
-                                              student.phone,
-                                              style: AppTypography.caption.copyWith(
-                                                color: AppColors.textMuted,
-                                                fontWeight: FontWeight.w500,
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                                              decoration: BoxDecoration(
+                                                color: isFemale ? const Color(0xFFFDF2F8) : const Color(0xFFEFF6FF),
+                                                borderRadius: BorderRadius.circular(4),
+                                              ),
+                                              child: Text(
+                                                isFemale ? 'ស្រី' : 'ប្រុស',
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: isFemale ? const Color(0xFFDB2777) : const Color(0xFF2563EB),
+                                                ),
                                               ),
                                             ),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              '#${student.studentId.replaceAll('STU', '')}',
+                                              style: AppTypography.captionBold.copyWith(color: AppColors.textSecondary, fontSize: 11),
+                                            ),
+                                            if (student.phone.isNotEmpty) ...[
+                                              const Text(' • ', style: TextStyle(color: Color(0xFFCBD5E1))),
+                                              Expanded(
+                                                child: Text(
+                                                  student.phone,
+                                                  style: AppTypography.caption.copyWith(
+                                                    color: AppColors.textMuted,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ],
                                           ],
                                         ),
                                       ],

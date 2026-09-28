@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:voatmean_mobile/core/constants/app_colors.dart';
 import 'package:voatmean_mobile/core/constants/app_typography.dart';
+import '../../data/services/admin_service.dart';
 
 class AdminSettingsScreen extends StatefulWidget {
   final VoidCallback onSignOut;
@@ -70,6 +71,378 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
             child: Text('ចាកចេញ', style: AppTypography.labelMedium.copyWith(color: Colors.white)),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showScoreFormulaModal() async {
+    final adminService = AdminService();
+    final config = await adminService.getDefaultScoreFormula();
+    double attendanceWeight = 0.30;
+    double teacherScoreWeight = 0.70;
+    String mode = 'weighted_blend';
+
+    if (config != null) {
+      attendanceWeight = (config['attendance_weight'] as num?)?.toDouble() ?? 0.30;
+      teacherScoreWeight = (config['teacher_score_weight'] as num?)?.toDouble() ?? 0.70;
+      mode = config['mode']?.toString() ?? 'weighted_blend';
+    }
+
+    if (!mounted) return;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) => Container(
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 20,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+          ),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.border,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryLight,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(LucideIcons.calculator, color: AppColors.primary, size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('រូបមន្តគណនាពិន្ទុ (Score Formula)', style: AppTypography.titleMedium),
+                        Text('កំណត់សមាមាត្រពិន្ទុវត្តមាន និងពិន្ទុគ្រូដាក់', style: AppTypography.caption),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.slateBg,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('ពិន្ទុវត្តមាន (Attendance)', style: AppTypography.labelMedium),
+                        Text('${(attendanceWeight * 100).round()}%',
+                            style: AppTypography.labelMedium.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                    Slider(
+                      value: attendanceWeight,
+                      min: 0.0,
+                      max: 1.0,
+                      divisions: 20,
+                      activeColor: AppColors.primary,
+                      onChanged: (v) {
+                        setModalState(() {
+                          attendanceWeight = double.parse(v.toStringAsFixed(2));
+                          teacherScoreWeight = double.parse((1.0 - attendanceWeight).toStringAsFixed(2));
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('ពិន្ទុគ្រូដាក់ (Teacher Score)', style: AppTypography.labelMedium),
+                        Text('${(teacherScoreWeight * 100).round()}%',
+                            style: AppTypography.labelMedium.copyWith(color: AppColors.warningDark, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                    Slider(
+                      value: teacherScoreWeight,
+                      min: 0.0,
+                      max: 1.0,
+                      divisions: 20,
+                      activeColor: AppColors.warningDark,
+                      onChanged: (v) {
+                        setModalState(() {
+                          teacherScoreWeight = double.parse(v.toStringAsFixed(2));
+                          attendanceWeight = double.parse((1.0 - teacherScoreWeight).toStringAsFixed(2));
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    Navigator.pop(ctx);
+                    final ok = await adminService.updateDefaultScoreFormula(
+                      mode: mode,
+                      attendanceWeight: attendanceWeight,
+                      teacherScoreWeight: teacherScoreWeight,
+                    );
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          ok ? 'បានរក្សាទុករូបមន្តពិន្ទុដោយជោគជ័យ' : 'បរាជ័យក្នុងការរក្សាទុករូបមន្ត',
+                          style: AppTypography.bodySmall.copyWith(color: Colors.white),
+                        ),
+                        backgroundColor: ok ? AppColors.primary : AppColors.danger,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: Text('រក្សាទុកការកំណត់', style: AppTypography.labelMedium.copyWith(color: Colors.white)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showManageSubjectsModal() async {
+    final adminService = AdminService();
+    List<Map<String, dynamic>> subjects = await adminService.getSubjects();
+    final newSubjectCtrl = TextEditingController();
+    bool isCreating = false;
+
+    if (!mounted) return;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) => Container(
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 20,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+          ),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.border,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryLight,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(LucideIcons.bookOpen, size: 20, color: AppColors.primary),
+                      ),
+                      const SizedBox(width: 10),
+                      Text('គ្រប់គ្រងមុខវិជ្ជាសិក្សា', style: AppTypography.titleMedium),
+                    ],
+                  ),
+                  IconButton(
+                    icon: const Icon(LucideIcons.x, size: 20),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'មុខវិជ្ជាចំណេះទូទៅ និងអនុវិទ្យាល័យ/វិទ្យាល័យ (សរុប ${subjects.length} មុខវិជ្ជា)',
+                style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 16),
+
+              // Add New Subject Input Row
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.slateBg,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: newSubjectCtrl,
+                        decoration: InputDecoration(
+                          hintText: 'បញ្ចូលឈ្មោះមុខវិជ្ជាថ្មី (ឧ. សេដ្ឋកិច្ចវិទ្យា)...',
+                          hintStyle: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                        ),
+                        style: AppTypography.bodyMedium,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton.icon(
+                      onPressed: isCreating
+                          ? null
+                          : () async {
+                              final name = newSubjectCtrl.text.trim();
+                              if (name.isEmpty) return;
+                              setModalState(() => isCreating = true);
+                              final success = await adminService.createSubject(name);
+                              if (success) {
+                                newSubjectCtrl.clear();
+                                final updated = await adminService.getSubjects();
+                                setModalState(() {
+                                  subjects = updated;
+                                  isCreating = false;
+                                });
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('បានបង្កើតមុខវិជ្ជា "$name" ដោយជោគជ័យ', style: AppTypography.bodySmall.copyWith(color: Colors.white)),
+                                      backgroundColor: AppColors.success,
+                                      behavior: SnackBarBehavior.floating,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                      duration: const Duration(seconds: 2),
+                                    ),
+                                  );
+                                }
+                              } else {
+                                setModalState(() => isCreating = false);
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('បរាជ័យក្នុងការបង្កើត ឬមុខវិជ្ជាមានរួចហើយ', style: AppTypography.bodySmall.copyWith(color: Colors.white)),
+                                      backgroundColor: AppColors.danger,
+                                      behavior: SnackBarBehavior.floating,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                      icon: isCreating
+                          ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                          : const Icon(LucideIcons.plus, size: 16),
+                      label: Text('បន្ថែម', style: AppTypography.labelSmall.copyWith(color: Colors.white)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // Existing Subjects List
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 280),
+                child: subjects.isEmpty
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Text('មិនទាន់មានមុខវិជ្ជាទេ', style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted)),
+                        ),
+                      )
+                    : ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: subjects.length,
+                        separatorBuilder: (_, _) => const Divider(height: 1, color: AppColors.border),
+                        itemBuilder: (ctx, idx) {
+                          final s = subjects[idx];
+                          final sName = s['subject_name']?.toString() ?? 'មុខវិជ្ជា';
+                          return ListTile(
+                            dense: true,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            leading: Container(
+                              width: 32,
+                              height: 32,
+                              decoration: const BoxDecoration(
+                                color: AppColors.primaryLight,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '${idx + 1}',
+                                  style: AppTypography.captionBold.copyWith(color: AppColors.primary),
+                                ),
+                              ),
+                            ),
+                            title: Text(sName, style: AppTypography.bodyMedium),
+                            trailing: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: AppColors.successBg,
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: AppColors.successBorder),
+                              ),
+                              child: Text(
+                                'សកម្ម',
+                                style: AppTypography.captionBold.copyWith(color: AppColors.successText, fontSize: 11),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -503,6 +876,38 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                   ),
                 );
               },
+            ),
+            const Divider(height: 1, indent: 56, color: AppColors.border),
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(LucideIcons.calculator, size: 18, color: AppColors.primary),
+              ),
+              title: Text('រូបមន្តគណនាពិន្ទុ (Score Formula)', style: AppTypography.labelMedium),
+              subtitle: Text('កំណត់ទម្ងន់ពិន្ទុវត្តមាន និងពិន្ទុគ្រូដាក់', style: AppTypography.caption),
+              trailing: const Icon(LucideIcons.chevronRight, size: 18, color: AppColors.textSubtle),
+              onTap: _showScoreFormulaModal,
+            ),
+            const Divider(height: 1, indent: 56, color: AppColors.border),
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(LucideIcons.bookOpen, size: 18, color: AppColors.primary),
+              ),
+              title: Text('គ្រប់គ្រងមុខវិជ្ជា (Manage Subjects)', style: AppTypography.labelMedium),
+              subtitle: Text('មើលបញ្ជីមុខវិជ្ជា និងបង្កើតមុខវិជ្ជាបន្ថែម', style: AppTypography.caption),
+              trailing: const Icon(LucideIcons.chevronRight, size: 18, color: AppColors.textSubtle),
+              onTap: _showManageSubjectsModal,
             ),
           ]),
           const SizedBox(height: 20),

@@ -9,6 +9,17 @@ import 'package:voatmean_mobile/core/widgets/custom_text_field.dart';
 import '../../data/models/admin_models.dart';
 import '../../data/services/admin_service.dart';
 
+String _formatTeacherDropdownLabel(TeacherModel t) {
+  final khmer = t.nameKhmer.trim();
+  final en = t.name.trim();
+  final displayName = (khmer.isNotEmpty && en.isNotEmpty && khmer != en)
+      ? '$khmer ($en)'
+      : khmer.isNotEmpty
+          ? khmer
+          : en;
+  return t.subjectKhmer.isNotEmpty ? '$displayName - ${t.subjectKhmer}' : displayName;
+}
+
 /// Modal 1: Create Class Modal
 class CreateClassBottomSheet extends StatefulWidget {
   final List<TeacherModel> teachers;
@@ -59,14 +70,16 @@ class _CreateClassBottomSheetState extends State<CreateClassBottomSheet> {
 
     // Persist to backend database
     final adminService = AdminService();
-    await adminService.createHomeroomClass(
+    final res = await adminService.createHomeroomClass(
       className: gradeText,
       academicYear: _academicYear,
       homeroomTeacherId: teacher.id.startsWith('tch-') ? null : teacher.id,
+      hoursPerWeek: _hoursPerWeek,
     );
 
+    final realId = res?['class_id']?.toString() ?? 'c-${DateTime.now().millisecondsSinceEpoch}';
     final newClass = ClassItem(
-      id: 'c-${DateTime.now().millisecondsSinceEpoch}',
+      id: realId,
       grade: gradeText,
       gradeKhmer: gradeText.replaceAll('Grade ', 'ថ្នាក់ '),
       subject: _subjectController.text.trim(),
@@ -76,7 +89,7 @@ class _CreateClassBottomSheetState extends State<CreateClassBottomSheet> {
       assignedTeacherName: teacher.name,
       assignedTeacherKhmer: teacher.nameKhmer,
       hoursPerWeek: _hoursPerWeek,
-      totalStudents: 36,
+      totalStudents: int.tryParse('${res?['student_count']}') ?? 0,
     );
 
     widget.onCreated(newClass);
@@ -191,8 +204,9 @@ class _CreateClassBottomSheetState extends State<CreateClassBottomSheet> {
                       return DropdownMenuItem(
                         value: t.id,
                         child: Text(
-                          '${t.nameKhmer} (${t.name}) - ${t.subjectKhmer}',
+                          _formatTeacherDropdownLabel(t),
                           style: GoogleFonts.kantumruyPro(fontSize: 13),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       );
                     }).toList(),
@@ -335,11 +349,19 @@ class _AssignTeacherBottomSheetState extends State<AssignTeacherBottomSheet> {
     super.dispose();
   }
 
-  void _save() {
+  void _save() async {
     final teacher = widget.teachers.firstWhere(
       (t) => t.id == _selectedTeacherId,
       orElse: () => widget.teachers.first,
     );
+
+    final adminService = AdminService();
+    if (!widget.targetClass.id.startsWith('c-') && !teacher.id.startsWith('tch-')) {
+      await adminService.assignTeacherToClass(
+        classId: widget.targetClass.id,
+        teacherId: teacher.id,
+      );
+    }
 
     final updated = widget.targetClass.copyWith(
       subject: _subjectController.text.trim(),
@@ -351,6 +373,7 @@ class _AssignTeacherBottomSheetState extends State<AssignTeacherBottomSheet> {
     );
 
     widget.onUpdated(updated);
+    if (!mounted) return;
     Navigator.pop(context);
   }
 
@@ -443,8 +466,9 @@ class _AssignTeacherBottomSheetState extends State<AssignTeacherBottomSheet> {
                     return DropdownMenuItem(
                       value: t.id,
                       child: Text(
-                        '${t.nameKhmer} (${t.name}) - ${t.subjectKhmer}',
+                        _formatTeacherDropdownLabel(t),
                         style: GoogleFonts.kantumruyPro(fontSize: 13),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     );
                   }).toList(),
@@ -627,16 +651,19 @@ class _AddTeacherBottomSheetState extends State<AddTeacherBottomSheet> {
 
     // 1. Persist teacher to database so they are whitelisted and can register/log in
     final adminService = AdminService();
-    await adminService.createTeacher(
+    final res = await adminService.createTeacher(
       fullName: fullName,
       email: email,
       gender: _gender,
-      classId: _assignedClass.isNotEmpty ? _assignedClass : null,
+      classId: _assignedClass.isNotEmpty && !_assignedClass.startsWith('cls-') ? _assignedClass : null,
     );
+
+    final realTeacher = res?['teacher'] as Map<String, dynamic>?;
+    final realId = realTeacher?['user_id']?.toString() ?? 'tch-${DateTime.now().millisecondsSinceEpoch}';
 
     // 2. Build model for local UI list
     final newTeacher = TeacherModel(
-      id: 'tch-${DateTime.now().millisecondsSinceEpoch}',
+      id: realId,
       name: latinName.isNotEmpty ? latinName : khmerName,
       nameKhmer: khmerName,
       gender: _gender,

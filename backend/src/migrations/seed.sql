@@ -20,8 +20,8 @@ ON CONFLICT (academic_year_id, term_name) DO NOTHING;
 INSERT INTO users (full_name, email, role)
 VALUES
   ('Admin Principal', 'admin@voatmean.edu.kh', 'admin'),
-  ('លោកគ្រូ សុខ សំណាង', 'sok.samnang@voatmean.edu.kh', 'teacher'),
-  ('អ្នកគ្រូ កែវ បុប្ផា', 'keo.bopha@voatmean.edu.kh', 'teacher'),
+  ('អ្នកគ្រូ កែម ស្រីនីត (Kaem Sreyneath)', 'k.sreyneath24@gmail.com', 'teacher'),
+  ('អ្នកគ្រូ យុង ស្រីនាង (Yung Sreyneang)', 'neangsrey137@gmail.com', 'teacher'),
   ('Kaem Sreyneath', 'sreyneathk24@gmail.com', 'admin')
 ON CONFLICT (email) DO NOTHING;
 
@@ -53,7 +53,7 @@ SELECT
   'c1',
   'Grade 10A Mathematics',
   '2026-2027',
-  (SELECT user_id FROM users WHERE email = 'sok.samnang@voatmean.edu.kh' LIMIT 1),
+  (SELECT user_id FROM users WHERE email = 'k.sreyneath24@gmail.com' LIMIT 1),
   (SELECT term_id FROM terms WHERE academic_year_id = '2026-2027' AND term_name = 'Semester 1' LIMIT 1)
 ON CONFLICT (course_id) DO NOTHING;
 
@@ -67,17 +67,32 @@ VALUES
   ('c1', '5', 'ជា វណ្ណៈ (Chea Vannak)', 'Male', '2009-08-18', '011223344')
 ON CONFLICT (course_id, roll_number) DO NOTHING;
 
+-- 7b. Class Students Enrollment
+INSERT INTO class_students (class_id, student_id)
+SELECT hc.class_id, s.student_id
+FROM homeroom_classes hc
+CROSS JOIN students s
+WHERE hc.class_name = 'Grade 10A' AND s.course_id = 'c1'
+ON CONFLICT (class_id, student_id) DO NOTHING;
+
 -- 8. Timetable Slots
 INSERT INTO timetable_slots (class_id, subject_id, teacher_id, day_of_week, period)
 SELECT
   hc.class_id,
   sub.subject_id,
   usr.user_id,
-  1,
-  1
+  v.day_of_week,
+  v.period
 FROM homeroom_classes hc
 CROSS JOIN subjects sub
 CROSS JOIN users usr
+CROSS JOIN (VALUES
+  (1, 1),
+  (2, 1),
+  (3, 1),
+  (4, 1),
+  (5, 1)
+) AS v(day_of_week, period)
 WHERE hc.class_name = 'Grade 10A'
   AND sub.subject_name = 'Mathematics'
   AND usr.email = 'sok.samnang@voatmean.edu.kh'

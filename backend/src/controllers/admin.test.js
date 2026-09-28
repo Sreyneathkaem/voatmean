@@ -17,6 +17,8 @@ const {
   getClasses,
   createClass,
   assignTeacher,
+  bulkImportStudents,
+  bulkImportTeachers,
 } = require("./admin.controller");
 
 const db = require("../config/db");
@@ -285,4 +287,68 @@ describe("Admin Controller", () => {
       expect(res.json).toHaveBeenCalledWith(updated);
     });
   });
+
+  describe("bulkImportStudents", () => {
+    it("returns 400 when students array is empty", async () => {
+      req.body = { students: [] };
+      await bulkImportStudents(req, res, next);
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ error: "No students provided for import" });
+    });
+
+    it("imports students successfully", async () => {
+      req.body = {
+        students: [
+          { full_name: "Sok Piseth", gender: "Male", roll_number: "1", class_name: "Grade 10A" },
+        ],
+      };
+
+      db.query.mockResolvedValueOnce({ rows: [{ school_id: "s1" }] }); // school_id
+      db.query.mockResolvedValueOnce({ rows: [{ class_id: "c10a", class_name: "Grade 10A" }] }); // homeroom_classes
+      db.query.mockResolvedValueOnce({ rows: [] }); // check existing student
+      db.query.mockResolvedValueOnce({ rows: [{ student_id: "stu-1" }] }); // insert student
+      db.query.mockResolvedValueOnce({}); // insert class_students
+
+      await bulkImportStudents(req, res, next);
+
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          imported_count: 1,
+        }),
+      );
+    });
+  });
+
+  describe("bulkImportTeachers", () => {
+    it("returns 400 when teachers array is empty", async () => {
+      req.body = { teachers: [] };
+      await bulkImportTeachers(req, res, next);
+      expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    it("imports teachers successfully", async () => {
+      req.body = {
+        teachers: [
+          { full_name: "Sok Samnang", email: "sok@school.edu", subject: "Mathematics", classes: ["Grade 10A"] },
+        ],
+      };
+
+      db.query.mockResolvedValueOnce({ rows: [{ school_id: "s1" }] }); // school
+      db.query.mockResolvedValueOnce({ rows: [{ subject_id: "sub1", subject_name: "Mathematics" }] }); // subjects
+      db.query.mockResolvedValueOnce({ rows: [{ user_id: "u-tch-1" }] }); // insert user
+      db.query.mockResolvedValueOnce({ rows: [{ class_id: "c10a" }] }); // insert/get class
+      db.query.mockResolvedValueOnce({}); // insert timetable_slot
+
+      await bulkImportTeachers(req, res, next);
+
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          imported_count: 1,
+        }),
+      );
+    });
+  });
 });
+

@@ -30,11 +30,11 @@ class _AttendanceMarkingScreenState extends State<AttendanceMarkingScreen> {
   List<Map<String, dynamic>> _students = [];
 
   final List<Map<String, dynamic>> _defaultStudents = [
-    {'id': '1', 'name': 'Sok Samnang', 'nameKhmer': 'សុខ សំណាង', 'gender': 'M', 'status': AttendanceStatus.present},
-    {'id': '2', 'name': 'Keo Bopha', 'nameKhmer': 'កែវ បុប្ផា', 'gender': 'F', 'status': AttendanceStatus.present},
-    {'id': '3', 'name': 'Chan Sreymom', 'nameKhmer': 'ចាន់ ស្រីមុំ', 'gender': 'F', 'status': AttendanceStatus.present},
-    {'id': '4', 'name': 'Heng Piseth', 'nameKhmer': 'ហេង ពិសិដ្ឋ', 'gender': 'M', 'status': AttendanceStatus.present},
-    {'id': '5', 'name': 'Chea Vannak', 'nameKhmer': 'ជា វណ្ណៈ', 'gender': 'M', 'status': AttendanceStatus.present},
+    {'id': '559f92b5-9c41-4b2c-8cc6-130464b19adc', 'name': 'Sok Samnang', 'nameKhmer': 'សុខ សំណាង', 'gender': 'M', 'status': AttendanceStatus.present},
+    {'id': 'c0d350e5-9d18-4631-b42c-2feebb3e7b86', 'name': 'Keo Bopha', 'nameKhmer': 'កែវ បុប្ផា', 'gender': 'F', 'status': AttendanceStatus.present},
+    {'id': 'f8def2f3-1e8e-4487-ac45-b671bfb682c4', 'name': 'Chan Sreymom', 'nameKhmer': 'ចាន់ ស្រីមុំ', 'gender': 'F', 'status': AttendanceStatus.present},
+    {'id': 'bb921974-4303-4f8e-9ffc-a54d8451ee50', 'name': 'Heng Piseth', 'nameKhmer': 'ហេង ពិសិដ្ឋ', 'gender': 'M', 'status': AttendanceStatus.present},
+    {'id': 'f69827d4-800d-4d21-a06e-35f3ff2d6f89', 'name': 'Chea Vannak', 'nameKhmer': 'ជា វណ្ណៈ', 'gender': 'M', 'status': AttendanceStatus.present},
   ];
 
   @override
@@ -404,10 +404,13 @@ class _AttendanceMarkingScreenState extends State<AttendanceMarkingScreen> {
                     ),
                   ],
                 ),
-                Text(
-                  student['name'] ?? '',
-                  style: AppTypography.caption,
-                ),
+                if (student['name'] != null &&
+                    student['name'].toString().trim().isNotEmpty &&
+                    student['name'].toString().trim() != nameKhmer.trim())
+                  Text(
+                    student['name'].toString().trim(),
+                    style: AppTypography.caption,
+                  ),
               ],
             ),
           ),

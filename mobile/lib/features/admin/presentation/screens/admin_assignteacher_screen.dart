@@ -3,7 +3,9 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:voatmean_mobile/core/constants/app_colors.dart';
 import 'package:voatmean_mobile/core/constants/app_typography.dart';
 import '../widgets/admin_modals.dart';
+import '../widgets/admin_bulk_import_modal.dart';
 import '../../data/models/admin_models.dart';
+import '../../data/services/admin_service.dart';
 
 class AdminAssignTeacherScreen extends StatefulWidget {
   const AdminAssignTeacherScreen({super.key});
@@ -13,34 +15,114 @@ class AdminAssignTeacherScreen extends StatefulWidget {
 }
 
 class _AdminAssignTeacherScreenState extends State<AdminAssignTeacherScreen> {
+  final AdminService _adminService = AdminService();
   String _searchQuery = '';
   String _subjectFilter = 'all';
   final TextEditingController _searchController = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    final teachersData = await _adminService.getTeachers();
+    final classesData = await _adminService.getHomeroomClasses();
+
+    if (!mounted) return;
+    setState(() {
+      if (teachersData.isNotEmpty) {
+        _teachers.clear();
+        for (final t in teachersData) {
+          final fullName = t['full_name']?.toString() ?? 'គ្រូបង្រៀន';
+          final email = t['email']?.toString() ?? '';
+          final isFemale = fullName.contains('Ms.') || fullName.contains('អ្នកគ្រូ');
+          _teachers.add(
+            TeacherModel(
+              id: t['user_id']?.toString() ?? '',
+              name: fullName,
+              nameKhmer: fullName,
+              gender: isFemale ? 'F' : 'M',
+              phone: '012 345 678',
+              email: email,
+              subject: (t['subject_names'] as String?)?.isNotEmpty == true
+                  ? t['subject_names']
+                  : 'គណិតវិទ្យា',
+              subjectKhmer: (t['subject_names'] as String?)?.isNotEmpty == true
+                  ? t['subject_names']
+                  : 'គណិតវិទ្យា',
+              assignedClasses: (t['class_names'] as String?)?.isNotEmpty == true
+                  ? (t['class_names'] as String).split(', ')
+                  : [],
+              teachingHoursPerWeek: int.tryParse('${t['teaching_hours']}') ?? 18,
+              avatarUrl: isFemale
+                  ? 'https://lh3.googleusercontent.com/aida-public/AB6AXuDKXn-M7jF75SMdrp_hGjewG7ANg6848MJ5nrOG_44YRFPaWD40XYQEjgp4g7PfJRXS1bs-O6q0jLQZt7xim1XJrHg_A03d7vQJ-C0CgG-f-pH1Cs6A5zPbrcJQODahwb0Cbqhsz3VjyLDqSSLW43iS-rwkuYmX4ODnTPXLT6wA4a4TcGP61Ka7QtTlJNJghMNGVTpZ1RhT_w7fmn1DZOyhL_XxomSk3GnTJDWUOSZNU4hFLXeR7xc'
+                  : 'https://lh3.googleusercontent.com/aida-public/AB6AXuBW60befM5ZEuh3cxe1G0lFhJPxhypregWJHKo1-hfuMx2Nz3QkzlB8NeWkXkCk5BQl_PRTXh7PPqYrIg5drnobS_azzQ1KBedpg20vJWfNGNC4vk5_7F8I7Q8bkuWLBti5jbTOUK396MJMdlrBX-yE2a87Sqt5Ki9PuayDZHI35cIW-aeXzcHeERXz1oJ_7ZxU4WqN9usU742nu8iXkUIrJV5DQJkQUN5eeqfpUh-CCPVL1daNeU',
+            ),
+          );
+        }
+      }
+
+      if (classesData.isNotEmpty) {
+        _classes.clear();
+        for (final row in classesData) {
+          final className = row['class_name']?.toString() ?? 'Class';
+          if (className.contains('UNASSIGNED')) continue;
+          _classes.add(
+            ClassItem(
+              id: row['class_id']?.toString() ?? '',
+              grade: className,
+              gradeKhmer: className.replaceAll('Grade ', 'ថ្នាក់ '),
+              subject: (row['subject_names'] as String?)?.isNotEmpty == true
+                  ? row['subject_names']
+                  : 'ទូទៅ',
+              subjectKhmer: (row['subject_names'] as String?)?.isNotEmpty == true
+                  ? row['subject_names']
+                  : 'ទូទៅ',
+              academicYear: (row['academic_year_id']?.toString() ?? '2026-2027')
+                  .replaceAll('-', '–'),
+              assignedTeacherId:
+                  (row['teacher_ids'] as String?)?.split(',').first.trim() ?? '',
+              assignedTeacherName:
+                  (row['teacher_names'] as String?)?.split(',').first.trim() ??
+                      'មិនទាន់ចាត់តាំង',
+              assignedTeacherKhmer:
+                  (row['teacher_names'] as String?)?.split(',').first.trim() ??
+                      'មិនទាន់ចាត់តាំង',
+              hoursPerWeek: int.tryParse('${row['hours_per_week']}') ?? 4,
+              totalStudents: int.tryParse('${row['student_count']}') ?? 0,
+            ),
+          );
+        }
+      }
+    });
+  }
+
   final List<TeacherModel> _teachers = [
     TeacherModel(
-      id: 'tch-1',
-      name: 'Sok Samnang',
-      nameKhmer: 'លោកគ្រូ សុខ សំណាង',
-      gender: 'M',
+      id: '8f7bcc0f-c914-4757-9738-d7f257c4c1a2',
+      name: 'Kaem Sreyneath',
+      nameKhmer: 'អ្នកគ្រូ កែម ស្រីនីត (Kaem Sreyneath)',
+      gender: 'F',
       phone: '012 345 678',
-      email: 'sok.samnang@school.edu',
+      email: 'k.sreyneath24@gmail.com',
       subject: 'Mathematics',
       subjectKhmer: 'គណិតវិទ្យា',
-      assignedClasses: ['Grade 10A', 'Grade 12A'],
+      assignedClasses: ['Grade 10A', 'Grade 11A', 'Grade 12B'],
       teachingHoursPerWeek: 18,
-      avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBW60befM5ZEuh3cxe1G0lFhJPxhypregWJHKo1-hfuMx2Nz3QkzlB8NeWkXkCk5BQl_PRTXh7PPqYrIg5drnobS_azzQ1KBedpg20vJWfNGNC4vk5_7F8I7Q8bkuWLBti5jbTOUK396MJMdlrBX-yE2a87Sqt5Ki9PuayDZHI35cIW-aeXzcHeERXz1oJ_7ZxU4WqN9usU742nu8iXkUIrJV5DQJkQUN5eeqfpUh-CCPVL1daNeU',
+      avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDKXn-M7jF75SMdrp_hGjewG7ANg6848MJ5nrOG_44YRFPaWD40XYQEjgp4g7PfJRXS1bs-O6q0jLQZt7xim1XJrHg_A03d7vQJ-C0CgG-f-pH1Cs6A5zPbrcJQODahwb0Cbqhsz3VjyLDqSSLW43iS-rwkuYmX4ODnTPXLT6wA4a4TcGP61Ka7QtTlJNJghMNGVTpZ1RhT_w7fmn1DZOyhL_XxomSk3GnTJDWUOSZNU4hFLXeR7xc',
     ),
     TeacherModel(
-      id: 'tch-2',
-      name: 'Keo Bopha',
-      nameKhmer: 'អ្នកគ្រូ កែវ បុប្ផា',
+      id: '83a60985-e10d-47ed-96d2-f888aef71a78',
+      name: 'Yung Sreyneang',
+      nameKhmer: 'អ្នកគ្រូ យុង ស្រីនាង (Yung Sreyneang)',
       gender: 'F',
       phone: '098 765 432',
-      email: 'keo.bopha@school.edu',
+      email: 'neangsrey137@gmail.com',
       subject: 'Physics',
       subjectKhmer: 'រូបវិទ្យា',
-      assignedClasses: ['Grade 10B'],
+      assignedClasses: ['Grade 10B', 'Grade 11B', 'Grade 12A'],
       teachingHoursPerWeek: 16,
       avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDKXn-M7jF75SMdrp_hGjewG7ANg6848MJ5nrOG_44YRFPaWD40XYQEjgp4g7PfJRXS1bs-O6q0jLQZt7xim1XJrHg_A03d7vQJ-C0CgG-f-pH1Cs6A5zPbrcJQODahwb0Cbqhsz3VjyLDqSSLW43iS-rwkuYmX4ODnTPXLT6wA4a4TcGP61Ka7QtTlJNJghMNGVTpZ1RhT_w7fmn1DZOyhL_XxomSk3GnTJDWUOSZNU4hFLXeR7xc',
     ),
@@ -54,9 +136,9 @@ class _AdminAssignTeacherScreenState extends State<AdminAssignTeacherScreen> {
       subject: 'គណិតវិទ្យា',
       subjectKhmer: 'គណិតវិទ្យា',
       academicYear: '2026–2027',
-      assignedTeacherId: 'tch-1',
-      assignedTeacherName: 'Sok Samnang',
-      assignedTeacherKhmer: 'សុខ សំណាង',
+      assignedTeacherId: '8f7bcc0f-c914-4757-9738-d7f257c4c1a2',
+      assignedTeacherName: 'Kaem Sreyneath',
+      assignedTeacherKhmer: 'អ្នកគ្រូ កែម ស្រីនីត (Kaem Sreyneath)',
       hoursPerWeek: 6,
       totalStudents: 36,
     ),
@@ -420,52 +502,79 @@ class _AdminAssignTeacherScreenState extends State<AdminAssignTeacherScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: AppColors.border),
+        boxShadow: AppColors.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryLight,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(LucideIcons.users, color: AppColors.primary, size: 20),
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        'គ្រូបង្រៀនក្នុងប្រព័ន្ធ',
-                        style: AppTypography.titleSmall,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'សរុបមានគ្រូបង្រៀនចំនួន ${_teachers.length} នាក់ក្នុងសាលា',
-                    style: AppTypography.caption,
-                  ),
-                ],
-              ),
-              ElevatedButton.icon(
-                onPressed: _openAddTeacherModal,
-                icon: const Icon(LucideIcons.userPlus, size: 14),
-                label: Text(
-                  'គ្រូថ្មី',
-                  style: AppTypography.labelSmall.copyWith(color: Colors.white),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                child: const Icon(LucideIcons.users, color: AppColors.primary, size: 20),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'គ្រូបង្រៀនក្នុងប្រព័ន្ធ',
+                      style: AppTypography.titleSmall,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'សរុបមានគ្រូបង្រៀនចំនួន ${_teachers.length} នាក់ក្នុងសាលា',
+                      style: AppTypography.caption.copyWith(color: AppColors.textMuted),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => AdminBulkImportModal.show(
+                    context,
+                    importType: BulkImportType.teachers,
+                    onImportSuccess: _loadData,
+                  ),
+                  icon: const Icon(LucideIcons.fileSpreadsheet, size: 14, color: Color(0xFF16A34A)),
+                  label: Text(
+                    'នាំចូល Sheet',
+                    style: AppTypography.labelSmall.copyWith(color: const Color(0xFF16A34A), fontWeight: FontWeight.bold),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFF86EFAC)),
+                    backgroundColor: const Color(0xFFF0FDF4),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _openAddTeacherModal,
+                  icon: const Icon(LucideIcons.userPlus, size: 14),
+                  label: Text(
+                    'បន្ថែមគ្រូថ្មី',
+                    style: AppTypography.labelSmall.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
                 ),
               ),
             ],
@@ -637,49 +746,79 @@ class _AdminAssignTeacherScreenState extends State<AdminAssignTeacherScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Wrap(
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: 6,
-                      runSpacing: 4,
+                    Row(
                       children: [
-                        Text(
-                          teacher.nameKhmer,
-                          style: AppTypography.titleSmall,
+                        Expanded(
+                          child: Text(
+                            teacher.nameKhmer,
+                            style: AppTypography.titleSmall.copyWith(fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
+                        IconButton(
+                          onPressed: () => _openEditTeacherModal(teacher),
+                          icon: const Icon(LucideIcons.edit2, size: 16),
+                          color: AppColors.textMuted,
+                          visualDensity: VisualDensity.compact,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                        ),
+                        const SizedBox(width: 4),
+                        IconButton(
+                          onPressed: () => _deleteTeacher(teacher),
+                          icon: const Icon(LucideIcons.trash2, size: 16),
+                          color: AppColors.danger,
+                          visualDensity: VisualDensity.compact,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
                           decoration: BoxDecoration(
-                            color: AppColors.primaryLight,
-                            borderRadius: BorderRadius.circular(8),
+                            color: teacher.gender == 'F' ? const Color(0xFFFDF2F8) : const Color(0xFFEFF6FF),
+                            borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
-                            teacher.subjectKhmer,
-                            style: AppTypography.captionBold.copyWith(color: AppColors.primaryDark),
+                            teacher.gender == 'F' ? 'ស្រី' : 'ប្រុស',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: teacher.gender == 'F' ? const Color(0xFFDB2777) : const Color(0xFF2563EB),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryLight,
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: AppColors.primaryBorder),
+                            ),
+                            child: Text(
+                              teacher.subjectKhmer,
+                              style: AppTypography.captionBold.copyWith(color: AppColors.primary, fontSize: 10.5),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 3),
                     Text(
-                      '${teacher.name} • ${teacher.gender == 'M' ? 'ប្រុស' : 'ស្រី'}',
-                      style: AppTypography.caption,
+                      teacher.email,
+                      style: AppTypography.caption.copyWith(color: AppColors.textMuted),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
-              ),
-              Row(
-                children: [
-                  IconButton(
-                    onPressed: () => _openEditTeacherModal(teacher),
-                    icon: const Icon(LucideIcons.edit2, size: 16),
-                    color: AppColors.textMuted,
-                  ),
-                  IconButton(
-                    onPressed: () => _deleteTeacher(teacher),
-                    icon: const Icon(LucideIcons.trash2, size: 16),
-                    color: AppColors.danger,
-                  ),
-                ],
               ),
             ],
           ),
@@ -687,11 +826,11 @@ class _AdminAssignTeacherScreenState extends State<AdminAssignTeacherScreen> {
 
           // Row 2: Badges
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
               color: AppColors.slateBg,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFFF1F5F9)),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.border),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -702,19 +841,12 @@ class _AdminAssignTeacherScreenState extends State<AdminAssignTeacherScreen> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(LucideIcons.bookOpen, size: 14, color: AppColors.primary),
+                        const Icon(LucideIcons.graduationCap, size: 14, color: AppColors.primary),
                         const SizedBox(width: 6),
-                        Text('ថ្នាក់បង្រៀន៖', style: AppTypography.caption),
+                        Text('ថ្នាក់ទទួលបន្ទុក៖', style: AppTypography.captionBold.copyWith(color: AppColors.textSecondary)),
                       ],
                     ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(LucideIcons.clock, size: 14, color: AppColors.primary),
-                        const SizedBox(width: 4),
-                        Text('${teacher.teachingHoursPerWeek} ម៉ោង/សប្តាហ៍', style: AppTypography.captionBold),
-                      ],
-                    ),
+                    Text('${teacher.teachingHoursPerWeek} ម៉ោង/សប្តាហ៍', style: AppTypography.captionBold.copyWith(color: AppColors.primary)),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -723,17 +855,17 @@ class _AdminAssignTeacherScreenState extends State<AdminAssignTeacherScreen> {
                     spacing: 6,
                     runSpacing: 6,
                     children: teacher.assignedClasses.map((c) => Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(6),
                             border: Border.all(color: AppColors.border),
                           ),
-                          child: Text(c, style: AppTypography.captionBold),
+                          child: Text(c, style: AppTypography.captionBold.copyWith(fontSize: 11)),
                         )).toList(),
                   )
                 else
-                  Text('មិនទាន់កំណត់', style: AppTypography.caption),
+                  Text('មិនទាន់កំណត់ថ្នាក់', style: AppTypography.caption.copyWith(color: AppColors.textMuted)),
               ],
             ),
           ),

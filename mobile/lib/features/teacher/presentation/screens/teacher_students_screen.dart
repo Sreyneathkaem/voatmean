@@ -81,7 +81,16 @@ class _TeacherStudentsScreenState extends State<TeacherStudentsScreen> {
 
   Future<void> _loadStudents() async {
     setState(() => _isLoading = true);
-    final data = await _teacherService.getStudentsByClass('class-1');
+
+    String targetClassId = 'all';
+    try {
+      final slots = await _teacherService.getMySlots();
+      if (slots.isNotEmpty && slots.first['class_id'] != null) {
+        targetClassId = slots.first['class_id'].toString();
+      }
+    } catch (_) {}
+
+    final data = await _teacherService.getStudentsByClass(targetClassId);
     if (mounted) {
       setState(() {
         _students = data.isNotEmpty ? data : _defaultStudents;
@@ -732,11 +741,10 @@ class _TeacherStudentsScreenState extends State<TeacherStudentsScreen> {
                         itemBuilder: (ctx, index) {
                           final student = filtered[index];
                           final nameKhmer = student['nameKhmer'] ?? student['full_name'] ?? 'សិស្ស';
-                          final fullName = student['full_name'] ?? '';
                           final gender = student['gender'] ?? 'M';
-                          final isFemale = gender == 'F';
+                          final isFemale = gender == 'F' || gender == 'Female';
                           final rollNumber = student['roll_number'] ?? '${index + 1}'.padLeft(2, '0');
-                          final studentId = student['student_id'] ?? 'STU00$index';
+                          final className = student['class_name']?.toString() ?? 'Grade 10A';
                           final phone = student['phone_number']?.toString();
 
                           return Container(
@@ -760,12 +768,12 @@ class _TeacherStudentsScreenState extends State<TeacherStudentsScreen> {
                                       ),
                                     ),
                                   ),
-                                  padding: const EdgeInsets.all(14),
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                                   child: Row(
                                     children: [
                                       // Avatar with initial
                                       CircleAvatar(
-                                        radius: 22,
+                                        radius: 20,
                                         backgroundColor: isFemale
                                             ? const Color(0xFFFDF2F8)
                                             : AppColors.primaryLight,
@@ -775,10 +783,11 @@ class _TeacherStudentsScreenState extends State<TeacherStudentsScreen> {
                                             color: isFemale
                                                 ? const Color(0xFFDB2777)
                                                 : AppColors.primary,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ),
-                                      const SizedBox(width: 14),
+                                      const SizedBox(width: 12),
 
                                       // Student Information
                                       Expanded(
@@ -787,7 +796,7 @@ class _TeacherStudentsScreenState extends State<TeacherStudentsScreen> {
                                           children: [
                                             Row(
                                               children: [
-                                                Flexible(
+                                                Expanded(
                                                   child: Text(
                                                     nameKhmer,
                                                     style: AppTypography.titleSmall,
@@ -806,27 +815,34 @@ class _TeacherStudentsScreenState extends State<TeacherStudentsScreen> {
                                                     '#$rollNumber',
                                                     style: AppTypography.captionBold.copyWith(
                                                       color: AppColors.textSecondary,
+                                                      fontSize: 11,
                                                     ),
                                                   ),
                                                 ),
                                               ],
                                             ),
-                                            const SizedBox(height: 3),
+                                            const SizedBox(height: 4),
                                             Row(
                                               children: [
-                                                Flexible(
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                                                  decoration: BoxDecoration(
+                                                    color: isFemale ? const Color(0xFFFDF2F8) : const Color(0xFFEFF6FF),
+                                                    borderRadius: BorderRadius.circular(4),
+                                                  ),
                                                   child: Text(
-                                                    fullName,
-                                                    style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
-                                                    overflow: TextOverflow.ellipsis,
+                                                    isFemale ? 'ស្រី' : 'ប្រុស',
+                                                    style: TextStyle(
+                                                      fontSize: 10,
+                                                      fontWeight: FontWeight.bold,
+                                                      color: isFemale ? const Color(0xFFDB2777) : const Color(0xFF2563EB),
+                                                    ),
                                                   ),
                                                 ),
-                                                const Text(' • ', style: TextStyle(color: AppColors.border)),
+                                                const SizedBox(width: 6),
                                                 Text(
-                                                  'ID: $studentId',
-                                                  style: AppTypography.captionBold.copyWith(
-                                                    color: AppColors.primary,
-                                                  ),
+                                                  className,
+                                                  style: AppTypography.caption.copyWith(color: AppColors.textMuted),
                                                 ),
                                               ],
                                             ),
@@ -835,30 +851,32 @@ class _TeacherStudentsScreenState extends State<TeacherStudentsScreen> {
                                       ),
 
                                       // Phone number badge (Clickable dialer)
-                                      if (phone != null && phone.isNotEmpty)
+                                      if (phone != null && phone.isNotEmpty) ...[
+                                        const SizedBox(width: 8),
                                         InkWell(
                                           onTap: () => _callPhone(phone, nameKhmer),
-                                          borderRadius: BorderRadius.circular(10),
+                                          borderRadius: BorderRadius.circular(8),
                                           child: Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                                             decoration: BoxDecoration(
                                               color: const Color(0xFFF1F5F9),
-                                              borderRadius: BorderRadius.circular(10),
+                                              borderRadius: BorderRadius.circular(8),
                                               border: Border.all(color: AppColors.border),
                                             ),
                                             child: Row(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
                                                 const Icon(LucideIcons.phone, size: 12, color: AppColors.primary),
-                                                const SizedBox(width: 5),
+                                                const SizedBox(width: 4),
                                                 Text(
                                                   phone,
-                                                  style: AppTypography.captionBold.copyWith(color: AppColors.textPrimary),
+                                                  style: AppTypography.captionBold.copyWith(color: AppColors.textPrimary, fontSize: 11),
                                                 ),
                                               ],
                                             ),
                                           ),
                                         ),
+                                      ],
                                       const SizedBox(width: 6),
                                       const Icon(LucideIcons.chevronRight, size: 16, color: AppColors.textSubtle),
                                     ],

@@ -449,14 +449,10 @@ INSERT INTO users (email, full_name, role) VALUES
   ('hd6024010112@camtech.edu.kh', 'Mr. Hong Dara', 'admin')
 ON CONFLICT (email) DO NOTHING;
 
--- Teachers (replace with real Google emails)
+-- Teachers (Only Kaem Sreyneath and Yung Sreyneang)
 INSERT INTO users (email, full_name, role) VALUES
-  ('sreyneathk24@gmail.com',   'Ms. Sreyneath',  'teacher'),
-  ('darikasophea2@gmail.com',  'Ms. Darika',     'teacher'),
-  ('virakrangsey@gmail.com',   'Ms. RangseyV',   'teacher'),
-  ('neangsrey137@gmail.com',   'Ms. Sreyneang',  'teacher'),
-  ('sovannmakara2@gmail.com',  'Mr. Makara',     'teacher'),
-  ('chanthyrith2@gmail.com',   'Mr. Chanthy',    'teacher')
+  ('k.sreyneath24@gmail.com',   'អ្នកគ្រូ កែម ស្រីនីត (Kaem Sreyneath)',  'teacher'),
+  ('neangsrey137@gmail.com',   'អ្នកគ្រូ យុង ស្រីនាង (Yung Sreyneang)',  'teacher')
 ON CONFLICT (email) DO NOTHING;
 
 -- ── Courses ────────────────────────────────────────
@@ -488,18 +484,12 @@ INSERT INTO courses (course_id, course_name) VALUES
   ('023', 'Blockchain Technology')
 ON CONFLICT (course_id) DO NOTHING;
 
--- Assign teachers to courses (dropdown-style admin assignment)
-UPDATE courses SET teacher_id = (SELECT user_id FROM users WHERE email = 'sk6024010075@camtech.edu.kh')      WHERE course_id = '001';
-UPDATE courses SET teacher_id = (SELECT user_id FROM users WHERE email = 'ds6024010093@camtech.edu.kh')      WHERE course_id = '006';
-UPDATE courses SET teacher_id = (SELECT user_id FROM users WHERE email = 'rv6024010101@camtech.edu.kh')      WHERE course_id = '010';
-UPDATE courses SET teacher_id = (SELECT user_id FROM users WHERE email = 'ys6024010107@camtech.edu.kh')      WHERE course_id = '007';
-UPDATE courses SET teacher_id = (SELECT user_id FROM users WHERE email = 'sreyneathk24@gmail.com')          WHERE course_id IN ('002','017','023');
-UPDATE courses SET teacher_id = (SELECT user_id FROM users WHERE email = 'darikasophea2@gmail.com')         WHERE course_id IN ('003','018');
-UPDATE courses SET teacher_id = (SELECT user_id FROM users WHERE email = 'virakrangsey@gmail.com')          WHERE course_id IN ('004','019');
-UPDATE courses SET teacher_id = (SELECT user_id FROM users WHERE email = 'neangsrey137@gmail.com')          WHERE course_id IN ('005','020');
-UPDATE courses SET teacher_id = (SELECT user_id FROM users WHERE email = 'sovannmakara2@gmail.com')         WHERE course_id IN ('021');
-UPDATE courses SET teacher_id = (SELECT user_id FROM users WHERE email = 'chanthyrith2@gmail.com')          WHERE course_id IN ('022');
-UPDATE courses SET teacher_id = (SELECT user_id FROM users WHERE email = 'hd6024010112@camtech.edu.kh')     WHERE course_id IN ('008','009','011','012','013','014','015','016');
+-- Assign teachers to courses (distributed between Kaem Sreyneath and Yung Sreyneang)
+UPDATE courses SET teacher_id = (SELECT user_id FROM users WHERE email = 'k.sreyneath24@gmail.com')
+WHERE course_id IN ('001','002','004','006','008','010','012','014','016','017','019','023');
+
+UPDATE courses SET teacher_id = (SELECT user_id FROM users WHERE email = 'neangsrey137@gmail.com')
+WHERE course_id IN ('003','005','007','009','011','013','015','018','020','021','022');
 
 -- Wire courses into terms, majors, and planned session counts
 -- (drives the Score card denominator).

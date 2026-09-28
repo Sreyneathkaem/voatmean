@@ -16,19 +16,29 @@ class AppColors {
   static const Color cardBorder = Color(0xFFE2E8F0);
 
   // Modern Card Elevation Shadow
-  static List<BoxShadow> get cardShadow => [
+  static List<BoxShadow> get cardShadow => const [
         BoxShadow(
-          color: const Color(0xFF0F172A).withValues(alpha: 0.05),
-          blurRadius: 10,
-          offset: const Offset(0, 2),
+          color: Color(0x140F172A), // 8% crisp shadow for clear box noticeability
+          blurRadius: 14,
+          offset: Offset(0, 4),
+        ),
+        BoxShadow(
+          color: Color(0x080F172A), // 3% ambient soft fill
+          blurRadius: 6,
+          offset: Offset(0, 1),
         ),
       ];
 
-  static List<BoxShadow> get elevatedShadow => [
+  static List<BoxShadow> get elevatedShadow => const [
         BoxShadow(
-          color: const Color(0xFF0F172A).withValues(alpha: 0.08),
-          blurRadius: 14,
-          offset: const Offset(0, 4),
+          color: Color(0x120F172A), // 7% depth
+          blurRadius: 18,
+          offset: Offset(0, 6),
+        ),
+        BoxShadow(
+          color: Color(0x080F172A), // 3% ambient
+          blurRadius: 6,
+          offset: Offset(0, 2),
         ),
       ];
 

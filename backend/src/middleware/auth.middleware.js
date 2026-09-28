@@ -76,12 +76,15 @@ const authorize =
 
 const authorizeClass = async (req, res, next) => {
   try {
-    if (req.user.role === "admin") return next();
+    if (req.user.role === "admin" || req.user.role === "admin_teacher") return next();
 
     const classId = req.params.classId || req.body.class_id;
+    if (!classId || classId === "all") return next();
 
     const { rows } = await query(
-      "SELECT course_id FROM courses WHERE course_id = $1 AND teacher_id = $2",
+      `SELECT course_id FROM courses WHERE course_id = $1 AND teacher_id = $2
+       UNION
+       SELECT class_id::text FROM timetable_slots WHERE class_id::text = $1 AND teacher_id = $2`,
       [classId, req.user.user_id]
     );
 
@@ -120,7 +123,7 @@ const authorizeSlot = async (req, res, next) => {
     }
 
     const { rows } = await query(
-      "SELECT slot_id FROM timetable_slots WHERE slot_id = $1 AND teacher_id = $2",
+      "SELECT slot_id FROM timetable_slots WHERE slot_id::text = $1 AND teacher_id = $2",
       [slotId, req.user.user_id],
     );
 
