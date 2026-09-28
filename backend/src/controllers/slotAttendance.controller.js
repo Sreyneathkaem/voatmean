@@ -61,6 +61,12 @@ const saveSlotAttendance = async (req, res, next) => {
       return res.status(400).json({ error: "records[] array is required" });
     }
 
+    for (const rec of records) {
+      if (!rec.student_id) {
+        return res.status(400).json({ error: "student_id is required for every record" });
+      }
+    }
+
     await client.query("BEGIN");
     const saved = [];
 

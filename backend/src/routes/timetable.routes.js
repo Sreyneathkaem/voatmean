@@ -18,6 +18,7 @@ r.use(authenticate);
 
 // A teacher's own schedule — any authenticated role, scoped to self.
 r.get("/mine", getMySlots);
+r.get("/my-slots", getMySlots);
 
 // Everything else is admin/admin_teacher-managed, except reading a
 // single slot: authorizeSlot lets the owning teacher fetch their own

@@ -17,8 +17,8 @@ class AdminService {
     return [];
   }
 
-  /// Creates and whitelists a teacher in the database
-  Future<bool> createTeacher({
+  /// Creates and whitelists a teacher in the database. Returns server response map if successful.
+  Future<Map<String, dynamic>?> createTeacher({
     required String fullName,
     required String email,
     String? gender,
@@ -34,11 +34,13 @@ class AdminService {
           if (classId != null && classId.isNotEmpty) 'class_id': classId,
         },
       );
-      return response.statusCode == 200 || response.statusCode == 201;
+      if ((response.statusCode == 200 || response.statusCode == 201) && response.data is Map) {
+        return Map<String, dynamic>.from(response.data);
+      }
     } catch (e) {
       debugPrint('AdminService: Error creating teacher: $e');
-      return false;
     }
+    return null;
   }
 
   /// Gets homeroom classes from database
@@ -54,26 +56,77 @@ class AdminService {
     return [];
   }
 
-  /// Creates a new homeroom class
-  Future<bool> createHomeroomClass({
+  /// Creates a new homeroom class. Returns server response map if successful.
+  Future<Map<String, dynamic>?> createHomeroomClass({
     required String className,
     required String academicYear,
     String? homeroomTeacherId,
+    String? subjectId,
+    int? hoursPerWeek,
   }) async {
     try {
+      final normalizedYear = academicYear.replaceAll('–', '-').replaceAll('—', '-');
       final response = await _apiService.dio.post(
         '/api/admin/homeroom-classes',
         data: {
           'class_name': className,
-          'academic_year': academicYear,
-          'homeroom_teacher_id': homeroomTeacherId,
+          'academic_year_id': normalizedYear,
+          if (homeroomTeacherId != null && homeroomTeacherId.isNotEmpty)
+            'homeroom_teacher_id': homeroomTeacherId,
+          if (subjectId != null && subjectId.isNotEmpty) 'subject_id': subjectId,
+          'hours_per_week': ?hoursPerWeek,
         },
       );
-      return response.statusCode == 200 || response.statusCode == 201;
+      if ((response.statusCode == 200 || response.statusCode == 201) && response.data is Map) {
+        return Map<String, dynamic>.from(response.data);
+      }
     } catch (e) {
       debugPrint('AdminService: Error creating homeroom class: $e');
+    }
+    return null;
+  }
+
+  /// Assigns a teacher to a class (persisted in database)
+  Future<bool> assignTeacherToClass({
+    required String classId,
+    required String teacherId,
+  }) async {
+    try {
+      final response = await _apiService.dio.put(
+        '/api/admin/classes/$classId/teacher',
+        data: {'teacher_id': teacherId},
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      debugPrint('AdminService: Error assigning teacher: $e');
       return false;
     }
+  }
+
+  /// Gets all students across the school
+  Future<List<Map<String, dynamic>>> getStudents() async {
+    try {
+      final response = await _apiService.dio.get('/api/admin/students');
+      if (response.statusCode == 200 && response.data is List) {
+        return List<Map<String, dynamic>>.from(response.data);
+      }
+    } catch (e) {
+      debugPrint('AdminService: Error fetching students: $e');
+    }
+    return [];
+  }
+
+  /// Gets admin dashboard data
+  Future<List<Map<String, dynamic>>> getDashboard() async {
+    try {
+      final response = await _apiService.dio.get('/api/admin/dashboard');
+      if (response.statusCode == 200 && response.data is List) {
+        return List<Map<String, dynamic>>.from(response.data);
+      }
+    } catch (e) {
+      debugPrint('AdminService: Error fetching dashboard data: $e');
+    }
+    return [];
   }
 
   /// Gets subjects from database
@@ -136,5 +189,37 @@ class AdminService {
       debugPrint('AdminService: Error updating default score formula: $e');
       return false;
     }
+  }
+
+  /// Bulk imports students from spreadsheet data or pasted records
+  Future<Map<String, dynamic>?> bulkImportStudents(List<Map<String, dynamic>> students) async {
+    try {
+      final response = await _apiService.dio.post(
+        '/api/admin/bulk-import/students',
+        data: {'students': students},
+      );
+      if ((response.statusCode == 200 || response.statusCode == 201) && response.data is Map) {
+        return Map<String, dynamic>.from(response.data);
+      }
+    } catch (e) {
+      debugPrint('AdminService: Error bulk importing students: $e');
+    }
+    return null;
+  }
+
+  /// Bulk imports teachers from spreadsheet data or pasted records
+  Future<Map<String, dynamic>?> bulkImportTeachers(List<Map<String, dynamic>> teachers) async {
+    try {
+      final response = await _apiService.dio.post(
+        '/api/admin/bulk-import/teachers',
+        data: {'teachers': teachers},
+      );
+      if ((response.statusCode == 200 || response.statusCode == 201) && response.data is Map) {
+        return Map<String, dynamic>.from(response.data);
+      }
+    } catch (e) {
+      debugPrint('AdminService: Error bulk importing teachers: $e');
+    }
+    return null;
   }
 }

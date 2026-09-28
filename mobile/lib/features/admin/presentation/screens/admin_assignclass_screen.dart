@@ -4,6 +4,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:voatmean_mobile/core/constants/app_colors.dart';
 import 'package:voatmean_mobile/core/constants/app_typography.dart';
 import '../../data/models/admin_models.dart';
+import '../../data/services/admin_service.dart';
 import '../widgets/admin_modals.dart';
 
 class AdminAssignClassScreen extends StatefulWidget {
@@ -15,10 +16,90 @@ class AdminAssignClassScreen extends StatefulWidget {
 }
 
 class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
+  final AdminService _adminService = AdminService();
   String _selectedAcademicYear = '2026–2027';
   String _selectedGradeFilter = 'all'; // 'all', '10', '11', '12'
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
+
+  List<TeacherModel> _teachers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    final teachersData = await _adminService.getTeachers();
+    final classesData = await _adminService.getHomeroomClasses();
+
+    if (!mounted) return;
+    setState(() {
+      if (teachersData.isNotEmpty) {
+        _teachers = teachersData.map((t) {
+          final fullName = t['full_name']?.toString() ?? 'គ្រូបង្រៀន';
+          final isFemale = fullName.contains('អ្នកគ្រូ') ||
+              fullName.toLowerCase().contains('srey') ||
+              fullName.toLowerCase().contains('yung');
+          return TeacherModel(
+            id: t['user_id']?.toString() ?? '',
+            name: fullName,
+            nameKhmer: fullName,
+            gender: isFemale ? 'F' : 'M',
+            phone: '012 345 678',
+            email: t['email']?.toString() ?? '',
+            subject: (t['subject_names'] as String?)?.isNotEmpty == true
+                ? t['subject_names']
+                : 'គណិតវិទ្យា',
+            subjectKhmer: (t['subject_names'] as String?)?.isNotEmpty == true
+                ? t['subject_names']
+                : 'គណិតវិទ្យា',
+            assignedClasses: (t['class_names'] as String?)?.isNotEmpty == true
+                ? (t['class_names'] as String).split(', ')
+                : [],
+            teachingHoursPerWeek: int.tryParse('${t['teaching_hours']}') ?? 18,
+            avatarUrl: isFemale
+                ? 'https://lh3.googleusercontent.com/aida-public/AB6AXuDKXn-M7jF75SMdrp_hGjewG7ANg6848MJ5nrOG_44YRFPaWD40XYQEjgp4g7PfJRXS1bs-O6q0jLQZt7xim1XJrHg_A03d7vQJ-C0CgG-f-pH1Cs6A5zPbrcJQODahwb0Cbqhsz3VjyLDqSSLW43iS-rwkuYmX4ODnTPXLT6wA4a4TcGP61Ka7QtTlJNJghMNGVTpZ1RhT_w7fmn1DZOyhL_XxomSk3GnTJDWUOSZNU4hFLXeR7xc'
+                : 'https://lh3.googleusercontent.com/aida-public/AB6AXuBW60befM5ZEuh3cxe1G0lFhJPxhypregWJHKo1-hfuMx2Nz3QkzlB8NeWkXkCk5BQl_PRTXh7PPqYrIg5drnobS_azzQ1KBedpg20vJWfNGNC4vk5_7F8I7Q8bkuWLBti5jbTOUK396MJMdlrBX-yE2a87Sqt5Ki9PuayDZHI35cIW-aeXzcHeERXz1oJ_7ZxU4WqN9usU742nu8iXkUIrJV5DQJkQUN5eeqfpUh-CCPVL1daNeU',
+          );
+        }).toList();
+      }
+
+      if (classesData.isNotEmpty) {
+        _classes.clear();
+        for (final row in classesData) {
+          final className = row['class_name']?.toString() ?? 'Class';
+          if (className.contains('UNASSIGNED')) continue;
+          _classes.add(
+            ClassItem(
+              id: row['class_id']?.toString() ?? '',
+              grade: className,
+              gradeKhmer: className.replaceAll('Grade ', 'ថ្នាក់ '),
+              subject: (row['subject_names'] as String?)?.isNotEmpty == true
+                  ? row['subject_names']
+                  : 'ទូទៅ',
+              subjectKhmer: (row['subject_names'] as String?)?.isNotEmpty == true
+                  ? row['subject_names']
+                  : 'ទូទៅ',
+              academicYear: (row['academic_year_id']?.toString() ?? '2026-2027')
+                  .replaceAll('-', '–'),
+              assignedTeacherId:
+                  (row['teacher_ids'] as String?)?.split(',').first.trim() ?? '',
+              assignedTeacherName:
+                  (row['teacher_names'] as String?)?.split(',').first.trim() ??
+                      'មិនទាន់ចាត់តាំង',
+              assignedTeacherKhmer:
+                  (row['teacher_names'] as String?)?.split(',').first.trim() ??
+                      'មិនទាន់ចាត់តាំង',
+              hoursPerWeek: int.tryParse('${row['hours_per_week']}') ?? 4,
+              totalStudents: int.tryParse('${row['student_count']}') ?? 0,
+            ),
+          );
+        }
+      }
+    });
+  }
 
   // Mock initial classes
   final List<ClassItem> _classes = [
@@ -29,9 +110,9 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
       subject: 'គណិតវិទ្យា',
       subjectKhmer: 'គណិតវិទ្យា',
       academicYear: '2026–2027',
-      assignedTeacherId: 'tch-1',
-      assignedTeacherName: 'Sok Samnang',
-      assignedTeacherKhmer: 'លោកគ្រូ សុខ សំណាង',
+      assignedTeacherId: '8f7bcc0f-c914-4757-9738-d7f257c4c1a2',
+      assignedTeacherName: 'Kaem Sreyneath',
+      assignedTeacherKhmer: 'អ្នកគ្រូ កែម ស្រីនីត (Kaem Sreyneath)',
       hoursPerWeek: 6,
       totalStudents: 36,
     ),
@@ -42,9 +123,9 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
       subject: 'រូបវិទ្យា',
       subjectKhmer: 'រូបវិទ្យា',
       academicYear: '2026–2027',
-      assignedTeacherId: 'tch-2',
-      assignedTeacherName: 'Keo Bopha',
-      assignedTeacherKhmer: 'អ្នកគ្រូ កែវ បុប្ផា',
+      assignedTeacherId: '83a60985-e10d-47ed-96d2-f888aef71a78',
+      assignedTeacherName: 'Yung Sreyneang',
+      assignedTeacherKhmer: 'អ្នកគ្រូ យុង ស្រីនាង (Yung Sreyneang)',
       hoursPerWeek: 4,
       totalStudents: 35,
     ),
@@ -52,12 +133,12 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
       id: 'c-3',
       grade: 'Grade 11A',
       gradeKhmer: 'ថ្នាក់ ១១ ក',
-      subject: 'គីមីវិទ្យា',
-      subjectKhmer: 'គីមីវិទ្យា',
+      subject: 'ភាសាខ្មែរ',
+      subjectKhmer: 'ភាសាខ្មែរ',
       academicYear: '2026–2027',
-      assignedTeacherId: 'tch-3',
-      assignedTeacherName: 'Chan Sreymom',
-      assignedTeacherKhmer: 'អ្នកគ្រូ ចាន់ ស្រីមុំ',
+      assignedTeacherId: '8f7bcc0f-c914-4757-9738-d7f257c4c1a2',
+      assignedTeacherName: 'Kaem Sreyneath',
+      assignedTeacherKhmer: 'អ្នកគ្រូ កែម ស្រីនីត (Kaem Sreyneath)',
       hoursPerWeek: 5,
       totalStudents: 38,
     ),
@@ -65,12 +146,12 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
       id: 'c-4',
       grade: 'Grade 12A',
       gradeKhmer: 'ថ្នាក់ ១២ ក',
-      subject: 'គណិតវិទ្យាជាន់ខ្ពស់',
-      subjectKhmer: 'គណិតវិទ្យាជាន់ខ្ពស់',
+      subject: 'ជីវវិទ្យា',
+      subjectKhmer: 'ជីវវិទ្យា',
       academicYear: '2026–2027',
-      assignedTeacherId: 'tch-1',
-      assignedTeacherName: 'Sok Samnang',
-      assignedTeacherKhmer: 'លោកគ្រូ សុខ សំណាង',
+      assignedTeacherId: '83a60985-e10d-47ed-96d2-f888aef71a78',
+      assignedTeacherName: 'Yung Sreyneang',
+      assignedTeacherKhmer: 'អ្នកគ្រូ យុង ស្រីនាង (Yung Sreyneang)',
       hoursPerWeek: 7,
       totalStudents: 40,
     ),
@@ -138,42 +219,40 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
 
   // --- Modal: Reassign Teacher / Hours ---
   void _openAssignTeacherModal(ClassItem classItem) {
-    final List<TeacherModel> teachersList = [
-      TeacherModel(
-        id: 'tch-1',
-        name: 'Sok Samnang',
-        nameKhmer: 'លោកគ្រូ សុខ សំណាង',
-        gender: 'M',
-        phone: '012345678',
-        email: 'sok.samnang@school.edu',
-        subject: 'Mathematics',
-        subjectKhmer: 'គណិតវិទ្យា',
-        assignedClasses: ['Grade 10A'],
-        teachingHoursPerWeek: 20,
-        avatarUrl: '',
-      ),
-      TeacherModel(
-        id: 'tch-2',
-        name: 'Keo Bopha',
-        nameKhmer: 'អ្នកគ្រូ កែវ បុប្ផា',
-        gender: 'F',
-        phone: '012345679',
-        email: 'keo.bopha@school.edu',
-        subject: 'Physics',
-        subjectKhmer: 'រូបវិទ្យា',
-        assignedClasses: ['Grade 10B'],
-        teachingHoursPerWeek: 18,
-        avatarUrl: '',
-      ),
-    ];
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => AssignTeacherBottomSheet(
         targetClass: classItem,
-        teachers: teachersList,
+        teachers: _teachers.isNotEmpty ? _teachers : [
+          TeacherModel(
+            id: '8f7bcc0f-c914-4757-9738-d7f257c4c1a2',
+            name: 'Kaem Sreyneath',
+            nameKhmer: 'អ្នកគ្រូ កែម ស្រីនីត (Kaem Sreyneath)',
+            gender: 'F',
+            phone: '012 345 678',
+            email: 'k.sreyneath24@gmail.com',
+            subject: 'Mathematics',
+            subjectKhmer: 'គណិតវិទ្យា',
+            assignedClasses: ['Grade 10A'],
+            teachingHoursPerWeek: 18,
+            avatarUrl: '',
+          ),
+          TeacherModel(
+            id: '83a60985-e10d-47ed-96d2-f888aef71a78',
+            name: 'Yung Sreyneang',
+            nameKhmer: 'អ្នកគ្រូ យុង ស្រីនាង (Yung Sreyneang)',
+            gender: 'F',
+            phone: '098 765 432',
+            email: 'neangsrey137@gmail.com',
+            subject: 'Physics',
+            subjectKhmer: 'រូបវិទ្យា',
+            assignedClasses: ['Grade 10B'],
+            teachingHoursPerWeek: 16,
+            avatarUrl: '',
+          ),
+        ],
         onUpdated: (updated) {
           setState(() {
             final idx = _classes.indexWhere((c) => c.id == updated.id);
@@ -188,28 +267,39 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
 
   // --- Modal: Create New Class ---
   void _openCreateClassModal() {
-    final List<TeacherModel> teachersList = [
-      TeacherModel(
-        id: 'tch-1',
-        name: 'Sok Samnang',
-        nameKhmer: 'លោកគ្រូ សុខ សំណាង',
-        gender: 'M',
-        phone: '012345678',
-        email: 'sok.samnang@school.edu',
-        subject: 'Mathematics',
-        subjectKhmer: 'គណិតវិទ្យា',
-        assignedClasses: ['Grade 10A'],
-        teachingHoursPerWeek: 20,
-        avatarUrl: '',
-      ),
-    ];
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => CreateClassBottomSheet(
-        teachers: teachersList,
+        teachers: _teachers.isNotEmpty ? _teachers : [
+          TeacherModel(
+            id: '8f7bcc0f-c914-4757-9738-d7f257c4c1a2',
+            name: 'Kaem Sreyneath',
+            nameKhmer: 'អ្នកគ្រូ កែម ស្រីនីត (Kaem Sreyneath)',
+            gender: 'F',
+            phone: '012 345 678',
+            email: 'k.sreyneath24@gmail.com',
+            subject: 'Mathematics',
+            subjectKhmer: 'គណិតវិទ្យា',
+            assignedClasses: ['Grade 10A'],
+            teachingHoursPerWeek: 18,
+            avatarUrl: '',
+          ),
+          TeacherModel(
+            id: '83a60985-e10d-47ed-96d2-f888aef71a78',
+            name: 'Yung Sreyneang',
+            nameKhmer: 'អ្នកគ្រូ យុង ស្រីនាង (Yung Sreyneang)',
+            gender: 'F',
+            phone: '098 765 432',
+            email: 'neangsrey137@gmail.com',
+            subject: 'Physics',
+            subjectKhmer: 'រូបវិទ្យា',
+            assignedClasses: ['Grade 10B'],
+            teachingHoursPerWeek: 16,
+            avatarUrl: '',
+          ),
+        ],
         onCreated: (newClass) {
           setState(() {
             _classes.insert(0, newClass);

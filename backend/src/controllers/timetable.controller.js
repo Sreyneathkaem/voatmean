@@ -21,7 +21,20 @@ const SLOT_SELECT = `
   SELECT ts.slot_id, ts.class_id, ts.subject_id, ts.teacher_id, ts.term_id,
          ts.day_of_week, ts.period, ts.created_at,
          hc.class_name, sub.subject_name,
-         u.full_name AS teacher_name
+         u.full_name AS teacher_name,
+         COALESCE((SELECT COUNT(*)::int FROM class_students cs WHERE cs.class_id = ts.class_id), 0) AS student_count,
+         CASE ts.period
+           WHEN 1 THEN '08:00 - 09:30 AM'
+           WHEN 2 THEN '10:00 - 11:30 AM'
+           WHEN 3 THEN '01:30 - 03:00 PM'
+           WHEN 4 THEN '03:15 - 04:45 PM'
+           ELSE '08:00 - 09:30 AM'
+         END AS time_slot,
+         ('បន្ទប់ ' || (300 + ts.period)) AS room_number,
+         EXISTS (
+           SELECT 1 FROM slot_attendance_records sar
+           WHERE sar.slot_id = ts.slot_id AND sar.date = CURRENT_DATE
+         ) AS is_marked
   FROM timetable_slots ts
   JOIN homeroom_classes hc ON hc.class_id = ts.class_id
   JOIN subjects sub        ON sub.subject_id = ts.subject_id
@@ -64,15 +77,24 @@ const getTimetableSlots = async (req, res, next) => {
   }
 };
 
-// GET /api/timetable/mine
+// GET /api/timetable/mine & /api/timetable/my-slots
 // A teacher's own schedule. Not gated by authorizeSlot (there's no
-// single :slotId to check) — just scoped to req.user.user_id directly.
+// single :slotId to check) — scoped to req.user.user_id, with admin fallback to all slots.
 const getMySlots = async (req, res, next) => {
   try {
-    const { rows } = await query(
+    let { rows } = await query(
       `${SLOT_SELECT} WHERE ts.teacher_id = $1 ORDER BY ts.day_of_week, ts.period`,
       [req.user.user_id],
     );
+
+    // If an admin/admin_teacher views timetable and has no specific slots assigned, return all active slots
+    if (rows.length === 0 && (req.user.role === "admin" || req.user.role === "admin_teacher")) {
+      const allSlots = await query(
+        `${SLOT_SELECT} ORDER BY ts.day_of_week, ts.period`
+      );
+      rows = allSlots.rows;
+    }
+
     res.json(rows);
   } catch (err) {
     next(err);
@@ -82,6 +104,10 @@ const getMySlots = async (req, res, next) => {
 // GET /api/timetable/:slotId
 const getTimetableSlot = async (req, res, next) => {
   try {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(req.params.slotId)) {
+      return res.status(400).json({ error: "Invalid slot ID format" });
+    }
     const { rows } = await query(`${SLOT_SELECT} WHERE ts.slot_id = $1`, [
       req.params.slotId,
     ]);

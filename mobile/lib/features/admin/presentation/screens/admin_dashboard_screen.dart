@@ -3,6 +3,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:voatmean_mobile/core/constants/app_colors.dart';
 import 'package:voatmean_mobile/core/constants/app_typography.dart';
 import '../../data/models/attendance_session_model.dart';
+import '../../data/services/admin_service.dart';
 
 enum DateFilter { today, week, month }
 enum StatusFilter { all, submitted, pending }
@@ -15,18 +16,64 @@ class AdminDashboardScreen extends StatefulWidget {
 }
 
 class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
+  final AdminService _adminService = AdminService();
   DateFilter _dateFilter = DateFilter.today;
   StatusFilter _statusFilter = StatusFilter.all;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
-  // Mock sessions matching the web app
+  @override
+  void initState() {
+    super.initState();
+    _loadDashboard();
+  }
+
+  Future<void> _loadDashboard() async {
+    final data = await _adminService.getDashboard();
+    if (!mounted) return;
+    if (data.isNotEmpty) {
+      setState(() {
+        _sessions.clear();
+        for (final row in data) {
+          final className = row['class_name']?.toString() ?? 'ថ្នាក់រៀន';
+          final teacher = row['teacher_name']?.toString() ?? 'មិនទាន់ចាត់តាំង';
+          final subject = (row['major_names'] as String?)?.isNotEmpty == true
+              ? row['major_names'].toString()
+              : ((row['active_session_name'] as String?)?.isNotEmpty == true
+                  ? row['active_session_name'].toString()
+                  : 'ទូទៅ');
+          final markedToday = int.tryParse('${row['marked_today']}') ?? 0;
+          final total = int.tryParse('${row['total_students']}') ?? 0;
+          final present = int.tryParse('${row['present_count']}') ?? 0;
+          final lateCount = int.tryParse('${row['late_count']}') ?? 0;
+          final absent = int.tryParse('${row['absent_count']}') ?? 0;
+          _sessions.add(
+            AttendanceSession(
+              id: row['class_id']?.toString() ?? '',
+              className: className,
+              subject: subject,
+              teacherName: teacher,
+              submitted: markedToday > 0 || present > 0,
+              stats: AttendanceStats(
+                total: total,
+                present: present,
+                late: lateCount,
+                absent: absent,
+              ),
+            ),
+          );
+        }
+      });
+    }
+  }
+
+  // Mock sessions matching the web app (fallback)
   final List<AttendanceSession> _sessions = [
     AttendanceSession(
       id: 'sess-1',
       className: 'Grade 10A (ថ្នាក់ ១០ ក)',
       subject: 'គណិតវិទ្យា',
-      teacherName: 'លោកគ្រូ សុខ សំណាង',
+      teacherName: 'អ្នកគ្រូ កែម ស្រីនីត (Kaem Sreyneath)',
       submitted: true,
       stats: AttendanceStats(total: 36, present: 34, late: 1, absent: 1),
     ),
@@ -34,7 +81,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       id: 'sess-2',
       className: 'Grade 10B (ថ្នាក់ ១០ ខ)',
       subject: 'រូបវិទ្យា',
-      teacherName: 'អ្នកគ្រូ កែវ បុប្ផា',
+      teacherName: 'អ្នកគ្រូ យុង ស្រីនាង (Yung Sreyneang)',
       submitted: true,
       stats: AttendanceStats(total: 35, present: 32, late: 2, absent: 1),
     ),
@@ -42,7 +89,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       id: 'sess-3',
       className: 'Grade 11A (ថ្នាក់ ១១ ក)',
       subject: 'ភាសាខ្មែរ',
-      teacherName: 'លោកគ្រូ ហេង ពិសិដ្ឋ',
+      teacherName: 'អ្នកគ្រូ កែម ស្រីនីត (Kaem Sreyneath)',
       submitted: false,
       stats: AttendanceStats(total: 38, present: 0, late: 0, absent: 0),
     ),
@@ -50,7 +97,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       id: 'sess-4',
       className: 'Grade 11B (ថ្នាក់ ១១ ខ)',
       subject: 'គីមីវិទ្យា',
-      teacherName: 'អ្នកគ្រូ ចាន់ ស្រីមុំ',
+      teacherName: 'អ្នកគ្រូ យុង ស្រីនាង (Yung Sreyneang)',
       submitted: true,
       stats: AttendanceStats(total: 34, present: 33, late: 1, absent: 0),
     ),
@@ -58,9 +105,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       id: 'sess-5',
       className: 'Grade 12A (ថ្នាក់ ១២ ក)',
       subject: 'ជីវវិទ្យា',
-      teacherName: 'លោកគ្រូ ជា វណ្ណៈ',
+      teacherName: 'អ្នកគ្រូ យុង ស្រីនាង (Yung Sreyneang)',
       submitted: false,
       stats: AttendanceStats(total: 40, present: 0, late: 0, absent: 0),
+    ),
+    AttendanceSession(
+      id: 'sess-6',
+      className: 'Grade 12B (ថ្នាក់ ១២ ខ)',
+      subject: 'ភាសាអង់គ្លេស',
+      teacherName: 'អ្នកគ្រូ កែម ស្រីនីត (Kaem Sreyneath)',
+      submitted: true,
+      stats: AttendanceStats(total: 35, present: 33, late: 1, absent: 1),
     ),
   ];
 
@@ -961,15 +1016,19 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                   ),
                                 ),
                                 const SizedBox(width: 6),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.slateBg,
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Text(
-                                    item.subject,
-                                    style: AppTypography.captionBold.copyWith(color: AppColors.textSecondary),
+                                Flexible(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.slateBg,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      item.subject,
+                                      style: AppTypography.captionBold.copyWith(color: AppColors.textSecondary),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                    ),
                                   ),
                                 ),
                               ],

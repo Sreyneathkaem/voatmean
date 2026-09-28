@@ -7,12 +7,20 @@ class TeacherService {
   /// Gets the teacher's assigned timetable slots
   Future<List<Map<String, dynamic>>> getMySlots() async {
     try {
-      final response = await _apiService.dio.get('/api/timetable/my-slots');
+      final response = await _apiService.dio.get('/api/timetable/mine');
       if (response.statusCode == 200 && response.data is List) {
         return List<Map<String, dynamic>>.from(response.data);
       }
     } catch (e) {
-      debugPrint('TeacherService: Error fetching my slots: $e');
+      debugPrint('TeacherService: Error fetching my slots (/mine): $e');
+      try {
+        final fallback = await _apiService.dio.get('/api/timetable/my-slots');
+        if (fallback.statusCode == 200 && fallback.data is List) {
+          return List<Map<String, dynamic>>.from(fallback.data);
+        }
+      } catch (e2) {
+        debugPrint('TeacherService: Error fetching my slots (/my-slots): $e2');
+      }
     }
     return [];
   }
@@ -69,7 +77,15 @@ class TeacherService {
         return List<Map<String, dynamic>>.from(response.data);
       }
     } catch (e) {
-      debugPrint('TeacherService: Error fetching students by class: $e');
+      debugPrint('TeacherService: Error fetching students via /students/class/: $e');
+      try {
+        final fallback = await _apiService.dio.get('/api/students/$classId');
+        if (fallback.statusCode == 200 && fallback.data is List) {
+          return List<Map<String, dynamic>>.from(fallback.data);
+        }
+      } catch (e2) {
+        debugPrint('TeacherService: Error fetching students via /students/: $e2');
+      }
     }
     return [];
   }
@@ -86,7 +102,15 @@ class TeacherService {
         return List<Map<String, dynamic>>.from(response.data);
       }
     } catch (e) {
-      debugPrint('TeacherService: Error fetching monthly grades: $e');
+      debugPrint('TeacherService: Error fetching monthly grades via /monthly/: $e');
+      try {
+        final fallback = await _apiService.dio.get('/api/scores/final/$classId/$subjectId/$month');
+        if (fallback.statusCode == 200 && fallback.data is List) {
+          return List<Map<String, dynamic>>.from(fallback.data);
+        }
+      } catch (e2) {
+        debugPrint('TeacherService: Error fetching monthly grades via /final/: $e2');
+      }
     }
     return [];
   }
@@ -115,6 +139,48 @@ class TeacherService {
       return response.statusCode == 200 || response.statusCode == 201;
     } catch (e) {
       debugPrint('TeacherService: Error upserting subject score: $e');
+      return false;
+    }
+  }
+
+  /// Gets the score formula and attendance deduction policy for a subject
+  Future<Map<String, dynamic>?> getScoreFormula(String subjectId) async {
+    try {
+      final response = await _apiService.dio.get('/api/admin/score-formula/$subjectId');
+      if (response.statusCode == 200 && response.data is Map) {
+        return Map<String, dynamic>.from(response.data);
+      }
+    } catch (e) {
+      debugPrint('TeacherService: Error getting score formula for $subjectId: $e');
+    }
+    return null;
+  }
+
+  /// Updates the score formula and attendance deduction policy for a subject
+  Future<bool> updateScoreFormula({
+    required String subjectId,
+    required double attendanceWeight,
+    required double teacherScoreWeight,
+    double permissionDeduction = 30.0,
+    double lateDeduction = 50.0,
+    double absentDeduction = 100.0,
+    String mode = 'weighted_blend',
+  }) async {
+    try {
+      final response = await _apiService.dio.put(
+        '/api/admin/score-formula/$subjectId',
+        data: {
+          'mode': mode,
+          'attendance_weight': attendanceWeight,
+          'teacher_score_weight': teacherScoreWeight,
+          'permission_deduction': permissionDeduction,
+          'late_deduction': lateDeduction,
+          'absent_deduction': absentDeduction,
+        },
+      );
+      return response.statusCode == 200 || response.statusCode == 201;
+    } catch (e) {
+      debugPrint('TeacherService: Error updating score formula for $subjectId: $e');
       return false;
     }
   }

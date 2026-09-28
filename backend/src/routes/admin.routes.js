@@ -5,6 +5,7 @@ const {
   getDashboard,
   getDashboardExport,
   getTeachers,
+  getAllStudents,
   createTeacher,
   getClasses,
   createClass,
@@ -14,6 +15,8 @@ const {
   getStudentsByMajor,
   getTerms,
   createTerm,
+  bulkImportStudents,
+  bulkImportTeachers,
 } = require("../controllers/admin.controller");
 
 r.use(authenticate, authorize("admin", "admin_teacher"));
@@ -21,6 +24,7 @@ r.get("/dashboard", getDashboard);
 r.get("/dashboard/export-scores", getDashboardExport);
 r.get("/teachers", getTeachers);
 r.post("/teachers", createTeacher);
+r.get("/students", getAllStudents);
 r.get("/classes", getClasses);
 r.post("/classes", createClass);
 r.put("/classes/:class_id/teacher", assignTeacher);
@@ -29,4 +33,6 @@ r.get("/majors", getMajors);
 r.get("/students-by-major", getStudentsByMajor);
 r.get("/terms", getTerms);
 r.post("/terms", createTerm);
+r.post("/bulk-import/students", bulkImportStudents);
+r.post("/bulk-import/teachers", bulkImportTeachers);
 module.exports = r;
