@@ -440,19 +440,21 @@ INSERT INTO terms (academic_year_id, term_name, start_date, end_date) VALUES
   ('2026-2027', 'Term 1', '2026-09-07', '2026-12-18')
 ON CONFLICT (academic_year_id, term_name) DO NOTHING;
 
--- Admin users (replace with your Google email)
+-- Admin users
 INSERT INTO users (email, full_name, role) VALUES
-  ('sk6024010075@camtech.edu.kh', 'Ms. Neath',   'admin'),
-  ('ds6024010093@camtech.edu.kh', 'Ms. Rika',    'admin'),
-  ('rv6024010101@camtech.edu.kh', 'Ms. Rangsey', 'admin'),
-  ('ys6024010107@camtech.edu.kh', 'Ms. Neang',   'admin'),
-  ('hd6024010112@camtech.edu.kh', 'Mr. Hong Dara', 'admin')
+  ('admin@voatmean.edu.kh',         'Admin Principal',                     'admin'),
+  ('sk6024010075@camtech.edu.kh',   'Ms. Neath',                           'admin'),
+  ('sreyneathk24@gmail.com',        'Ms. Sreyneath',                       'admin'),
+  ('ys6024010107@camtech.edu.kh',   'Ms. Sreyneang',                       'admin'),
+  ('admin.teacher@voatmean.edu.kh', 'Ms. Sreyneath (Dual-Role)',           'admin')
 ON CONFLICT (email) DO NOTHING;
 
--- Teachers (Only Kaem Sreyneath and Yung Sreyneang)
+-- Teachers
 INSERT INTO users (email, full_name, role) VALUES
-  ('k.sreyneath24@gmail.com',   'អ្នកគ្រូ កែម ស្រីនាថ(Kaem Sreyneath)',  'teacher'),
-  ('neangsrey137@gmail.com',   'អ្នកគ្រូ យុង ស្រីនាង (Yung Sreyneang)',  'teacher')
+  ('teacher@voatmean.edu.kh',       'test_teacher',                         'teacher'),
+  ('k.sreyneath24@gmail.com',       'អ្នកគ្រូ កែម ស្រីនីថ (Kaem Sreyneath)', 'teacher'),
+  ('sreyneathក24@gmail.com',        'អ្នកគ្រូ កែម ស្រីនីថ (Kaem Sreyneath)', 'teacher'),
+  ('neangsrey137@gmail.com',        'អ្នកគ្រូ យុង ស្រីនាង (Yung Sreyneang)', 'teacher')
 ON CONFLICT (email) DO NOTHING;
 
 -- ── Courses ────────────────────────────────────────
