@@ -48,7 +48,7 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
               phone: phone,
               currentClass: currentClass,
               guardianPhone: phone,
-              avatarUrl: 'https://i.pravatar.cc/150?u=$roll',
+              avatarUrl: '',
             ),
           );
         }
@@ -66,7 +66,7 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
       phone: '012 111 222',
       currentClass: 'Grade 10A',
       guardianPhone: '012 333 444',
-      avatarUrl: 'https://i.pravatar.cc/150?u=1',
+      avatarUrl: '',
     ),
     StudentModel(
       id: '2',
@@ -77,7 +77,7 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
       phone: '012 555 666',
       currentClass: 'Grade 10A',
       guardianPhone: '012 777 888',
-      avatarUrl: 'https://i.pravatar.cc/150?u=2',
+      avatarUrl: '',
     ),
     StudentModel(
       id: '3',
@@ -88,7 +88,7 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
       phone: '012 345 678',
       currentClass: 'Grade 10A',
       guardianPhone: '012 888 999',
-      avatarUrl: 'https://i.pravatar.cc/150?u=3',
+      avatarUrl: '',
     ),
     StudentModel(
       id: '4',
@@ -99,7 +99,7 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
       phone: '098 765 432',
       currentClass: 'Grade 12A',
       guardianPhone: '098 111 222',
-      avatarUrl: 'https://i.pravatar.cc/150?u=4',
+      avatarUrl: '',
     ),
   ];
 
@@ -422,7 +422,7 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
                         phone: phoneCtrl.text.trim().isNotEmpty ? phoneCtrl.text.trim() : '012 000 000',
                         currentClass: selectedClass,
                         guardianPhone: guardianCtrl.text.trim().isNotEmpty ? guardianCtrl.text.trim() : '012 999 888',
-                        avatarUrl: 'https://i.pravatar.cc/150?u=${DateTime.now().millisecond}',
+                        avatarUrl: '',
                       );
                       setState(() {
                         _students.insert(0, newStudent);
@@ -456,34 +456,36 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
 
   void _showStudentDetailModal(StudentModel student) {
     final isFemale = student.gender == 'F';
+    final rollNumber = student.studentId.replaceAll('STU', '').padLeft(2, '0');
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
-        padding: const EdgeInsets.all(20),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        padding: const EdgeInsets.all(22),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Top Drag Handle
             Center(
               child: Container(
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.border,
+                  color: AppColors.borderOf(context),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 16),
 
-            // Profile header
+            // Profile Header
             Row(
               children: [
                 CircleAvatar(
@@ -491,7 +493,7 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
                   backgroundColor: isFemale ? const Color(0xFFFDF2F8) : AppColors.primaryLight,
                   child: Text(
                     student.nameKhmer.isNotEmpty ? student.nameKhmer.substring(0, 1) : 'ស',
-                    style: AppTypography.displayLarge.copyWith(
+                    style: AppTypography.titleLarge.copyWith(
                       color: isFemale ? const Color(0xFFDB2777) : AppColors.primary,
                       fontWeight: FontWeight.bold,
                     ),
@@ -502,108 +504,178 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(student.nameKhmer, style: AppTypography.titleLarge),
-                      if (student.name.trim().isNotEmpty && student.name.trim() != student.nameKhmer.trim()) ...[
-                        const SizedBox(height: 2),
-                        Text(student.name, style: AppTypography.bodySmall.copyWith(color: AppColors.textSubtle)),
-                      ],
-                      const SizedBox(height: 6),
                       Row(
                         children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: AppColors.primaryLight,
-                              borderRadius: BorderRadius.circular(6),
+                          Flexible(
+                            child: Text(
+                              student.nameKhmer,
+                              style: AppTypography.titleMedium.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textPrimaryOf(context),
+                              ),
                             ),
-                            child: Text(student.currentClass, style: AppTypography.captionBold.copyWith(color: AppColors.primary)),
                           ),
                           const SizedBox(width: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
-                              color: AppColors.slateBg,
+                              color: AppColors.primaryLight,
                               borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: AppColors.border),
+                              border: Border.all(color: AppColors.primaryBorder),
                             ),
-                            child: Text('អត្តលេខ: ${student.studentId}', style: AppTypography.captionBold.copyWith(color: AppColors.textSecondary)),
+                            child: Text(
+                              student.currentClass,
+                              style: AppTypography.captionBold.copyWith(color: AppColors.primary),
+                            ),
                           ),
                         ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${student.name} • លេខរៀង #$rollNumber',
+                        style: AppTypography.bodySmall.copyWith(color: AppColors.textSubtleOf(context)),
+                      ),
+                      Text(
+                        'អត្តលេខ៖ ${student.studentId}',
+                        style: AppTypography.caption.copyWith(color: AppColors.textSubtleOf(context)),
                       ),
                     ],
                   ),
                 ),
+                IconButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  icon: Icon(LucideIcons.x, size: 20, color: AppColors.textSubtleOf(context)),
+                ),
               ],
             ),
-            const SizedBox(height: 20),
-            const Divider(height: 1, color: AppColors.border),
-            const SizedBox(height: 16),
+            const SizedBox(height: 18),
 
-            // Contact Info
-            Text('ព័ត៌មានទំនាក់ទំនង', style: AppTypography.labelMedium.copyWith(color: AppColors.textMuted)),
-            const SizedBox(height: 10),
-
-            // Student Phone
+            // Attendance Statistics Grid (Clear Box)
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: AppColors.slateBg,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border),
+                color: AppColors.slateBgOf(context),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.borderOf(context)),
               ),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  const Icon(LucideIcons.smartphone, size: 18, color: AppColors.primary),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('ទូរស័ព្ទសិស្ស', style: AppTypography.caption),
-                        Text(student.phone, style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold, color: const Color(0xFF0F172A))),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(LucideIcons.phone, size: 18, color: AppColors.primary),
-                    onPressed: () => _confirmCall(student.nameKhmer, student.phone),
-                  ),
+                  _buildModalStatItem('វត្តមាន', '94%', AppColors.success),
+                  _buildModalStatItem('មានវត្តមាន', '32 ថ្ងៃ', AppColors.primary),
+                  _buildModalStatItem('យឺត', '2 ថ្ងៃ', AppColors.warning),
+                  _buildModalStatItem('អវត្តមាន', '1 ថ្ងៃ', AppColors.danger),
                 ],
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 14),
 
-            // Guardian Phone
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.slateBg,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border),
+            // Student Phone Container (Clear Box)
+            if (student.phone.isNotEmpty) ...[
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.cardOf(context),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.borderOf(context)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(LucideIcons.phone, size: 16, color: AppColors.primary),
+                    const SizedBox(width: 10),
+                    Text('លេខទូរស័ព្ទ៖ ', style: AppTypography.caption.copyWith(color: AppColors.textSubtleOf(context))),
+                    Expanded(
+                      child: Text(
+                        student.phone,
+                        style: AppTypography.titleSmall.copyWith(
+                          color: AppColors.textPrimaryOf(context),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              child: Row(
-                children: [
-                  const Icon(LucideIcons.users, size: 18, color: Color(0xFF059669)),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('ទូរស័ព្ទអាណាព្យាបាល', style: AppTypography.caption),
-                        Text(student.guardianPhone, style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold, color: const Color(0xFF0F172A))),
-                      ],
+              const SizedBox(height: 10),
+            ],
+
+            // Guardian Phone Container (Clear Box)
+            if (student.guardianPhone.isNotEmpty) ...[
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.cardOf(context),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.borderOf(context)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(LucideIcons.users, size: 16, color: Color(0xFF059669)),
+                    const SizedBox(width: 10),
+                    Text('អាណាព្យាបាល៖ ', style: AppTypography.caption.copyWith(color: AppColors.textSubtleOf(context))),
+                    Expanded(
+                      child: Text(
+                        student.guardianPhone,
+                        style: AppTypography.titleSmall.copyWith(
+                          color: AppColors.textPrimaryOf(context),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            // Action Buttons Row (Call & Message)
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      _confirmCall(student.nameKhmer, student.phone);
+                    },
+                    icon: const Icon(LucideIcons.phoneCall, size: 16),
+                    label: Text('ហៅទូរស័ព្ទ', style: AppTypography.labelMedium.copyWith(color: Colors.white)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(LucideIcons.phone, size: 18, color: Color(0xFF059669)),
-                    onPressed: () => _confirmCall('អាណាព្យាបាល ${student.nameKhmer}', student.guardianPhone),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('ផ្ញើសារទៅកាន់ ${student.nameKhmer}...', style: AppTypography.bodySmall.copyWith(color: Colors.white)),
+                          backgroundColor: AppColors.primary,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      );
+                    },
+                    icon: const Icon(LucideIcons.messageSquare, size: 16),
+                    label: Text('ផ្ញើសារ', style: AppTypography.labelMedium.copyWith(color: AppColors.textPrimaryOf(context))),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: AppColors.borderOf(context)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
 
-            // Action buttons
+            // Secondary Actions (Edit & Delete)
             Row(
               children: [
                 Expanded(
@@ -614,12 +686,12 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
                         context: context,
                         builder: (deleteCtx) => AlertDialog(
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                          title: Text('លុបសិស្ស?', style: AppTypography.titleMedium),
-                          content: Text('តើអ្នកប្រាកដថាចង់លុបសិស្ស ${student.nameKhmer}?', style: AppTypography.bodyMedium),
+                          title: Text('លុបសិស្ស?', style: AppTypography.titleMedium.copyWith(color: AppColors.textPrimaryOf(context))),
+                          content: Text('តើអ្នកប្រាកដថាចង់លុបសិស្ស ${student.nameKhmer}?', style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondaryOf(context))),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(deleteCtx),
-                              child: Text('បោះបង់', style: AppTypography.labelMedium.copyWith(color: AppColors.textMuted)),
+                              child: Text('បោះបង់', style: AppTypography.labelMedium.copyWith(color: AppColors.textSecondaryOf(context))),
                             ),
                             ElevatedButton(
                               onPressed: () {
@@ -643,18 +715,18 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
                         ),
                       );
                     },
-                    icon: const Icon(LucideIcons.trash2, size: 16, color: AppColors.danger),
-                    label: Text('លុបសិស្ស', style: AppTypography.labelMedium.copyWith(color: AppColors.danger)),
+                    icon: const Icon(LucideIcons.trash2, size: 14, color: AppColors.danger),
+                    label: Text('លុប', style: AppTypography.captionBold.copyWith(color: AppColors.danger)),
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: AppColors.dangerBorder),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Expanded(
-                  child: ElevatedButton.icon(
+                  child: OutlinedButton.icon(
                     onPressed: () {
                       Navigator.pop(ctx);
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -666,22 +738,31 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
                         ),
                       );
                     },
-                    icon: const Icon(LucideIcons.edit3, size: 16),
-                    label: Text('កែប្រែ', style: AppTypography.labelMedium.copyWith(color: Colors.white)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    icon: const Icon(LucideIcons.edit3, size: 14, color: AppColors.primary),
+                    label: Text('កែប្រែ', style: AppTypography.captionBold.copyWith(color: AppColors.primary)),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: AppColors.primaryBorder),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                   ),
                 ),
               ],
             ),
+            const SizedBox(height: 6),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildModalStatItem(String label, String value, Color color) {
+    return Column(
+      children: [
+        Text(value, style: AppTypography.titleMedium.copyWith(color: color, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 2),
+        Text(label, style: AppTypography.caption.copyWith(color: AppColors.textSecondaryOf(context))),
+      ],
     );
   }
 
@@ -690,14 +771,14 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
     final filtered = _filteredStudents;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.bgOf(context),
       appBar: AppBar(
-        title: Text('គ្រប់គ្រងសិស្ស', style: AppTypography.titleMedium),
-        backgroundColor: Colors.white,
+        title: Text('គ្រប់គ្រងសិស្ស', style: AppTypography.titleMedium.copyWith(color: AppColors.textPrimaryOf(context))),
+        backgroundColor: Theme.of(context).cardColor,
         elevation: 0,
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, color: AppColors.border),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Divider(height: 1, color: AppColors.borderOf(context)),
         ),
         actions: [
           Padding(
@@ -745,28 +826,28 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              border: Border(bottom: BorderSide(color: AppColors.border)),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              border: Border(bottom: BorderSide(color: AppColors.borderOf(context))),
             ),
             child: TextField(
               controller: _searchController,
               onChanged: (val) => setState(() => _searchQuery = val),
-              style: AppTypography.bodyMedium,
+              style: AppTypography.bodyMedium.copyWith(color: AppColors.textPrimaryOf(context)),
               decoration: InputDecoration(
-                prefixIcon: const Icon(LucideIcons.search, size: 18, color: AppColors.textSubtle),
+                prefixIcon: Icon(LucideIcons.search, size: 18, color: AppColors.textSecondaryOf(context)),
                 hintText: 'ស្វែងរកតាមឈ្មោះ អត្តលេខ ឬថ្នាក់...',
-                hintStyle: AppTypography.bodySmall.copyWith(color: AppColors.textSubtle),
+                hintStyle: AppTypography.bodySmall.copyWith(color: AppColors.textSubtleOf(context)),
                 filled: true,
-                fillColor: AppColors.slateBg,
+                fillColor: AppColors.slateBgOf(context),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppColors.border),
+                  borderSide: BorderSide(color: AppColors.borderOf(context)),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppColors.border),
+                  borderSide: BorderSide(color: AppColors.borderOf(context)),
                 ),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
@@ -786,9 +867,9 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(LucideIcons.userX, size: 40, color: AppColors.textSubtle),
+                        Icon(LucideIcons.userX, size: 40, color: AppColors.textSubtleOf(context)),
                         const SizedBox(height: 10),
-                        Text('រកមិនឃើញសិស្សតាមការស្វែងរកទេ', style: AppTypography.bodyMedium),
+                        Text('រកមិនឃើញសិស្សតាមការស្វែងរកទេ', style: AppTypography.bodyMedium.copyWith(color: AppColors.textPrimaryOf(context))),
                       ],
                     ),
                   )
@@ -800,141 +881,153 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
                       final student = filtered[index];
                       final isFemale = student.gender == 'F';
                       final accentColor = isFemale ? const Color(0xFFEC4899) : AppColors.primary;
+                      final rollNumber = student.studentId.replaceAll('STU', '').padLeft(2, '0');
 
                       return Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(16),
-                          boxShadow: AppColors.cardShadow,
-                          border: Border.all(color: AppColors.border),
+                          border: Border.all(color: AppColors.borderOf(context)),
+                          boxShadow: AppColors.cardShadowOf(context),
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(16),
-                          child: Stack(
-                            children: [
-                              Positioned(
-                                left: 0,
-                                top: 0,
-                                bottom: 0,
-                                width: 5,
-                                child: Container(color: accentColor),
-                              ),
-                              Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  onTap: () => _showStudentDetailModal(student),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 16, right: 12, top: 12, bottom: 12),
-                                    child: Row(
-                                children: [
-                                  CircleAvatar(
-                                    radius: 24,
-                                    backgroundColor: isFemale
-                                        ? const Color(0xFFFDF2F8)
-                                        : AppColors.primaryLight,
-                                    child: Text(
-                                      student.nameKhmer.isNotEmpty
-                                          ? student.nameKhmer.substring(0, 1)
-                                          : 'ស',
-                                      style: AppTypography.titleSmall.copyWith(
-                                        color: isFemale
-                                            ? const Color(0xFFDB2777)
-                                            : AppColors.primary,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () => _showStudentDetailModal(student),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    left: BorderSide(
+                                      color: accentColor,
+                                      width: 4,
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Flexible(
-                                              child: Text(
-                                                student.nameKhmer,
-                                                style: AppTypography.titleSmall.copyWith(
-                                                  color: const Color(0xFF0F172A),
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 6),
-                                            Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                              decoration: BoxDecoration(
-                                                color: AppColors.primaryLight,
-                                                borderRadius: BorderRadius.circular(6),
-                                                border: Border.all(color: AppColors.primaryBorder),
-                                              ),
-                                              child: Text(
-                                                student.currentClass,
-                                                style: AppTypography.captionBold.copyWith(
-                                                  color: AppColors.primary,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
+                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                child: Row(
+                                  children: [
+                                    // Circle Avatar with initial
+                                    CircleAvatar(
+                                      radius: 20,
+                                      backgroundColor: isFemale
+                                          ? const Color(0xFFFDF2F8)
+                                          : AppColors.primaryLight,
+                                      child: Text(
+                                        student.nameKhmer.isNotEmpty ? student.nameKhmer.substring(0, 1) : 'ស',
+                                        style: AppTypography.titleSmall.copyWith(
+                                          color: isFemale ? const Color(0xFFDB2777) : AppColors.primary,
+                                          fontWeight: FontWeight.bold,
                                         ),
-                                        const SizedBox(height: 4),
-                                        Row(
-                                          children: [
-                                            Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                                              decoration: BoxDecoration(
-                                                color: isFemale ? const Color(0xFFFDF2F8) : const Color(0xFFEFF6FF),
-                                                borderRadius: BorderRadius.circular(4),
-                                              ),
-                                              child: Text(
-                                                isFemale ? 'ស្រី' : 'ប្រុស',
-                                                style: TextStyle(
-                                                  fontSize: 10,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: isFemale ? const Color(0xFFDB2777) : const Color(0xFF2563EB),
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 6),
-                                            Text(
-                                              '#${student.studentId.replaceAll('STU', '')}',
-                                              style: AppTypography.captionBold.copyWith(color: AppColors.textSecondary, fontSize: 11),
-                                            ),
-                                            if (student.phone.isNotEmpty) ...[
-                                              const Text(' • ', style: TextStyle(color: Color(0xFFCBD5E1))),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+
+                                    // Student Information
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
                                               Expanded(
                                                 child: Text(
-                                                  student.phone,
-                                                  style: AppTypography.caption.copyWith(
-                                                    color: AppColors.textMuted,
-                                                    fontWeight: FontWeight.w500,
+                                                  student.nameKhmer,
+                                                  style: AppTypography.titleSmall.copyWith(
+                                                    color: AppColors.textPrimaryOf(context),
+                                                    fontWeight: FontWeight.bold,
                                                   ),
                                                   overflow: TextOverflow.ellipsis,
                                                 ),
                                               ),
+                                              const SizedBox(width: 6),
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                decoration: BoxDecoration(
+                                                  color: AppColors.slateBgOf(context),
+                                                  borderRadius: BorderRadius.circular(6),
+                                                  border: Border.all(color: AppColors.borderOf(context)),
+                                                ),
+                                                child: Text(
+                                                  '#$rollNumber',
+                                                  style: AppTypography.captionBold.copyWith(
+                                                    color: AppColors.textSecondaryOf(context),
+                                                    fontSize: 11,
+                                                  ),
+                                                ),
+                                              ),
                                             ],
-                                          ],
-                                        ),
-                                      ],
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Row(
+                                            children: [
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                                                decoration: BoxDecoration(
+                                                  color: isFemale ? const Color(0xFFFDF2F8) : const Color(0xFFEFF6FF),
+                                                  borderRadius: BorderRadius.circular(4),
+                                                ),
+                                                child: Text(
+                                                  isFemale ? 'ស្រី' : 'ប្រុស',
+                                                  style: TextStyle(
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: isFemale ? const Color(0xFFDB2777) : const Color(0xFF2563EB),
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                student.currentClass,
+                                                style: AppTypography.caption.copyWith(color: AppColors.textMutedOf(context)),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(LucideIcons.phone, size: 18, color: AppColors.primary),
-                                    onPressed: () => _confirmCall(student.nameKhmer, student.phone),
-                                    tooltip: 'ទូរស័ព្ទ',
-                                  ),
-                                  const Icon(LucideIcons.chevronRight, size: 16, color: AppColors.textSubtle),
-                                ],
+
+                                    // Phone number pill button (Clickable dialer)
+                                    if (student.phone.isNotEmpty) ...[
+                                      const SizedBox(width: 8),
+                                      InkWell(
+                                        onTap: () => _confirmCall(student.nameKhmer, student.phone),
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.slateBgOf(context),
+                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(color: AppColors.borderOf(context)),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const Icon(LucideIcons.phone, size: 12, color: AppColors.primary),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                student.phone,
+                                                style: AppTypography.captionBold.copyWith(
+                                                  color: AppColors.textPrimaryOf(context),
+                                                  fontSize: 11,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                    const SizedBox(width: 6),
+                                    Icon(LucideIcons.chevronRight, size: 16, color: AppColors.textSubtleOf(context)),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+                      );
+                    },
                   ),
           ),
         ],

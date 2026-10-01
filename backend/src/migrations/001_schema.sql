@@ -451,7 +451,7 @@ ON CONFLICT (email) DO NOTHING;
 
 -- Teachers (Only Kaem Sreyneath and Yung Sreyneang)
 INSERT INTO users (email, full_name, role) VALUES
-  ('k.sreyneath24@gmail.com',   'អ្នកគ្រូ កែម ស្រីនីត (Kaem Sreyneath)',  'teacher'),
+  ('k.sreyneath24@gmail.com',   'អ្នកគ្រូ កែម ស្រីនាថ(Kaem Sreyneath)',  'teacher'),
   ('neangsrey137@gmail.com',   'អ្នកគ្រូ យុង ស្រីនាង (Yung Sreyneang)',  'teacher')
 ON CONFLICT (email) DO NOTHING;
 

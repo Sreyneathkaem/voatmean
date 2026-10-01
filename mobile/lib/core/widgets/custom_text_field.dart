@@ -50,7 +50,7 @@ class CustomTextField extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: AppTypography.labelSmall.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textSecondary,
+                    color: AppColors.textPrimaryOf(context),
                   ),
                 ),
               ),
@@ -65,7 +65,7 @@ class CustomTextField extends StatelessWidget {
           validator: validator,
           style: AppTypography.font(
             fontSize: 14,
-            color: AppColors.textPrimary,
+            color: AppColors.textPrimaryOf(context),
             height: 1.4,
           ),
           decoration: InputDecoration(
@@ -74,16 +74,16 @@ class CustomTextField extends StatelessWidget {
             hintText: effectiveHint,
             hintStyle: AppTypography.font(
               fontSize: 13,
-              color: AppColors.textSubtle,
+              color: AppColors.textSubtleOf(context),
               height: 1.4,
             ),
             filled: true,
-            fillColor: AppColors.inputBg,
+            fillColor: AppColors.inputBgOf(context),
             contentPadding:
             const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(color: AppColors.border),
+              borderSide: BorderSide(color: AppColors.borderOf(context)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),

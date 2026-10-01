@@ -187,12 +187,12 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('លុបថ្នាក់រៀន?', style: AppTypography.titleMedium),
-        content: Text('តើអ្នកប្រាកដថាចង់លុបថ្នាក់ $className?', style: AppTypography.bodyMedium),
+        title: Text('លុបថ្នាក់រៀន?', style: AppTypography.titleMedium.copyWith(color: AppColors.textPrimaryOf(context))),
+        content: Text('តើអ្នកប្រាកដថាចង់លុបថ្នាក់ $className?', style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondaryOf(context))),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('បោះបង់', style: AppTypography.labelMedium.copyWith(color: AppColors.textMuted)),
+            child: Text('បោះបង់', style: AppTypography.labelMedium.copyWith(color: AppColors.textSecondaryOf(context))),
           ),
           ElevatedButton(
             onPressed: () {
@@ -312,17 +312,17 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.bgOf(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).cardColor,
         elevation: 0,
         title: Text(
           'ចាត់តាំងថ្នាក់រៀន',
-          style: AppTypography.titleMedium,
+          style: AppTypography.titleMedium.copyWith(color: AppColors.textPrimaryOf(context)),
         ),
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, color: AppColors.border),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Divider(height: 1, color: AppColors.borderOf(context)),
         ),
       ),
       body: SingleChildScrollView(
@@ -350,10 +350,10 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.border),
-        boxShadow: AppColors.cardShadow,
+        border: Border.all(color: AppColors.borderOf(context)),
+        boxShadow: AppColors.cardShadowOf(context),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -380,11 +380,11 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
                         children: [
                           Text(
                             'ចាត់តាំងវគ្គសិក្សា និងគ្រូ',
-                            style: AppTypography.titleSmall,
+                            style: AppTypography.titleSmall.copyWith(color: AppColors.textPrimaryOf(context)),
                           ),
                           Text(
                             'គ្រប់គ្រងការបែងចែកថ្នាក់រៀន និងម៉ោងបង្រៀន',
-                            style: AppTypography.caption,
+                            style: AppTypography.caption.copyWith(color: AppColors.textSecondaryOf(context)),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -414,7 +414,7 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
             ],
           ),
           const SizedBox(height: 14),
-          const Divider(height: 1, color: AppColors.border),
+          Divider(height: 1, color: AppColors.borderOf(context)),
           const SizedBox(height: 12),
 
           // Year Selector & Grade Chips
@@ -425,17 +425,21 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
                 padding:
                 const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppColors.inputBg,
+                  color: AppColors.slateBgOf(context),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: AppColors.borderOf(context)),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
+                    dropdownColor: AppColors.cardOf(context),
                     value: _selectedAcademicYear,
-                    style: AppTypography.titleSmall,
+                    style: AppTypography.titleSmall.copyWith(color: AppColors.textPrimaryOf(context)),
+                    icon: Icon(LucideIcons.chevronDown, size: 16, color: AppColors.textSecondaryOf(context)),
                     items: ['2026–2027', '2025–2026', '2024–2025'].map((y) {
                       return DropdownMenuItem(
-                          value: y, child: Text('ឆ្នាំសិក្សា $y'));
+                          value: y,
+                          child: Text('ឆ្នាំសិក្សា $y',
+                              style: AppTypography.titleSmall.copyWith(color: AppColors.textPrimaryOf(context))));
                     }).toList(),
                     onChanged: (v) {
                       if (v != null) setState(() => _selectedAcademicYear = v);
@@ -477,13 +481,13 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : const Color(0xFFF1F5F9),
+          color: isSelected ? AppColors.primary : AppColors.slateBgOf(context),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Text(
           label,
           style: AppTypography.captionBold.copyWith(
-            color: isSelected ? Colors.white : AppColors.textSecondary,
+            color: isSelected ? Colors.white : AppColors.textSecondaryOf(context),
           ),
         ),
       ),
@@ -494,19 +498,19 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
     return TextField(
       controller: _searchController,
       onChanged: (v) => setState(() => _searchQuery = v),
-      style: AppTypography.bodyMedium,
+      style: AppTypography.bodyMedium.copyWith(color: AppColors.textPrimaryOf(context)),
       decoration: InputDecoration(
-        prefixIcon: const Icon(LucideIcons.search,
-            size: 18, color: AppColors.textSubtle),
+        prefixIcon: Icon(LucideIcons.search,
+            size: 18, color: AppColors.textSecondaryOf(context)),
         hintText: 'ស្វែងរកតាមឈ្មោះថ្នាក់ មុខវិជ្ជា ឬគ្រូបង្រៀន...',
-        hintStyle: AppTypography.bodySmall.copyWith(color: AppColors.textSubtle),
+        hintStyle: AppTypography.bodySmall.copyWith(color: AppColors.textSubtleOf(context)),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: AppColors.slateBgOf(context),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: BorderSide(color: AppColors.borderOf(context)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -522,9 +526,9 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
         width: double.infinity,
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: AppColors.borderOf(context)),
         ),
         child: Column(
           children: [
@@ -533,7 +537,7 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
             const SizedBox(height: 8),
             Text(
               'មិនមានទិន្នន័យថ្នាក់រៀនទេ',
-              style: AppTypography.bodyMedium,
+              style: AppTypography.bodyMedium.copyWith(color: AppColors.textPrimaryOf(context)),
             ),
           ],
         ),
@@ -549,10 +553,10 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
         final item = _filteredClasses[index];
         return Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: AppColors.cardShadow,
-            border: Border.all(color: AppColors.border),
+            boxShadow: AppColors.cardShadowOf(context),
+            border: Border.all(color: AppColors.borderOf(context)),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
@@ -585,7 +589,7 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
                                 item.grade,
                                 style: AppTypography.titleMedium.copyWith(
                                   fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF0F172A),
+                                  color: AppColors.textPrimaryOf(context),
                                 ),
                               ),
                               const SizedBox(width: 8),
@@ -641,9 +645,9 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAFC),
+                        color: AppColors.slateBgOf(context),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        border: Border.all(color: AppColors.borderOf(context)),
                       ),
                       child: Row(
                         children: [
@@ -655,11 +659,11 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
                                 Container(
                                   padding: const EdgeInsets.all(5),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFEFF6FF),
+                                    color: AppColors.primaryLightOf(context),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: const Icon(LucideIcons.userCheck,
-                                      size: 14, color: AppColors.primary),
+                                  child: Icon(LucideIcons.userCheck,
+                                      size: 14, color: AppColors.isDark(context) ? const Color(0xFF60A5FA) : AppColors.primary),
                                 ),
                                 const SizedBox(width: 6),
                                 Expanded(
@@ -670,7 +674,7 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
                                       Text(
                                         'គ្រូបង្រៀន',
                                         style: AppTypography.caption.copyWith(
-                                          color: AppColors.textSubtle,
+                                          color: AppColors.textSecondaryOf(context),
                                           fontSize: 10.5,
                                           fontWeight: FontWeight.w600,
                                         ),
@@ -683,7 +687,7 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
                                         style:
                                             AppTypography.labelSmall.copyWith(
                                           fontWeight: FontWeight.bold,
-                                          color: const Color(0xFF0F172A),
+                                          color: AppColors.textPrimaryOf(context),
                                           fontSize: 11.5,
                                         ),
                                       ),
@@ -698,7 +702,7 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
                           Container(
                             height: 24,
                             width: 1,
-                            color: const Color(0xFFE2E8F0),
+                            color: AppColors.borderOf(context),
                             margin: const EdgeInsets.symmetric(horizontal: 4),
                           ),
 
@@ -710,11 +714,11 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
                                 Container(
                                   padding: const EdgeInsets.all(5),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFFEF3C7),
+                                    color: AppColors.warningBgOf(context),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: const Icon(LucideIcons.clock,
-                                      size: 14, color: Color(0xFFD97706)),
+                                  child: Icon(LucideIcons.clock,
+                                      size: 14, color: AppColors.warningTextOf(context)),
                                 ),
                                 const SizedBox(width: 6),
                                 Expanded(
@@ -727,7 +731,7 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: AppTypography.caption.copyWith(
-                                          color: AppColors.textSubtle,
+                                          color: AppColors.textSecondaryOf(context),
                                           fontSize: 10.5,
                                           fontWeight: FontWeight.w600,
                                         ),
@@ -740,7 +744,7 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
                                         style:
                                             AppTypography.labelSmall.copyWith(
                                           fontWeight: FontWeight.bold,
-                                          color: const Color(0xFF0F172A),
+                                          color: AppColors.textPrimaryOf(context),
                                           fontSize: 11.5,
                                         ),
                                       ),
@@ -755,7 +759,7 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
                           Container(
                             height: 24,
                             width: 1,
-                            color: const Color(0xFFE2E8F0),
+                            color: AppColors.borderOf(context),
                             margin: const EdgeInsets.symmetric(horizontal: 4),
                           ),
 
@@ -767,11 +771,11 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
                                 Container(
                                   padding: const EdgeInsets.all(5),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFECFDF5),
+                                    color: AppColors.successBgOf(context),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: const Icon(LucideIcons.users,
-                                      size: 14, color: Color(0xFF059669)),
+                                  child: Icon(LucideIcons.users,
+                                      size: 14, color: AppColors.successTextOf(context)),
                                 ),
                                 const SizedBox(width: 6),
                                 Expanded(
@@ -784,7 +788,7 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: AppTypography.caption.copyWith(
-                                          color: AppColors.textSubtle,
+                                          color: AppColors.textSecondaryOf(context),
                                           fontSize: 10.5,
                                           fontWeight: FontWeight.w600,
                                         ),
@@ -795,7 +799,7 @@ class _AdminAssignClassScreenState extends State<AdminAssignClassScreen> {
                                       style:
                                           AppTypography.labelSmall.copyWith(
                                         fontWeight: FontWeight.bold,
-                                        color: const Color(0xFF0F172A),
+                                        color: AppColors.textPrimaryOf(context),
                                       ),
                                     ),
                                   ],

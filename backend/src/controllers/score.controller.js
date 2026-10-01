@@ -121,17 +121,28 @@ const getMonthlyGrades = async (req, res, next) => {
     );
 
     const results = rows.map(r => {
-      const attScore = r.attendance_rate * 100; // normalize to 0-100
-      const teacherNorm = (r.teacher_score / r.max_score) * 100;
+      const attRate = Number(r.attendance_rate) || 0;
+      const attScore = attRate * 100; // normalize to 0-100
+      const teacherScore = Number(r.teacher_score) || 0;
+      const maxScore = Number(r.max_score) || 100;
+      const teacherNorm = (teacherScore / maxScore) * 100;
 
-      const finalBlended = (attScore * formula.attendance_weight) +
-                           (teacherNorm * formula.teacher_score_weight);
+      const finalBlended = (attScore * Number(formula.attendance_weight)) +
+                           (teacherNorm * Number(formula.teacher_score_weight));
 
       return {
         ...r,
-        attendance_score: parseFloat(attScore.toFixed(2)),
-        teacher_score_normalized: parseFloat(teacherNorm.toFixed(2)),
-        final_score: parseFloat(finalBlended.toFixed(2)),
+        teacher_score: teacherScore,
+        max_score: maxScore,
+        attendance_rate: attRate,
+        attendance_score: Number.parseFloat(attScore.toFixed(2)),
+        teacher_score_normalized: Number.parseFloat(teacherNorm.toFixed(2)),
+        final_score: Number.parseFloat(finalBlended.toFixed(2)),
+        total_attendance_slots: Number(r.total_attendance_slots) || 0,
+        present_count: Number(r.present_count) || 0,
+        late_count: Number(r.late_count) || 0,
+        permission_count: Number(r.permission_count) || 0,
+        absent_count: Number(r.absent_count) || 0,
         formula_applied: formula.mode,
         formula_config: {
           attendance_weight: Number(formula.attendance_weight),

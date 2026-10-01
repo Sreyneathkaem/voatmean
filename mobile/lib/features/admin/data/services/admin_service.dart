@@ -222,4 +222,23 @@ class AdminService {
     }
     return null;
   }
+
+  /// Gets timetable slots optionally filtered by teacherId or classId
+  Future<List<Map<String, dynamic>>> getTimetableSlots({String? teacherId, String? classId}) async {
+    try {
+      final response = await _apiService.dio.get(
+        '/api/timetable',
+        queryParameters: {
+          if (teacherId != null && teacherId.isNotEmpty) 'teacherId': teacherId,
+          if (classId != null && classId.isNotEmpty) 'classId': classId,
+        },
+      );
+      if (response.statusCode == 200 && response.data is List) {
+        return List<Map<String, dynamic>>.from(response.data);
+      }
+    } catch (e) {
+      debugPrint('AdminService: Error fetching timetable slots: $e');
+    }
+    return [];
+  }
 }

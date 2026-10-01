@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:voatmean_mobile/core/constants/app_colors.dart';
+import 'package:voatmean_mobile/core/localization/app_translations.dart';
 import 'package:voatmean_mobile/features/auth/data/services/auth_service.dart';
 import '../screens/admin_dashboard_screen.dart';
 import '../screens/admin_assignclass_screen.dart';
@@ -47,6 +48,7 @@ class _AdminMainShellState extends State<AdminMainShell> {
     ];
 
     return Scaffold(
+      backgroundColor: AppColors.bgOf(context),
       body: IndexedStack(
         index: _currentIndex,
         children: screens,
@@ -71,41 +73,44 @@ class AdminMainShellNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = AppColors.isDark(context);
+    final cardBg = Theme.of(context).cardColor;
+
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: AppColors.border, width: 1)),
+      decoration: BoxDecoration(
+        color: cardBg,
+        border: Border(top: BorderSide(color: AppColors.borderOf(context), width: 1)),
       ),
       child: NavigationBar(
         selectedIndex: selectedIndex,
         onDestinationSelected: onDestinationSelected,
-        backgroundColor: Colors.white,
-        indicatorColor: AppColors.primaryLight,
-        destinations: const [
+        backgroundColor: cardBg,
+        indicatorColor: isDark ? const Color(0xFF1E3A8A) : AppColors.primaryLight,
+        destinations: [
           NavigationDestination(
-            icon: Icon(LucideIcons.layoutDashboard),
-            selectedIcon: Icon(LucideIcons.layoutDashboard, color: AppColors.primary),
-            label: 'ផ្ទាំងគ្រប់គ្រង',
+            icon: const Icon(LucideIcons.layoutDashboard),
+            selectedIcon: const Icon(LucideIcons.layoutDashboard, color: AppColors.primary),
+            label: context.tr('nav_dashboard'),
           ),
           NavigationDestination(
-            icon: Icon(LucideIcons.bookOpen),
-            selectedIcon: Icon(LucideIcons.bookOpen, color: AppColors.primary),
-            label: 'ចាត់តាំងថ្នាក់',
+            icon: const Icon(LucideIcons.bookOpen),
+            selectedIcon: const Icon(LucideIcons.bookOpen, color: AppColors.primary),
+            label: context.tr('nav_classes'),
           ),
           NavigationDestination(
-            icon: Icon(LucideIcons.users),
-            selectedIcon: Icon(LucideIcons.users, color: AppColors.primary),
-            label: 'គ្រូបង្រៀន',
+            icon: const Icon(LucideIcons.users),
+            selectedIcon: const Icon(LucideIcons.users, color: AppColors.primary),
+            label: context.tr('nav_teachers'),
           ),
           NavigationDestination(
-            icon: Icon(LucideIcons.graduationCap),
-            selectedIcon: Icon(LucideIcons.graduationCap, color: AppColors.primary),
-            label: 'សិស្ស',
+            icon: const Icon(LucideIcons.graduationCap),
+            selectedIcon: const Icon(LucideIcons.graduationCap, color: AppColors.primary),
+            label: context.tr('nav_students'),
           ),
           NavigationDestination(
-            icon: Icon(LucideIcons.settings),
-            selectedIcon: Icon(LucideIcons.settings, color: AppColors.primary),
-            label: 'ការកំណត់',
+            icon: const Icon(LucideIcons.settings),
+            selectedIcon: const Icon(LucideIcons.settings, color: AppColors.primary),
+            label: context.tr('nav_settings'),
           ),
         ],
       ),

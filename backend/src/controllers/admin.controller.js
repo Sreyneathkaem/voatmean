@@ -1,4 +1,6 @@
+const crypto = require("crypto");
 const { query } = require("../config/db");
+
 
 // GET /api/admin/dashboard
 const getDashboard = async (req, res, next) => {
@@ -366,7 +368,7 @@ const createClass = async (req, res, next) => {
 
     let nextId = "001";
     if (maxIdResult.rows.length > 0) {
-      const maxId = parseInt(maxIdResult.rows[0].course_id);
+      const maxId = Number.parseInt(maxIdResult.rows[0].course_id, 10);
       nextId = String(maxId + 1).padStart(3, "0");
     }
 
@@ -417,8 +419,12 @@ const createClass = async (req, res, next) => {
 
     // Create course-major links
     if (allMajorIds.length > 0) {
-      const cmValues = allMajorIds.map((mid) => `('${newClass.class_id}', '${mid}')`).join(", ");
-      await query(`INSERT INTO course_majors (course_id, major_id) VALUES ${cmValues} ON CONFLICT DO NOTHING`);
+      for (const mid of allMajorIds) {
+        await query(
+          `INSERT INTO course_majors (course_id, major_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+          [newClass.class_id, mid]
+        );
+      }
     }
 
     // Auto-generate the planned sessions (weekly) so admins don't add them
@@ -684,7 +690,7 @@ const bulkImportTeachers = async (req, res, next) => {
       let email = (t.email || '').toString().trim().toLowerCase();
       if (!email || !email.includes('@')) {
         const slug = fullName.toLowerCase().replace(/[^a-z0-9]/g, '.').replace(/\.+/g, '.').replace(/^\.|\.$/g, '');
-        const randomSuffix = Math.floor(100 + Math.random() * 900);
+        const randomSuffix = crypto.randomInt(100, 1000);
         email = (slug ? `${slug}.${randomSuffix}` : `teacher.${Date.now()}.${randomSuffix}`) + '@voatmean.edu.kh';
       }
 

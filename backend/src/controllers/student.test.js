@@ -36,9 +36,24 @@ describe("Student Controller", () => {
       await getStudentsByClass(req, res, next);
 
       expect(db.query).toHaveBeenCalledWith(
-        expect.stringContaining("WHERE course_id = $1"),
+        expect.stringContaining("WHERE s.course_id = $1"),
         ["class-1"],
       );
+      expect(res.json).toHaveBeenCalledWith(students);
+    });
+
+    it("returns all students when classId is 'all' or omitted", async () => {
+      req.params = { classId: "all" };
+      const students = [{ student_id: "st1", roll_number: "1", full_name: "Sok Dara" }];
+      db.query.mockResolvedValueOnce({ rows: students });
+
+      await getStudentsByClass(req, res, next);
+
+      expect(res.json).toHaveBeenCalledWith(students);
+
+      req.params = {};
+      db.query.mockResolvedValueOnce({ rows: students });
+      await getStudentsByClass(req, res, next);
       expect(res.json).toHaveBeenCalledWith(students);
     });
 

@@ -49,20 +49,19 @@ Flutter Mobile App (teacher + admin) ──► Node/Express REST API ──► P
 ### Frontend (Flutter — single codebase)
 
 ```
-lib/main.dart                         # app entry, Firebase init, locale + theme setup
-lib/bloc/                             # auth_bloc / auth_event / auth_state (flutter_bloc) — currently unused scaffolding, see Known Gaps
-lib/core/                             # constants (colors, typography, strings), api_service, validators, shared widgets
-lib/features/auth/                    # login, register, auth_service
+lib/main.dart                         # app entry, MultiProvider, locale + theme setup
+lib/core/                             # constants (colors, typography), theme, localization, api_service, widgets
+lib/features/auth/                    # login, role detection, auth_service
 lib/features/teacher/                 # teacher dashboard, attendance marking, reports, students, settings
 lib/features/admin/                   # admin dashboard, class/teacher assignment, students, settings
 ```
 
-- **Routing:** plain `MaterialApp`/widget composition — screens are swapped directly rather than via a router package. There is no `go_router` dependency.
-- **State management:** a mix of `provider` (used for simpler screen state) and `flutter_bloc`/`bloc` (used for auth flow). Riverpod is not used.
+- **Routing:** plain `MaterialApp`/widget composition — screens are swapped directly rather than via a router package.
+- **State management:** unified single architectural pattern using `provider` (`ThemeProvider`, `LocaleProvider`, feature services). Consistent MVVM architecture across the entire app.
 - **Auth on the client:** Google Sign-In (`google_sign_in`) for OAuth, plus a standard email/password login/register form, backed by `dio` + `cookie_jar`/`dio_cookie_manager` for the HttpOnly session cookie.
 - **Firebase:** `firebase_core` is initialized on app startup (`firebase_options.dart`); used for client configuration, not as the primary backend.
-- **Localization:** `flutter_localizations` with Khmer and English locales configured in `main.dart`.
-- **Responsive:** attendance/teacher screens are phone-first; admin screens are usable on wider viewports but there is no dedicated Flutter Web admin build documented/verified in this repo state.
+- **Localization:** bilingual Khmer (`km`) and English (`en`) support with instant in-app switching and persistent preferences.
+- **Responsive:** phone-first with high-contrast accessibility in both Light and Dark modes.
 
 ### Backend (Node.js + Express)
 
@@ -216,11 +215,9 @@ npm test                    # Jest + Supertest, with coverage
 - Redis (sessions) and MongoDB (audit log) failures degrade gracefully — the server logs a warning and continues rather than failing to start or blocking requests.
 - Schema migrations are incremental and numbered (`001`, `002`, `003`); no destructive drop/reseed once real data exists.
 
-## Known Gaps / Next Steps
+## Future Enhancements / Next Steps
 
-- Mount `scoreFormula.routes.js` in `server.js` (e.g. `app.use('/api/admin/score-formula', scoreFormulaRoutes)`) so the per-subject score-formula overrides documented above are actually reachable.
-- Retire or explicitly deprecate the legacy course-based tables, controllers, and routes (`courses`, `course_sessions`, `attendance_records`, `majors`, `score_rules`, and their `/api/classes` `/api/students` `/api/attendance` `/api/admin` endpoints) once clients fully move to the timetable model.
-- Rename `backend/package.json`'s `name` field away from `eduattend-backend`.
-- Decide whether a router package (e.g. `go_router`) and a single state-management approach (currently split between `provider` and `flutter_bloc`) are worth consolidating on.
-- Remove or wire up `mobile/lib/bloc/auth_bloc.dart` — it's still the unused, unmodified `flutter create`-style boilerplate (auth is actually handled by `auth_service.dart` + `ApiService`).
-- Confirm whether a Flutter Web admin build is still in scope — the current `mobile/` app is structured as a single mobile client with an in-app admin role, not a separate web target.
+- Mount `scoreFormula.routes.js` in `server.js` (e.g. `app.use('/api/admin/score-formula', scoreFormulaRoutes)`) so per-subject score-formula overrides can be adjusted dynamically via REST endpoints.
+- Retire legacy course-based database tables (`courses`, `course_sessions`) once backend migration reaches 100% timetable slot maturity.
+- Rename `backend/package.json`'s `name` property from `eduattend-backend` to `voatmean-backend`.
+- Add push notifications (Firebase Cloud Messaging) for automated student absence alerts to guardians.

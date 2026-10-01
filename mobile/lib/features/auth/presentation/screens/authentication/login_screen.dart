@@ -52,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (userData != null) {
         _handleLoginSuccess(userData);
       } else {
-        _showToast('ការចូលតាម Google ត្រូវបានបោះបង់ ឬបរាជ័យ។');
+        _showToast(_authService.lastGoogleError ?? 'ការចូលតាម Google ត្រូវបានបោះបង់ ឬបរាជ័យ។');
       }
     } else {
       _showToast('ចូលប្រើប្រាស់តាម $provider មិនទាន់ត្រូវបានគាំទ្រនៅឡើយទេ។');
@@ -284,16 +284,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
                     decoration: BoxDecoration(
-                      color: AppColors.card,
+                      color: AppColors.cardOf(context),
                       borderRadius: BorderRadius.circular(28),
-                      border: Border.all(color: AppColors.border),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF64748B).withValues(alpha: 0.08),
-                          blurRadius: 24,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
+                      border: Border.all(color: AppColors.borderOf(context)),
+                      boxShadow: AppColors.cardShadowOf(context),
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -314,7 +308,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           textAlign: TextAlign.center,
                           style: GoogleFonts.kantumruyPro(
                             fontSize: 11,
-                            color: AppColors.textMuted,
+                            color: AppColors.textMutedOf(context),
                             height: 1.5,
                           ),
                         ),
@@ -348,18 +342,23 @@ class _LoginScreenState extends State<LoginScreen> {
             fontSize: 24,
             fontWeight: FontWeight.w800,
             letterSpacing: -0.5,
+            color: AppColors.textPrimaryOf(context),
           ),
         ),
         const SizedBox(height: 2),
         Text(
           AppStrings.appTitleKhmer,
-          style: AppTypography.titleMedium,
+          style: AppTypography.titleMedium.copyWith(
+            color: AppColors.textPrimaryOf(context),
+          ),
         ),
         const SizedBox(height: 4),
         Text(
           AppStrings.appSubtitle,
           textAlign: TextAlign.center,
-          style: AppTypography.caption,
+          style: AppTypography.caption.copyWith(
+            color: AppColors.textMutedOf(context),
+          ),
         ),
       ],
     );

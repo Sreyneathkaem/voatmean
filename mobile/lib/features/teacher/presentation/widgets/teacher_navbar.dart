@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:voatmean_mobile/core/constants/app_colors.dart';
+import 'package:voatmean_mobile/core/localization/app_translations.dart';
 import 'package:voatmean_mobile/features/auth/data/services/auth_service.dart';
 import '../screens/teacher_dashboard_screen.dart';
 import '../screens/teacher_students_screen.dart';
@@ -39,6 +40,9 @@ class _TeacherMainShellState extends State<TeacherMainShell> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = AppColors.isDark(context);
+    final cardBg = Theme.of(context).cardColor;
+
     final List<Widget> screens = [
       const TeacherDashboardScreen(),
       const TeacherStudentsScreen(),
@@ -50,40 +54,41 @@ class _TeacherMainShellState extends State<TeacherMainShell> {
     ];
 
     return Scaffold(
+      backgroundColor: AppColors.bgOf(context),
       body: IndexedStack(
         index: _currentIndex,
         children: screens,
       ),
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          border: Border(top: BorderSide(color: AppColors.border, width: 1)),
+        decoration: BoxDecoration(
+          color: cardBg,
+          border: Border(top: BorderSide(color: AppColors.borderOf(context), width: 1)),
         ),
         child: NavigationBar(
           selectedIndex: _currentIndex,
           onDestinationSelected: (idx) => setState(() => _currentIndex = idx),
-          backgroundColor: Colors.white,
-          indicatorColor: AppColors.primaryLight,
-          destinations: const [
+          backgroundColor: cardBg,
+          indicatorColor: isDark ? const Color(0xFF1E3A8A) : AppColors.primaryLight,
+          destinations: [
             NavigationDestination(
-              icon: Icon(LucideIcons.calendar),
-              selectedIcon: Icon(LucideIcons.calendar, color: AppColors.primary),
-              label: 'កាលវិភាគ',
+              icon: const Icon(LucideIcons.calendar),
+              selectedIcon: const Icon(LucideIcons.calendar, color: AppColors.primary),
+              label: context.tr('nav_schedule'),
             ),
             NavigationDestination(
-              icon: Icon(LucideIcons.users),
-              selectedIcon: Icon(LucideIcons.users, color: AppColors.primary),
-              label: 'សិស្ស',
+              icon: const Icon(LucideIcons.users),
+              selectedIcon: const Icon(LucideIcons.users, color: AppColors.primary),
+              label: context.tr('nav_students'),
             ),
             NavigationDestination(
-              icon: Icon(LucideIcons.barChart3),
-              selectedIcon: Icon(LucideIcons.barChart3, color: AppColors.primary),
-              label: 'របាយការណ៍',
+              icon: const Icon(LucideIcons.barChart3),
+              selectedIcon: const Icon(LucideIcons.barChart3, color: AppColors.primary),
+              label: context.tr('nav_reports'),
             ),
             NavigationDestination(
-              icon: Icon(LucideIcons.settings),
-              selectedIcon: Icon(LucideIcons.settings, color: AppColors.primary),
-              label: 'ការកំណត់',
+              icon: const Icon(LucideIcons.settings),
+              selectedIcon: const Icon(LucideIcons.settings, color: AppColors.primary),
+              label: context.tr('nav_settings'),
             ),
           ],
         ),

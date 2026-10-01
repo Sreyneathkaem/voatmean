@@ -2,3 +2,5 @@ logs/
 .env
 node_modules/
 coverage/
+*.apk
+.idea/

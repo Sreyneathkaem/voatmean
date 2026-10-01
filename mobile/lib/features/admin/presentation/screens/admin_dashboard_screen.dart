@@ -217,9 +217,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
         padding: const EdgeInsets.all(22),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -230,7 +230,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.border,
+                  color: AppColors.borderOf(context),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -243,18 +243,18 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(session.className, style: AppTypography.titleMedium),
+                      Text(session.className, style: AppTypography.titleMedium.copyWith(color: AppColors.textPrimaryOf(context))),
                       const SizedBox(height: 2),
                       Text(
                         'មុខវិជ្ជា៖ ${session.subject} • ${session.teacherName}',
-                        style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
+                        style: AppTypography.bodySmall.copyWith(color: AppColors.textSubtleOf(context)),
                       ),
                     ],
                   ),
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(ctx),
-                  icon: const Icon(LucideIcons.x, size: 20),
+                  icon: Icon(LucideIcons.x, size: 20, color: AppColors.textSubtleOf(context)),
                 ),
               ],
             ),
@@ -262,9 +262,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.slateBg,
+                color: AppColors.slateBgOf(context),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.border),
+                border: Border.all(color: AppColors.borderOf(context)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -272,7 +272,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   _buildModalStatItem('វត្តមាន', session.stats.present, AppColors.success),
                   _buildModalStatItem('យឺត', session.stats.late, AppColors.warning),
                   _buildModalStatItem('អវត្តមាន', session.stats.absent, AppColors.danger),
-                  _buildModalStatItem('សរុប', session.stats.total, AppColors.textPrimary),
+                  _buildModalStatItem('សរុប', session.stats.total, AppColors.textPrimaryOf(context)),
                 ],
               ),
             ),
@@ -321,10 +321,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       );
                     },
                     icon: const Icon(LucideIcons.users, size: 16),
-                    label: Text('បញ្ជីសិស្ស', style: AppTypography.labelMedium.copyWith(color: AppColors.textPrimary)),
+                    label: Text('បញ្ជីសិស្ស', style: AppTypography.labelMedium.copyWith(color: AppColors.textPrimaryOf(context))),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      side: const BorderSide(color: AppColors.border),
+                      side: BorderSide(color: AppColors.borderOf(context)),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
@@ -348,7 +348,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         const SizedBox(height: 2),
         Text(
           label,
-          style: AppTypography.captionBold.copyWith(color: AppColors.textSecondary),
+          style: AppTypography.captionBold.copyWith(color: AppColors.textSecondaryOf(context)),
         ),
       ],
     );
@@ -357,17 +357,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.bgOf(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).cardColor,
         elevation: 0,
         title: Text(
           'ផ្ទាំងគ្រប់គ្រង',
-          style: AppTypography.titleMedium,
+          style: AppTypography.titleMedium.copyWith(color: AppColors.textPrimaryOf(context)),
         ),
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, color: AppColors.border),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Divider(height: 1, color: AppColors.borderOf(context)),
         ),
       ),
       body: SingleChildScrollView(
@@ -423,10 +423,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.cardOf(context),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.border),
-        boxShadow: AppColors.cardShadow,
+        border: Border.all(color: AppColors.borderOf(context)),
+        boxShadow: AppColors.cardShadowOf(context),
       ),
       child: Column(
         children: [
@@ -438,11 +438,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryLight,
+                    color: AppColors.primaryLightOf(context),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.primaryBorder),
+                    border: Border.all(color: AppColors.borderOf(context)),
                   ),
-                  child: const Icon(LucideIcons.calendar, size: 18, color: AppColors.primary),
+                  child: Icon(LucideIcons.calendar, size: 18, color: AppColors.isDark(context) ? const Color(0xFF60A5FA) : AppColors.primary),
                 ),
               ),
               const SizedBox(width: 10),
@@ -453,8 +453,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('កាលបរិច្ឆេទត្រួតពិនិត្យ (ចុចដើម្បីជ្រើស)', style: AppTypography.caption),
-                      Text(dateLabel, style: AppTypography.titleSmall),
+                      Text('កាលបរិច្ឆេទត្រួតពិនិត្យ (ចុចដើម្បីជ្រើស)', style: AppTypography.caption.copyWith(color: AppColors.textSecondaryOf(context))),
+                      Text(dateLabel, style: AppTypography.titleSmall.copyWith(color: AppColors.textPrimaryOf(context))),
                     ],
                   ),
                 ),
@@ -468,7 +468,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(3),
                   decoration: BoxDecoration(
-                    color: AppColors.slateBg,
+                    color: AppColors.slateBgOf(context),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -487,11 +487,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(9),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.cardOf(context),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: AppColors.borderOf(context)),
                   ),
-                  child: const Icon(LucideIcons.sheet, size: 18, color: AppColors.textSecondary),
+                  child: Icon(LucideIcons.sheet, size: 18, color: AppColors.textSecondaryOf(context)),
                 ),
               ),
             ],
@@ -510,7 +510,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 6),
           decoration: BoxDecoration(
-            color: isSelected ? Colors.white : Colors.transparent,
+            color: isSelected ? AppColors.cardOf(context) : Colors.transparent,
             borderRadius: BorderRadius.circular(9),
             boxShadow: isSelected
                 ? [
@@ -526,7 +526,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             label,
             textAlign: TextAlign.center,
             style: AppTypography.labelSmall.copyWith(
-              color: isSelected ? AppColors.primary : AppColors.textSecondary,
+              color: isSelected
+                  ? (AppColors.isDark(context) ? const Color(0xFF60A5FA) : AppColors.primary)
+                  : AppColors.textSecondaryOf(context),
               fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
             ),
           ),
@@ -559,13 +561,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               child: Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.successBg,
+                  color: AppColors.successBgOf(context),
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: isSubmittedSelected ? AppColors.success : AppColors.successBorder,
+                    color: isSubmittedSelected ? AppColors.success : AppColors.successBorderOf(context),
                     width: isSubmittedSelected ? 2 : 1,
                   ),
-                  boxShadow: isSubmittedSelected ? AppColors.elevatedShadow : AppColors.cardShadow,
+                  boxShadow: isSubmittedSelected ? AppColors.elevatedShadowOf(context) : AppColors.cardShadowOf(context),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -585,13 +587,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: AppColors.cardOf(context),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppColors.successBorder),
+                            border: Border.all(color: AppColors.successBorderOf(context)),
                           ),
                           child: Text(
                             '$submittedPct%',
-                            style: AppTypography.captionBold.copyWith(color: AppColors.successText),
+                            style: AppTypography.captionBold.copyWith(color: AppColors.successTextOf(context)),
                           ),
                         ),
                       ],
@@ -599,11 +601,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     const SizedBox(height: 10),
                     Text(
                       '${_submittedSessions.length}',
-                      style: AppTypography.displayLarge.copyWith(color: AppColors.successText, fontSize: 24),
+                      style: AppTypography.displayLarge.copyWith(color: AppColors.successTextOf(context), fontSize: 24),
                     ),
                     Text(
                       'ថ្នាក់ Submit រួច (ចុចច្រោះ)',
-                      style: AppTypography.labelSmall.copyWith(color: AppColors.successText),
+                      style: AppTypography.labelSmall.copyWith(color: AppColors.successTextOf(context)),
                     ),
                   ],
                 ),
@@ -627,13 +629,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               child: Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.warningBg,
+                  color: AppColors.warningBgOf(context),
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: isPendingSelected ? AppColors.warning : AppColors.warningBorder,
+                    color: isPendingSelected ? AppColors.warning : AppColors.warningBorderOf(context),
                     width: isPendingSelected ? 2 : 1,
                   ),
-                  boxShadow: isPendingSelected ? AppColors.elevatedShadow : AppColors.cardShadow,
+                  boxShadow: isPendingSelected ? AppColors.elevatedShadowOf(context) : AppColors.cardShadowOf(context),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -653,13 +655,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: AppColors.cardOf(context),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppColors.warningBorder),
+                            border: Border.all(color: AppColors.warningBorderOf(context)),
                           ),
                           child: Text(
                             '${_pendingSessions.length} ថ្នាក់',
-                            style: AppTypography.captionBold.copyWith(color: AppColors.warningText),
+                            style: AppTypography.captionBold.copyWith(color: AppColors.warningTextOf(context)),
                           ),
                         ),
                       ],
@@ -667,11 +669,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 const SizedBox(height: 10),
                 Text(
                   '${_pendingSessions.length}',
-                  style: AppTypography.displayLarge.copyWith(color: AppColors.warningText, fontSize: 24),
+                  style: AppTypography.displayLarge.copyWith(color: AppColors.warningTextOf(context), fontSize: 24),
                 ),
                 Text(
                   'ថ្នាក់មិនទាន់រួច (Pending)',
-                  style: AppTypography.labelSmall.copyWith(color: AppColors.warningText),
+                  style: AppTypography.labelSmall.copyWith(color: AppColors.warningTextOf(context)),
                 ),
               ],
             ),
@@ -687,9 +689,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.cardOf(context),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.borderOf(context)),
+        boxShadow: AppColors.cardShadowOf(context),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -702,24 +705,31 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryLight,
+                      color: AppColors.primaryLightOf(context),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(LucideIcons.trendingUp, size: 18, color: AppColors.primary),
+                    child: Icon(
+                      LucideIcons.trendingUp,
+                      size: 18,
+                      color: AppColors.isDark(context) ? const Color(0xFF60A5FA) : AppColors.primary,
+                    ),
                   ),
                   const SizedBox(width: 10),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('ស្ថិតិវត្តមានសិស្សទូទាំងសាលា', style: AppTypography.titleSmall),
-                      Text('សរុប $_totalStudents នាក់ក្នុងប្រព័ន្ធ', style: AppTypography.caption),
+                      Text('ស្ថិតិវត្តមានសិស្សទូទាំងសាលា', style: AppTypography.titleSmall.copyWith(color: AppColors.textPrimaryOf(context))),
+                      Text('សរុប $_totalStudents នាក់ក្នុងប្រព័ន្ធ', style: AppTypography.caption.copyWith(color: AppColors.textSecondaryOf(context))),
                     ],
                   ),
                 ],
               ),
               Text(
                 '$_presentPercentage%',
-                style: AppTypography.displayMedium.copyWith(color: AppColors.primary, fontSize: 18),
+                style: AppTypography.displayMedium.copyWith(
+                  color: AppColors.isDark(context) ? const Color(0xFF60A5FA) : AppColors.primary,
+                  fontSize: 18,
+                ),
               ),
             ],
           ),
@@ -749,7 +759,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     ),
                   if (_totalStudents == 0)
                     Expanded(
-                      child: Container(color: AppColors.border),
+                      child: Container(color: AppColors.borderOf(context)),
                     ),
                 ],
               ),
@@ -764,27 +774,27 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 'វត្តមាន',
                 _totalPresent,
                 '$_presentPercentage%',
-                AppColors.successText,
-                AppColors.successBg,
-                AppColors.successBorder,
+                AppColors.successTextOf(context),
+                AppColors.successBgOf(context),
+                AppColors.successBorderOf(context),
               ),
               const SizedBox(width: 8),
               _buildMetricBreakdown(
                 'យឺត',
                 _totalLate,
                 '$_latePercentage%',
-                AppColors.warningText,
-                AppColors.warningBg,
-                AppColors.warningBorder,
+                AppColors.warningTextOf(context),
+                AppColors.warningBgOf(context),
+                AppColors.warningBorderOf(context),
               ),
               const SizedBox(width: 8),
               _buildMetricBreakdown(
                 'អវត្តមាន',
                 _totalAbsent,
                 '$_absentPercentage%',
-                AppColors.dangerText,
-                AppColors.dangerBg,
-                AppColors.dangerBorder,
+                AppColors.dangerTextOf(context),
+                AppColors.dangerBgOf(context),
+                AppColors.dangerBorderOf(context),
               ),
             ],
           ),
@@ -830,7 +840,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             RichText(
               text: TextSpan(
                 text: '$count ',
-                style: AppTypography.labelMedium.copyWith(color: AppColors.textPrimary),
+                style: AppTypography.labelMedium.copyWith(color: AppColors.textPrimaryOf(context)),
                 children: [
                   TextSpan(
                     text: '($pct)',
@@ -852,16 +862,21 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('ស្ថានភាពវត្តមានតាមថ្នាក់រៀន', style: AppTypography.titleSmall),
+            Text(
+              'ស្ថានភាពវត្តមានតាមថ្នាក់រៀន',
+              style: AppTypography.titleSmall.copyWith(color: AppColors.textPrimaryOf(context)),
+            ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                color: AppColors.primaryLight,
+                color: AppColors.primaryLightOf(context),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 '${_filteredSessions.length} ថ្នាក់',
-                style: AppTypography.captionBold.copyWith(color: AppColors.primary),
+                style: AppTypography.captionBold.copyWith(
+                  color: AppColors.isDark(context) ? const Color(0xFF60A5FA) : AppColors.primary,
+                ),
               ),
             ),
           ],
@@ -872,7 +887,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         Container(
           padding: const EdgeInsets.all(3),
           decoration: BoxDecoration(
-            color: AppColors.slateBg,
+            color: AppColors.slateBgOf(context),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
@@ -890,18 +905,26 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   Widget _buildStatusPill(String label, StatusFilter filter) {
     final isSelected = _statusFilter == filter;
+    final isDark = AppColors.isDark(context);
+    final activeColor = filter == StatusFilter.submitted
+        ? AppColors.successTextOf(context)
+        : filter == StatusFilter.pending
+            ? AppColors.warningTextOf(context)
+            : (isDark ? const Color(0xFF60A5FA) : AppColors.primary);
+
     return InkWell(
       onTap: () => setState(() => _statusFilter = filter),
       borderRadius: BorderRadius.circular(9),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white : Colors.transparent,
+          color: isSelected ? AppColors.cardOf(context) : Colors.transparent,
           borderRadius: BorderRadius.circular(9),
+          border: isSelected && isDark ? Border.all(color: AppColors.borderOf(context)) : null,
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
+                    color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
                     blurRadius: 3,
                     offset: const Offset(0, 1),
                   )
@@ -911,13 +934,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         child: Text(
           label,
           style: AppTypography.labelSmall.copyWith(
-            color: isSelected
-                ? (filter == StatusFilter.submitted
-                    ? AppColors.successText
-                    : filter == StatusFilter.pending
-                        ? AppColors.warningText
-                        : AppColors.primary)
-                : AppColors.textSecondary,
+            color: isSelected ? activeColor : AppColors.textSecondaryOf(context),
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
           ),
         ),
@@ -929,17 +946,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return TextField(
       controller: _searchController,
       onChanged: (val) => setState(() => _searchQuery = val),
-      style: AppTypography.bodyMedium,
+      style: AppTypography.bodyMedium.copyWith(color: AppColors.textPrimaryOf(context)),
       decoration: InputDecoration(
-        prefixIcon: const Icon(LucideIcons.search, size: 18, color: AppColors.textSubtle),
+        prefixIcon: Icon(LucideIcons.search, size: 18, color: AppColors.textSecondaryOf(context)),
         hintText: 'ស្វែងរកតាមថ្នាក់ មុខវិជ្ជា ឬឈ្មោះគ្រូ...',
-        hintStyle: AppTypography.bodySmall.copyWith(color: AppColors.textSubtle),
+        hintStyle: AppTypography.bodySmall.copyWith(color: AppColors.textSubtleOf(context)),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: AppColors.cardOf(context),
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: BorderSide(color: AppColors.borderOf(context)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -955,15 +972,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         width: double.infinity,
         padding: const EdgeInsets.all(28),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.cardOf(context),
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: AppColors.borderOf(context)),
+          boxShadow: AppColors.cardShadowOf(context),
         ),
         child: Column(
           children: [
-            const Icon(LucideIcons.users, size: 36, color: Color(0xFFCBD5E1)),
+            Icon(LucideIcons.users, size: 36, color: AppColors.textSubtleOf(context)),
             const SizedBox(height: 8),
-            Text('មិនមានទិន្នន័យថ្នាក់ត្រូវនឹងការស្វែងរកទេ', style: AppTypography.bodySmall),
+            Text('មិនមានទិន្នន័យថ្នាក់ត្រូវនឹងការស្វែងរកទេ', style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondaryOf(context))),
           ],
         ),
       );
@@ -979,10 +997,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         final isSubmitted = item.submitted;
         return Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.cardOf(context),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.border),
-            boxShadow: AppColors.cardShadow,
+            border: Border.all(color: AppColors.borderOf(context)),
+            boxShadow: AppColors.cardShadowOf(context),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
@@ -1011,7 +1029,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                 Flexible(
                                   child: Text(
                                     item.className,
-                                    style: AppTypography.titleSmall,
+                                    style: AppTypography.titleSmall.copyWith(color: AppColors.textPrimaryOf(context)),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
@@ -1020,12 +1038,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                     decoration: BoxDecoration(
-                                      color: AppColors.slateBg,
+                                      color: AppColors.slateBgOf(context),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
                                       item.subject,
-                                      style: AppTypography.captionBold.copyWith(color: AppColors.textSecondary),
+                                      style: AppTypography.captionBold.copyWith(color: AppColors.textSecondaryOf(context)),
                                       overflow: TextOverflow.ellipsis,
                                       maxLines: 1,
                                     ),
@@ -1039,14 +1057,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                 Flexible(
                                   child: Text(
                                     item.teacherName,
-                                    style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary),
+                                    style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondaryOf(context)),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                                const Text(' • ', style: TextStyle(color: AppColors.border)),
+                                Text(' • ', style: TextStyle(color: AppColors.borderOf(context))),
                                 Text(
                                   'វត្តមាន ${item.stats.present}/${item.stats.total} នាក់',
-                                  style: AppTypography.caption.copyWith(color: AppColors.textMuted),
+                                  style: AppTypography.caption.copyWith(color: AppColors.textSecondaryOf(context)),
                                 ),
                               ],
                             ),
@@ -1059,10 +1077,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                         decoration: BoxDecoration(
-                          color: item.submitted ? AppColors.successBg : AppColors.warningBg,
+                          color: item.submitted ? AppColors.successBgOf(context) : AppColors.warningBgOf(context),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                            color: item.submitted ? AppColors.successBorder : AppColors.warningBorder,
+                            color: item.submitted ? AppColors.successBorderOf(context) : AppColors.warningBorderOf(context),
                           ),
                         ),
                         child: Row(
@@ -1071,20 +1089,20 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                             Icon(
                               item.submitted ? LucideIcons.checkCircle2 : LucideIcons.clock,
                               size: 12,
-                              color: item.submitted ? AppColors.successText : AppColors.warningText,
+                              color: item.submitted ? AppColors.successTextOf(context) : AppColors.warningTextOf(context),
                             ),
                             const SizedBox(width: 4),
                             Text(
                               item.submitted ? 'Submit រួច' : 'មិនទាន់ Submit',
                               style: AppTypography.captionBold.copyWith(
-                                color: item.submitted ? AppColors.successText : AppColors.warningText,
+                                color: item.submitted ? AppColors.successTextOf(context) : AppColors.warningTextOf(context),
                               ),
                             ),
                           ],
                         ),
                       ),
                       const SizedBox(width: 6),
-                      const Icon(LucideIcons.chevronRight, size: 16, color: AppColors.textSubtle),
+                      Icon(LucideIcons.chevronRight, size: 16, color: AppColors.textSecondaryOf(context)),
                     ],
                   ),
                 ),

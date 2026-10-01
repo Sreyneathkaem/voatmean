@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:voatmean_mobile/core/constants/app_colors.dart';
 import 'package:voatmean_mobile/core/constants/app_typography.dart';
+import 'package:voatmean_mobile/core/theme/theme_provider.dart';
+import 'package:voatmean_mobile/core/localization/locale_provider.dart';
+import 'package:voatmean_mobile/core/localization/app_translations.dart';
 
 class TeacherSettingsScreen extends StatefulWidget {
   final VoidCallback onSignOut;
@@ -19,8 +24,35 @@ class TeacherSettingsScreen extends StatefulWidget {
 
 class _TeacherSettingsScreenState extends State<TeacherSettingsScreen> {
   bool _notificationsEnabled = true;
-  bool _darkMode = false;
-  String _currentLanguage = 'ភាសាខ្មែរ';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNotificationPref();
+  }
+
+  Future<void> _loadNotificationPref() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final val = prefs.getBool('teacher_notifications_enabled');
+      if (val != null && mounted) {
+        setState(() => _notificationsEnabled = val);
+      }
+    } catch (e) {
+      debugPrint('Error loading teacher notification pref: $e');
+    }
+  }
+
+  Future<void> _toggleNotificationPref(bool val) async {
+    setState(() => _notificationsEnabled = val);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('teacher_notifications_enabled', val);
+    } catch (e) {
+      debugPrint('Error saving teacher notification pref: $e');
+    }
+  }
+
   String _teacherName = 'លោកគ្រូ សុខ សំណាង';
   String _teacherPhone = '012 345 678';
   String _teacherSubject = 'គណិតវិទ្យា';
@@ -29,6 +61,7 @@ class _TeacherSettingsScreenState extends State<TeacherSettingsScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
+        backgroundColor: Theme.of(context).cardColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
@@ -41,18 +74,18 @@ class _TeacherSettingsScreenState extends State<TeacherSettingsScreen> {
               child: const Icon(LucideIcons.logOut, color: AppColors.danger, size: 20),
             ),
             const SizedBox(width: 12),
-            Text('ចាកចេញពីកម្មវិធី', style: AppTypography.titleMedium),
+            Text(context.tr('sign_out_confirm_title'), style: AppTypography.titleMedium.copyWith(color: AppColors.textPrimaryOf(context))),
           ],
         ),
         content: Text(
-          'តើលោកអ្នកពិតជាចង់ចាកចេញពីគណនីគ្រូបង្រៀនមែនទេ?',
-          style: AppTypography.bodyMedium,
+          context.tr('sign_out_confirm_teacher'),
+          style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondaryOf(context)),
         ),
         actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('បោះបង់', style: AppTypography.labelMedium.copyWith(color: AppColors.textMuted)),
+            child: Text(context.tr('cancel'), style: AppTypography.labelMedium.copyWith(color: AppColors.textMutedOf(context))),
           ),
           ElevatedButton(
             onPressed: () {
@@ -66,7 +99,7 @@ class _TeacherSettingsScreenState extends State<TeacherSettingsScreen> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             ),
-            child: Text('ចាកចេញ', style: AppTypography.labelMedium.copyWith(color: Colors.white)),
+            child: Text(context.tr('sign_out'), style: AppTypography.labelMedium.copyWith(color: Colors.white)),
           ),
         ],
       ),
@@ -195,15 +228,15 @@ class _TeacherSettingsScreenState extends State<TeacherSettingsScreen> {
     );
   }
 
-  void _openLanguageModal() {
+  void _openLanguageModal(BuildContext context, LocaleProvider localeProvider) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
         padding: const EdgeInsets.all(22),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -223,35 +256,56 @@ class _TeacherSettingsScreenState extends State<TeacherSettingsScreen> {
                       child: const Icon(LucideIcons.globe, color: AppColors.successDark, size: 20),
                     ),
                     const SizedBox(width: 10),
-                    Text('ជ្រើសរើសភាសា (Language)', style: AppTypography.titleMedium),
+                    Text(
+                      context.tr('choose_language'),
+                      style: AppTypography.titleMedium.copyWith(color: AppColors.textPrimaryOf(context)),
+                    ),
                   ],
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(ctx),
-                  icon: const Icon(LucideIcons.x, size: 20),
+                  icon: Icon(LucideIcons.x, size: 20, color: AppColors.textMutedOf(context)),
                 ),
               ],
             ),
             const SizedBox(height: 14),
             ListTile(
-              title: Text('ភាសាខ្មែរ (Khmer)', style: AppTypography.bodyMedium),
-              trailing: _currentLanguage == 'ភាសាខ្មែរ'
+              title: Text('ភាសាខ្មែរ (Khmer)', style: AppTypography.bodyMedium.copyWith(color: AppColors.textPrimaryOf(context))),
+              trailing: localeProvider.isKhmer
                   ? const Icon(LucideIcons.check, color: AppColors.primary)
                   : null,
               onTap: () {
-                setState(() => _currentLanguage = 'ភាសាខ្មែរ');
+                localeProvider.setLanguageCode('km');
                 Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('បានប្តូរភាសាទៅជាភាសាខ្មែរ', style: AppTypography.bodySmall.copyWith(color: Colors.white)),
+                    backgroundColor: AppColors.primary,
+                    duration: const Duration(seconds: 1),
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                );
               },
             ),
-            const Divider(height: 1, color: AppColors.border),
+            Divider(height: 1, color: AppColors.borderOf(context)),
             ListTile(
-              title: Text('English (US)', style: AppTypography.bodyMedium),
-              trailing: _currentLanguage == 'English'
+              title: Text('English (US)', style: AppTypography.bodyMedium.copyWith(color: AppColors.textPrimaryOf(context))),
+              trailing: !localeProvider.isKhmer
                   ? const Icon(LucideIcons.check, color: AppColors.primary)
                   : null,
               onTap: () {
-                setState(() => _currentLanguage = 'English');
+                localeProvider.setLanguageCode('en');
                 Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Language switched to English', style: AppTypography.bodySmall.copyWith(color: Colors.white)),
+                    backgroundColor: AppColors.primary,
+                    duration: const Duration(seconds: 1),
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                );
               },
             ),
             const SizedBox(height: 10),
@@ -398,15 +452,19 @@ class _TeacherSettingsScreenState extends State<TeacherSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final localeProvider = Provider.of<LocaleProvider>(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.bgOf(context),
       appBar: AppBar(
-        title: Text('ការកំណត់', style: AppTypography.titleMedium),
-        backgroundColor: Colors.white,
+        title: Text(context.tr('settings_title'), style: AppTypography.titleMedium.copyWith(color: AppColors.textPrimaryOf(context))),
+        backgroundColor: Theme.of(context).cardColor,
         elevation: 0,
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, color: AppColors.border),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Divider(height: 1, color: AppColors.borderOf(context)),
         ),
       ),
       body: ListView(
@@ -417,7 +475,7 @@ class _TeacherSettingsScreenState extends State<TeacherSettingsScreen> {
           const SizedBox(height: 20),
 
           // 2. App Settings Section
-          _buildSectionTitle('ការកំណត់កម្មវិធី'),
+          _buildSectionTitle(context.tr('section_app_settings')),
           const SizedBox(height: 8),
           _buildSettingsGroup([
             SwitchListTile(
@@ -425,53 +483,76 @@ class _TeacherSettingsScreenState extends State<TeacherSettingsScreen> {
               secondary: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryLight,
+                  color: _notificationsEnabled
+                      ? (isDark ? const Color(0xFF1E3A8A) : AppColors.primaryLight)
+                      : AppColors.slateBgOf(context),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(LucideIcons.bell, size: 18, color: AppColors.primary),
+                child: Icon(
+                  _notificationsEnabled ? LucideIcons.bell : LucideIcons.bellOff,
+                  size: 18,
+                  color: _notificationsEnabled
+                      ? (isDark ? const Color(0xFF60A5FA) : AppColors.primary)
+                      : AppColors.textMutedOf(context),
+                ),
               ),
-              title: Text('ការជូនដំណឹង', style: AppTypography.labelMedium),
-              subtitle: Text('ទទួលការរំលឹកម៉ោងស្រង់វត្តមាន', style: AppTypography.caption),
+              title: Text(context.tr('notifications'), style: AppTypography.labelMedium.copyWith(color: AppColors.textPrimaryOf(context))),
+              subtitle: Text(
+                _notificationsEnabled
+                    ? context.tr('notifications_sub_teacher')
+                    : (Localizations.localeOf(context).languageCode == 'km' ? 'បានបិទការជូនដំណឹង (បានផ្អាក)' : 'Notifications disabled'),
+                style: AppTypography.caption.copyWith(color: AppColors.textMutedOf(context)),
+              ),
               value: _notificationsEnabled,
-              activeTrackColor: AppColors.primary,
               onChanged: (v) {
-                setState(() => _notificationsEnabled = v);
+                _toggleNotificationPref(v);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(v ? 'បានបើកការជូនដំណឹង' : 'បានបិទការជូនដំណឹង', style: AppTypography.bodySmall.copyWith(color: Colors.white)),
-                    backgroundColor: AppColors.primary,
+                    content: Text(v ? context.tr('notif_enabled') : context.tr('notif_disabled'), style: AppTypography.bodySmall.copyWith(color: Colors.white)),
+                    backgroundColor: v ? AppColors.primary : AppColors.textSecondaryOf(context),
                     duration: const Duration(seconds: 1),
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                 );
               },
             ),
-            const Divider(height: 1, indent: 56, color: AppColors.border),
+            Divider(height: 1, indent: 56, color: AppColors.borderOf(context)),
             SwitchListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
               secondary: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
+                  color: themeProvider.isDarkMode
+                      ? const Color(0xFF312E81)
+                      : AppColors.slateBgOf(context),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(LucideIcons.moon, size: 18, color: AppColors.textSecondary),
+                child: Icon(
+                  themeProvider.isDarkMode ? LucideIcons.moonStar : LucideIcons.sun,
+                  size: 18,
+                  color: themeProvider.isDarkMode
+                      ? const Color(0xFFA5B4FC)
+                      : const Color(0xFFF59E0B),
+                ),
               ),
-              title: Text('មុខងារងងឹត (Dark Mode)', style: AppTypography.labelMedium),
-              subtitle: Text('ប្តូរផ្ទៃកម្មវិធីជាពណ៌ងងឹត', style: AppTypography.caption),
-              value: _darkMode,
-              activeTrackColor: AppColors.primary,
+              title: Text(context.tr('dark_mode'), style: AppTypography.labelMedium.copyWith(color: AppColors.textPrimaryOf(context))),
+              subtitle: Text(context.tr('dark_mode_sub'), style: AppTypography.caption.copyWith(color: AppColors.textMutedOf(context))),
+              value: themeProvider.isDarkMode,
               onChanged: (v) {
-                setState(() => _darkMode = v);
+                themeProvider.toggleTheme(v);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(v ? 'បានបើក Dark Mode' : 'បានបិទ Dark Mode', style: AppTypography.bodySmall.copyWith(color: Colors.white)),
+                    content: Text(v ? context.tr('dark_mode_enabled') : context.tr('dark_mode_disabled'), style: AppTypography.bodySmall.copyWith(color: Colors.white)),
                     backgroundColor: AppColors.primary,
                     duration: const Duration(seconds: 1),
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                 );
               },
             ),
-            const Divider(height: 1, indent: 56, color: AppColors.border),
+            Divider(height: 1, indent: 56, color: AppColors.borderOf(context)),
             ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
               leading: Container(
@@ -482,7 +563,8 @@ class _TeacherSettingsScreenState extends State<TeacherSettingsScreen> {
                 ),
                 child: const Icon(LucideIcons.globe, size: 18, color: AppColors.successDark),
               ),
-              title: Text('ភាសា (Language)', style: AppTypography.labelMedium),
+              title: Text(context.tr('language'), style: AppTypography.labelMedium.copyWith(color: AppColors.textPrimaryOf(context))),
+              subtitle: Text(context.tr('language_sub'), style: AppTypography.caption.copyWith(color: AppColors.textMutedOf(context))),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -493,13 +575,13 @@ class _TeacherSettingsScreenState extends State<TeacherSettingsScreen> {
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: AppColors.primaryBorder),
                     ),
-                    child: Text(_currentLanguage, style: AppTypography.labelSmall.copyWith(color: AppColors.primary)),
+                    child: Text(localeProvider.languageName, style: AppTypography.labelSmall.copyWith(color: AppColors.primary)),
                   ),
                   const SizedBox(width: 6),
-                  const Icon(LucideIcons.chevronRight, size: 16, color: AppColors.textSubtle),
+                  Icon(LucideIcons.chevronRight, size: 16, color: AppColors.textSubtleOf(context)),
                 ],
               ),
-              onTap: _openLanguageModal,
+              onTap: () => _openLanguageModal(context, localeProvider),
             ),
           ]),
           const SizedBox(height: 20),
@@ -518,30 +600,32 @@ class _TeacherSettingsScreenState extends State<TeacherSettingsScreen> {
                 ),
                 child: const Icon(LucideIcons.helpCircle, size: 18, color: AppColors.primary),
               ),
-              title: Text('របៀបស្រង់វត្តមានសិស្ស', style: AppTypography.labelMedium),
-              trailing: const Icon(LucideIcons.chevronRight, size: 18, color: AppColors.textSubtle),
+              title: Text(context.tr('help_guide'), style: AppTypography.labelMedium.copyWith(color: AppColors.textPrimaryOf(context))),
+              subtitle: Text(context.tr('help_guide_sub'), style: AppTypography.caption.copyWith(color: AppColors.textMutedOf(context))),
+              trailing: Icon(LucideIcons.chevronRight, size: 18, color: AppColors.textSubtleOf(context)),
               onTap: _openHelpGuideModal,
             ),
-            const Divider(height: 1, indent: 56, color: AppColors.border),
+            Divider(height: 1, indent: 56, color: AppColors.borderOf(context)),
             ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
+                  color: AppColors.slateBgOf(context),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(LucideIcons.shieldCheck, size: 18, color: AppColors.textSecondary),
+                child: Icon(LucideIcons.shieldCheck, size: 18, color: AppColors.textSecondaryOf(context)),
               ),
-              title: Text('សុវត្ថិភាព និងគោលការណ៍', style: AppTypography.labelMedium),
-              trailing: const Icon(LucideIcons.chevronRight, size: 18, color: AppColors.textSubtle),
+              title: Text(context.tr('security_policy'), style: AppTypography.labelMedium.copyWith(color: AppColors.textPrimaryOf(context))),
+              subtitle: Text(context.tr('security_policy_sub'), style: AppTypography.caption.copyWith(color: AppColors.textMutedOf(context))),
+              trailing: Icon(LucideIcons.chevronRight, size: 18, color: AppColors.textSubtleOf(context)),
               onTap: _openSecurityModal,
             ),
           ]),
           const SizedBox(height: 20),
 
           // 4. Account Actions
-          _buildSectionTitle('សកម្មភាពគណនី'),
+          _buildSectionTitle(context.tr('section_actions')),
           const SizedBox(height: 8),
           _buildSettingsGroup([
             if (widget.onSwitchToAdminPortal != null) ...[
@@ -555,11 +639,11 @@ class _TeacherSettingsScreenState extends State<TeacherSettingsScreen> {
                   ),
                   child: const Icon(LucideIcons.layoutDashboard, size: 18, color: AppColors.primary),
                 ),
-                title: Text('ប្តូរទៅកាន់ Admin Portal', style: AppTypography.labelMedium.copyWith(color: AppColors.primary)),
+                title: Text(context.tr('switch_to_admin'), style: AppTypography.labelMedium.copyWith(color: AppColors.primary)),
                 trailing: const Icon(LucideIcons.chevronRight, size: 18, color: AppColors.primary),
                 onTap: widget.onSwitchToAdminPortal,
               ),
-              const Divider(height: 1, indent: 56, color: AppColors.border),
+              Divider(height: 1, indent: 56, color: AppColors.borderOf(context)),
             ],
             ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
@@ -571,7 +655,7 @@ class _TeacherSettingsScreenState extends State<TeacherSettingsScreen> {
                 ),
                 child: const Icon(LucideIcons.logOut, size: 18, color: AppColors.danger),
               ),
-              title: Text('ចាកចេញពីកម្មវិធី', style: AppTypography.labelMedium.copyWith(color: AppColors.danger)),
+              title: Text(context.tr('sign_out'), style: AppTypography.labelMedium.copyWith(color: AppColors.danger)),
               trailing: const Icon(LucideIcons.chevronRight, size: 18, color: AppColors.danger),
               onTap: _confirmSignOut,
             ),
@@ -582,7 +666,7 @@ class _TeacherSettingsScreenState extends State<TeacherSettingsScreen> {
           Center(
             child: Text(
               'Voatmean Attendance • v1.0.0',
-              style: AppTypography.caption.copyWith(color: AppColors.textSubtle),
+              style: AppTypography.caption.copyWith(color: AppColors.textSubtleOf(context)),
             ),
           ),
           const SizedBox(height: 20),
@@ -594,10 +678,10 @@ class _TeacherSettingsScreenState extends State<TeacherSettingsScreen> {
   Widget _buildProfileCard() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.border),
-        boxShadow: AppColors.cardShadow,
+        border: Border.all(color: AppColors.borderOf(context)),
+        boxShadow: AppColors.cardShadowOf(context),
       ),
       child: Material(
         color: Colors.transparent,
@@ -626,7 +710,10 @@ class _TeacherSettingsScreenState extends State<TeacherSettingsScreen> {
                           Flexible(
                             child: Text(
                               _teacherName,
-                              style: AppTypography.titleSmall,
+                              style: AppTypography.titleSmall.copyWith(
+                                color: AppColors.textPrimaryOf(context),
+                                fontWeight: FontWeight.bold,
+                              ),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -648,12 +735,12 @@ class _TeacherSettingsScreenState extends State<TeacherSettingsScreen> {
                       const SizedBox(height: 4),
                       Text(
                         'មុខវិជ្ជា៖ $_teacherSubject • វិទ្យាល័យ ហ៊ុន សែន',
-                        style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary),
+                        style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondaryOf(context)),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         'ទូរស័ព្ទ៖ $_teacherPhone',
-                        style: AppTypography.caption.copyWith(color: AppColors.textMuted),
+                        style: AppTypography.caption.copyWith(color: AppColors.textMutedOf(context)),
                       ),
                     ],
                   ),
@@ -672,7 +759,7 @@ class _TeacherSettingsScreenState extends State<TeacherSettingsScreen> {
       padding: const EdgeInsets.only(left: 4),
       child: Text(
         title,
-        style: AppTypography.labelMedium.copyWith(color: AppColors.textMuted),
+        style: AppTypography.labelMedium.copyWith(color: AppColors.textMutedOf(context)),
       ),
     );
   }
@@ -680,10 +767,10 @@ class _TeacherSettingsScreenState extends State<TeacherSettingsScreen> {
   Widget _buildSettingsGroup(List<Widget> children) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-        boxShadow: AppColors.cardShadow,
+        border: Border.all(color: AppColors.borderOf(context)),
+        boxShadow: AppColors.cardShadowOf(context),
       ),
       child: Material(
         color: Colors.transparent,

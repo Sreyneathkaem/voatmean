@@ -35,8 +35,11 @@ class AuthService {
     }
   }
 
+  String? lastGoogleError;
+
   /// 1. Login with Google -> Backend (POST /api/auth/google)
   Future<Map<String, dynamic>?> signInWithGoogle() async {
+    lastGoogleError = null;
     try {
       debugPrint("Google Sign-In: Initializing...");
       await _ensureInitialized();
@@ -49,11 +52,12 @@ class AuthService {
       final String? idToken = googleAuth.idToken;
 
       if (idToken == null) {
+        lastGoogleError = "មិនអាចទទួលបាន Token ពី Google ទេ។";
         debugPrint("Google Sign-In: Could not obtain idToken.");
         return null;
       }
 
-      debugPrint("Google Sign-In: Sending idToken to backend...");
+      debugPrint("Google Sign-In: Sending idToken to backend for whitelisted database verification...");
       final response = await _dio.post('/api/auth/google', data: {'idToken': idToken});
 
       if (response.statusCode == 200 && response.data is Map) {
@@ -62,7 +66,18 @@ class AuthService {
       
       debugPrint("Google Sign-In: Backend error: ${response.data}");
       return null;
+    } on DioException catch (de) {
+      if (de.response?.statusCode == 403) {
+        lastGoogleError = "គណនី Google នេះមិនទាន់មានក្នុងប្រព័ន្ធទេ។ សូមទាក់ទង Admin (Email not registered).";
+      } else if (de.response?.data is Map && de.response?.data['error'] != null) {
+        lastGoogleError = de.response!.data['error'].toString();
+      } else {
+        lastGoogleError = "មិនអាចភ្ជាប់ទៅកាន់ម៉ាស៊ីនមេបានទេ (Server connection failed).";
+      }
+      debugPrint("Google Sign-In DioException: $lastGoogleError ($de)");
+      return null;
     } catch (e) {
+      lastGoogleError = "ការចូលតាម Google ត្រូវបានបោះបង់ ឬមានបញ្ហាតភ្ជាប់។";
       debugPrint("Google Sign-In Exception: $e");
       return null;
     }

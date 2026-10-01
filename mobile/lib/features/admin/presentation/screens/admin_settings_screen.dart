@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:voatmean_mobile/core/constants/app_colors.dart';
 import 'package:voatmean_mobile/core/constants/app_typography.dart';
+import 'package:voatmean_mobile/core/theme/theme_provider.dart';
+import 'package:voatmean_mobile/core/localization/locale_provider.dart';
+import 'package:voatmean_mobile/core/localization/app_translations.dart';
 import '../../data/services/admin_service.dart';
 
 class AdminSettingsScreen extends StatefulWidget {
@@ -20,17 +25,132 @@ class AdminSettingsScreen extends StatefulWidget {
 
 class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
   bool _notificationsEnabled = true;
-  bool _darkMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNotificationPref();
+  }
+
+  Future<void> _loadNotificationPref() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final val = prefs.getBool('admin_notifications_enabled');
+      if (val != null && mounted) {
+        setState(() => _notificationsEnabled = val);
+      }
+    } catch (e) {
+      debugPrint('Error loading notification pref: $e');
+    }
+  }
+
+  Future<void> _toggleNotificationPref(bool val) async {
+    setState(() => _notificationsEnabled = val);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('admin_notifications_enabled', val);
+    } catch (e) {
+      debugPrint('Error saving notification pref: $e');
+    }
+  }
 
   String _adminName = 'គណៈគ្រប់គ្រងសាលា';
   String _schoolName = 'វិទ្យាល័យ ហ៊ុន សែន • រាជធានីភ្នំពេញ';
   String _adminEmail = 'admin@voatmean.edu.kh';
   String _adminPhone = '012 888 777';
 
+  void _openLanguageModal(BuildContext context, LocaleProvider localeProvider) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(22),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppColors.emeraldBg,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(LucideIcons.globe, color: AppColors.successDark, size: 20),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      context.tr('choose_language'),
+                      style: AppTypography.titleMedium.copyWith(color: AppColors.textPrimaryOf(context)),
+                    ),
+                  ],
+                ),
+                IconButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  icon: Icon(LucideIcons.x, size: 20, color: AppColors.textMutedOf(context)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            ListTile(
+              title: Text('ភាសាខ្មែរ (Khmer)', style: AppTypography.bodyMedium.copyWith(color: AppColors.textPrimaryOf(context))),
+              trailing: localeProvider.isKhmer
+                  ? const Icon(LucideIcons.check, color: AppColors.primary)
+                  : null,
+              onTap: () {
+                localeProvider.setLanguageCode('km');
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('បានប្តូរភាសាទៅជាភាសាខ្មែរ', style: AppTypography.bodySmall.copyWith(color: Colors.white)),
+                    backgroundColor: AppColors.primary,
+                    duration: const Duration(seconds: 1),
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                );
+              },
+            ),
+            Divider(height: 1, color: AppColors.borderOf(context)),
+            ListTile(
+              title: Text('English (US)', style: AppTypography.bodyMedium.copyWith(color: AppColors.textPrimaryOf(context))),
+              trailing: !localeProvider.isKhmer
+                  ? const Icon(LucideIcons.check, color: AppColors.primary)
+                  : null,
+              onTap: () {
+                localeProvider.setLanguageCode('en');
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Language switched to English', style: AppTypography.bodySmall.copyWith(color: Colors.white)),
+                    backgroundColor: AppColors.primary,
+                    duration: const Duration(seconds: 1),
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 10),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _confirmSignOut() {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
+        backgroundColor: Theme.of(context).cardColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
@@ -43,18 +163,18 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
               child: const Icon(LucideIcons.logOut, color: AppColors.danger, size: 20),
             ),
             const SizedBox(width: 12),
-            Text('ចាកចេញពីកម្មវិធី', style: AppTypography.titleMedium),
+            Text(context.tr('sign_out_confirm_title'), style: AppTypography.titleMedium.copyWith(color: AppColors.textPrimaryOf(context))),
           ],
         ),
         content: Text(
-          'តើលោកអ្នកពិតជាចង់ចាកចេញពីគណនីអ្នកគ្រប់គ្រងមែនទេ?',
-          style: AppTypography.bodyMedium,
+          context.tr('sign_out_confirm_admin'),
+          style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondaryOf(context)),
         ),
         actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('បោះបង់', style: AppTypography.labelMedium.copyWith(color: AppColors.textMuted)),
+            child: Text(context.tr('cancel'), style: AppTypography.labelMedium.copyWith(color: AppColors.textMutedOf(context))),
           ),
           ElevatedButton(
             onPressed: () {
@@ -68,7 +188,7 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             ),
-            child: Text('ចាកចេញ', style: AppTypography.labelMedium.copyWith(color: Colors.white)),
+            child: Text(context.tr('sign_out'), style: AppTypography.labelMedium.copyWith(color: Colors.white)),
           ),
         ],
       ),
@@ -756,15 +876,19 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final localeProvider = Provider.of<LocaleProvider>(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.bgOf(context),
       appBar: AppBar(
-        title: Text('ការកំណត់', style: AppTypography.titleMedium),
-        backgroundColor: Colors.white,
+        title: Text(context.tr('settings_title'), style: AppTypography.titleMedium.copyWith(color: AppColors.textPrimaryOf(context))),
+        backgroundColor: Theme.of(context).cardColor,
         elevation: 0,
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, color: AppColors.border),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Divider(height: 1, color: AppColors.borderOf(context)),
         ),
       ),
       body: ListView(
@@ -775,7 +899,7 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
           const SizedBox(height: 20),
 
           // 2. Account & Security
-          _buildSectionTitle('គណនី និងសុវត្ថិភាព'),
+          _buildSectionTitle(context.tr('section_account')),
           const SizedBox(height: 8),
           _buildSettingsGroup([
             ListTile(
@@ -788,32 +912,32 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                 ),
                 child: const Icon(LucideIcons.user, size: 18, color: AppColors.primary),
               ),
-              title: Text('ព័ត៌មានផ្ទាល់ខ្លួន', style: AppTypography.labelMedium),
-              subtitle: Text('កែសម្រួលឈ្មោះ អ៊ីមែល និងសាលារៀន', style: AppTypography.caption),
-              trailing: const Icon(LucideIcons.chevronRight, size: 18, color: AppColors.textSubtle),
+              title: Text(context.tr('personal_info'), style: AppTypography.labelMedium.copyWith(color: AppColors.textPrimaryOf(context))),
+              subtitle: Text(context.tr('personal_info_sub'), style: AppTypography.caption.copyWith(color: AppColors.textMutedOf(context))),
+              trailing: Icon(LucideIcons.chevronRight, size: 18, color: AppColors.textSubtleOf(context)),
               onTap: _showEditProfileModal,
             ),
-            const Divider(height: 1, indent: 56, color: AppColors.border),
+            Divider(height: 1, indent: 56, color: AppColors.borderOf(context)),
             ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
+                  color: AppColors.slateBgOf(context),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(LucideIcons.lock, size: 18, color: AppColors.textSecondary),
+                child: Icon(LucideIcons.lock, size: 18, color: AppColors.textSecondaryOf(context)),
               ),
-              title: Text('ប្តូរពាក្យសម្ងាត់', style: AppTypography.labelMedium),
-              subtitle: Text('ផ្លាស់ប្តូរលេខកូដសម្ងាត់គណនី', style: AppTypography.caption),
-              trailing: const Icon(LucideIcons.chevronRight, size: 18, color: AppColors.textSubtle),
+              title: Text(context.tr('change_password'), style: AppTypography.labelMedium.copyWith(color: AppColors.textPrimaryOf(context))),
+              subtitle: Text(context.tr('change_password_sub'), style: AppTypography.caption.copyWith(color: AppColors.textMutedOf(context))),
+              trailing: Icon(LucideIcons.chevronRight, size: 18, color: AppColors.textSubtleOf(context)),
               onTap: _showChangePasswordModal,
             ),
           ]),
           const SizedBox(height: 20),
 
           // 3. Application Settings
-          _buildSectionTitle('ការកំណត់កម្មវិធី'),
+          _buildSectionTitle(context.tr('section_app_settings')),
           const SizedBox(height: 8),
           _buildSettingsGroup([
             SwitchListTile(
@@ -821,24 +945,36 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
               secondary: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryLight,
+                  color: _notificationsEnabled
+                      ? (isDark ? const Color(0xFF1E3A8A) : AppColors.primaryLight)
+                      : AppColors.slateBgOf(context),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(LucideIcons.bell, size: 18, color: AppColors.primary),
+                child: Icon(
+                  _notificationsEnabled ? LucideIcons.bell : LucideIcons.bellOff,
+                  size: 18,
+                  color: _notificationsEnabled
+                      ? (isDark ? const Color(0xFF60A5FA) : AppColors.primary)
+                      : AppColors.textMutedOf(context),
+                ),
               ),
-              title: Text('ការជូនដំណឹង', style: AppTypography.labelMedium),
-              subtitle: Text('ទទួលដំណឹងពីការស្រង់វត្តមានរបស់គ្រូ', style: AppTypography.caption),
+              title: Text(context.tr('notifications'), style: AppTypography.labelMedium.copyWith(color: AppColors.textPrimaryOf(context))),
+              subtitle: Text(
+                _notificationsEnabled
+                    ? context.tr('notifications_sub_admin')
+                    : (Localizations.localeOf(context).languageCode == 'km' ? 'បានបិទការជូនដំណឹង (បានផ្អាក)' : 'Notifications disabled'),
+                style: AppTypography.caption.copyWith(color: AppColors.textMutedOf(context)),
+              ),
               value: _notificationsEnabled,
-              activeTrackColor: AppColors.primary,
               onChanged: (v) {
-                setState(() => _notificationsEnabled = v);
+                _toggleNotificationPref(v);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      v ? 'បានបើកការជូនដំណឹង' : 'បានបិទការជូនដំណឹង',
+                      v ? context.tr('notif_enabled') : context.tr('notif_disabled'),
                       style: AppTypography.bodySmall.copyWith(color: Colors.white),
                     ),
-                    backgroundColor: AppColors.primary,
+                    backgroundColor: v ? AppColors.primary : AppColors.textSecondaryOf(context),
                     duration: const Duration(seconds: 1),
                     behavior: SnackBarBehavior.floating,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -846,27 +982,34 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                 );
               },
             ),
-            const Divider(height: 1, indent: 56, color: AppColors.border),
+            Divider(height: 1, indent: 56, color: AppColors.borderOf(context)),
             SwitchListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
               secondary: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
+                  color: themeProvider.isDarkMode
+                      ? const Color(0xFF312E81)
+                      : AppColors.slateBgOf(context),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(LucideIcons.moon, size: 18, color: AppColors.textSecondary),
+                child: Icon(
+                  themeProvider.isDarkMode ? LucideIcons.moonStar : LucideIcons.sun,
+                  size: 18,
+                  color: themeProvider.isDarkMode
+                      ? const Color(0xFFA5B4FC)
+                      : const Color(0xFFF59E0B),
+                ),
               ),
-              title: Text('មុខងារងងឹត (Dark Mode)', style: AppTypography.labelMedium),
-              subtitle: Text('ប្តូរផ្ទៃកម្មវិធីជាពណ៌ងងឹត', style: AppTypography.caption),
-              value: _darkMode,
-              activeTrackColor: AppColors.primary,
+              title: Text(context.tr('dark_mode'), style: AppTypography.labelMedium.copyWith(color: AppColors.textPrimaryOf(context))),
+              subtitle: Text(context.tr('dark_mode_sub'), style: AppTypography.caption.copyWith(color: AppColors.textMutedOf(context))),
+              value: themeProvider.isDarkMode,
               onChanged: (v) {
-                setState(() => _darkMode = v);
+                themeProvider.toggleTheme(v);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      v ? 'មុខងារងងឹតកំពុងរៀបចំ' : 'បានប្តូរទៅកាន់មុខងារពន្លឺ',
+                      v ? context.tr('dark_mode_enabled') : context.tr('dark_mode_disabled'),
                       style: AppTypography.bodySmall.copyWith(color: Colors.white),
                     ),
                     backgroundColor: AppColors.primary,
@@ -877,7 +1020,41 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                 );
               },
             ),
-            const Divider(height: 1, indent: 56, color: AppColors.border),
+            Divider(height: 1, indent: 56, color: AppColors.borderOf(context)),
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.emeraldBg,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(LucideIcons.globe, size: 18, color: AppColors.successDark),
+              ),
+              title: Text(context.tr('language'), style: AppTypography.labelMedium.copyWith(color: AppColors.textPrimaryOf(context))),
+              subtitle: Text(context.tr('language_sub'), style: AppTypography.caption.copyWith(color: AppColors.textMutedOf(context))),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryLight,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.primaryBorder),
+                    ),
+                    child: Text(
+                      localeProvider.languageName,
+                      style: AppTypography.labelSmall.copyWith(color: AppColors.primary),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Icon(LucideIcons.chevronRight, size: 16, color: AppColors.textSubtleOf(context)),
+                ],
+              ),
+              onTap: () => _openLanguageModal(context, localeProvider),
+            ),
+            Divider(height: 1, indent: 56, color: AppColors.borderOf(context)),
             ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
               leading: Container(
@@ -888,12 +1065,12 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                 ),
                 child: const Icon(LucideIcons.calculator, size: 18, color: AppColors.primary),
               ),
-              title: Text('រូបមន្តគណនាពិន្ទុ (Score Formula)', style: AppTypography.labelMedium),
-              subtitle: Text('កំណត់ទម្ងន់ពិន្ទុវត្តមាន និងពិន្ទុគ្រូដាក់', style: AppTypography.caption),
-              trailing: const Icon(LucideIcons.chevronRight, size: 18, color: AppColors.textSubtle),
+              title: Text(context.tr('score_formula'), style: AppTypography.labelMedium.copyWith(color: AppColors.textPrimaryOf(context))),
+              subtitle: Text(context.tr('score_formula_sub'), style: AppTypography.caption.copyWith(color: AppColors.textMutedOf(context))),
+              trailing: Icon(LucideIcons.chevronRight, size: 18, color: AppColors.textSubtleOf(context)),
               onTap: _showScoreFormulaModal,
             ),
-            const Divider(height: 1, indent: 56, color: AppColors.border),
+            Divider(height: 1, indent: 56, color: AppColors.borderOf(context)),
             ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
               leading: Container(
@@ -904,16 +1081,16 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                 ),
                 child: const Icon(LucideIcons.bookOpen, size: 18, color: AppColors.primary),
               ),
-              title: Text('គ្រប់គ្រងមុខវិជ្ជា (Manage Subjects)', style: AppTypography.labelMedium),
-              subtitle: Text('មើលបញ្ជីមុខវិជ្ជា និងបង្កើតមុខវិជ្ជាបន្ថែម', style: AppTypography.caption),
-              trailing: const Icon(LucideIcons.chevronRight, size: 18, color: AppColors.textSubtle),
+              title: Text(context.tr('manage_subjects'), style: AppTypography.labelMedium.copyWith(color: AppColors.textPrimaryOf(context))),
+              subtitle: Text(context.tr('manage_subjects_sub'), style: AppTypography.caption.copyWith(color: AppColors.textMutedOf(context))),
+              trailing: Icon(LucideIcons.chevronRight, size: 18, color: AppColors.textSubtleOf(context)),
               onTap: _showManageSubjectsModal,
             ),
           ]),
           const SizedBox(height: 20),
 
           // 4. Actions
-          _buildSectionTitle('សកម្មភាព'),
+          _buildSectionTitle(context.tr('section_actions')),
           const SizedBox(height: 8),
           _buildSettingsGroup([
             ListTile(
@@ -927,13 +1104,13 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                 child: const Icon(LucideIcons.refreshCw, size: 18, color: AppColors.primary),
               ),
               title: Text(
-                'ប្តូរទៅកាន់ Teacher Portal',
+                context.tr('switch_to_teacher'),
                 style: AppTypography.labelMedium.copyWith(color: AppColors.primary),
               ),
               trailing: const Icon(LucideIcons.chevronRight, size: 18, color: AppColors.primary),
               onTap: widget.onSwitchToTeacherPortal,
             ),
-            const Divider(height: 1, indent: 56, color: AppColors.border),
+            Divider(height: 1, indent: 56, color: AppColors.borderOf(context)),
             ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
               leading: Container(
@@ -945,7 +1122,7 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                 child: const Icon(LucideIcons.logOut, size: 18, color: AppColors.danger),
               ),
               title: Text(
-                'ចាកចេញពីកម្មវិធី',
+                context.tr('sign_out'),
                 style: AppTypography.labelMedium.copyWith(color: AppColors.danger),
               ),
               trailing: const Icon(LucideIcons.chevronRight, size: 18, color: AppColors.danger),
@@ -957,7 +1134,7 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
           Center(
             child: Text(
               'Voatmean School Management • v1.0.0',
-              style: AppTypography.caption.copyWith(color: AppColors.textSubtle),
+              style: AppTypography.caption.copyWith(color: AppColors.textSubtleOf(context)),
             ),
           ),
           const SizedBox(height: 20),
@@ -969,10 +1146,10 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
   Widget _buildProfileCard() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(18),
-        boxShadow: AppColors.cardShadow,
-        border: Border.all(color: AppColors.border),
+        boxShadow: AppColors.cardShadowOf(context),
+        border: Border.all(color: AppColors.borderOf(context)),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(18),
@@ -1012,7 +1189,7 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                                   child: Text(
                                     _adminName,
                                     style: AppTypography.titleSmall.copyWith(
-                                      color: const Color(0xFF0F172A),
+                                      color: AppColors.textPrimaryOf(context),
                                       fontWeight: FontWeight.bold,
                                     ),
                                     overflow: TextOverflow.ellipsis,
@@ -1037,14 +1214,14 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                             Text(
                               _schoolName,
                               style: AppTypography.bodySmall.copyWith(
-                                color: AppColors.textSecondary,
+                                color: AppColors.textSecondaryOf(context),
                               ),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               '$_adminEmail • $_adminPhone',
                               style: AppTypography.caption.copyWith(
-                                color: AppColors.textMuted,
+                                color: AppColors.textMutedOf(context),
                               ),
                             ),
                           ],
@@ -1072,7 +1249,7 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
       child: Text(
         title,
         style: AppTypography.labelMedium.copyWith(
-          color: AppColors.textMuted,
+          color: AppColors.textMutedOf(context),
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -1082,10 +1259,10 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
   Widget _buildSettingsGroup(List<Widget> children) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: AppColors.cardShadow,
-        border: Border.all(color: AppColors.border),
+        boxShadow: AppColors.cardShadowOf(context),
+        border: Border.all(color: AppColors.borderOf(context)),
       ),
       child: Material(
         color: Colors.transparent,

@@ -32,6 +32,20 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
 
   List<Map<String, dynamic>> _grades = [];
 
+  static double _parseDouble(dynamic val, [double defaultVal = 0.0]) {
+    if (val == null) return defaultVal;
+    if (val is num) return val.toDouble();
+    if (val is String) return double.tryParse(val) ?? defaultVal;
+    return defaultVal;
+  }
+
+  static int _parseInt(dynamic val, [int defaultVal = 0]) {
+    if (val == null) return defaultVal;
+    if (val is num) return val.toInt();
+    if (val is String) return int.tryParse(val) ?? defaultVal;
+    return defaultVal;
+  }
+
   // MoEYS Secondary & High School Homeroom Classes
   final Map<String, String> _knownClasses = {
     'Grade 10A': 'b1c76ca3-3912-4a41-9dcd-33da8c0074e4',
@@ -627,9 +641,9 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
     final Map<String, TextEditingController> controllers = {};
     for (final student in _grades) {
       final sId = student['student_id']?.toString() ?? '';
-      final currentScore = (student['teacher_score'] as num?)?.toDouble() ?? 0.0;
+      final currentScore = _parseDouble(student['teacher_score']);
       controllers[sId] = TextEditingController(
-        text: currentScore > 0 ? currentScore.toStringAsFixed(0) : '',
+        text: currentScore > 0 ? (currentScore % 1 == 0 ? currentScore.toInt().toString() : currentScore.toString()) : '',
       );
     }
     bool isSaving = false;
@@ -730,9 +744,10 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                     final sId = item['student_id']?.toString() ?? '';
                     final name = item['full_name']?.toString() ?? 'សិស្ស';
                     final rollNo = item['roll_number']?.toString() ?? '${idx + 1}';
-                    final attScore = (item['attendance_score'] as num?)?.toDouble() ??
-                        ((item['attendance_rate'] as num?)?.toDouble() ?? 0.0) * 100.0;
-                    final ctrl = controllers[sId]!;
+                    final attScore = item['attendance_score'] != null
+                        ? _parseDouble(item['attendance_score'])
+                        : _parseDouble(item['attendance_rate']) * 100.0;
+                    final ctrl = controllers[sId] ?? TextEditingController();
 
                     final inputVal = double.tryParse(ctrl.text) ?? 0.0;
                     final previewFinal = (attScore * _attendanceWeight) + (inputVal * _teacherScoreWeight);
@@ -870,18 +885,21 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
   }
 
   void _showStudentReportModal(Map<String, dynamic> item, int rank) {
-    final name = item['full_name'] ?? 'សិស្ស';
-    final studentId = item['student_id'] ?? 'STU001';
-    final attScore = ((item['attendance_rate'] ?? 0.0) * 100).toStringAsFixed(0);
-    final presentCount = item['present_count'] ?? 18;
-    final lateCount = item['late_count'] ?? 1;
-    final permCount = item['permission_count'] ?? 0;
-    final absentCount = item['absent_count'] ?? 0;
-    final tScore = item['teacher_score'] ?? 0;
-    final fScore = item['final_score'] ?? 0;
+    final name = item['full_name']?.toString() ?? 'សិស្ស';
+    final studentId = item['student_id']?.toString() ?? 'STU001';
+    final attScoreVal = item['attendance_score'] != null
+        ? _parseDouble(item['attendance_score'])
+        : _parseDouble(item['attendance_rate']) * 100.0;
+    final attScore = attScoreVal.toStringAsFixed(0);
+    final presentCount = _parseInt(item['present_count'], 0);
+    final lateCount = _parseInt(item['late_count'], 0);
+    final permCount = _parseInt(item['permission_count'], 0);
+    final absentCount = _parseInt(item['absent_count'], 0);
+    final tScore = _parseDouble(item['teacher_score']);
+    final fScore = _parseDouble(item['final_score']);
 
     final singleScoreCtrl = TextEditingController(
-      text: tScore.toString() != '0' ? tScore.toString() : '',
+      text: tScore > 0 ? (tScore % 1 == 0 ? tScore.toInt().toString() : tScore.toString()) : '',
     );
     bool isSavingSingle = false;
 
@@ -1162,10 +1180,10 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
   Widget build(BuildContext context) {
     final total = _grades.length;
     final avgAttendance = total > 0
-        ? (_grades.fold(0.0, (acc, g) => acc + ((g['attendance_score'] ?? ((g['attendance_rate'] ?? 0.0) * 100)).toDouble())) / total).toStringAsFixed(0)
+        ? (_grades.fold(0.0, (acc, g) => acc + (g['attendance_score'] != null ? _parseDouble(g['attendance_score']) : _parseDouble(g['attendance_rate']) * 100.0)) / total).toStringAsFixed(0)
         : '0';
     final avgScore = total > 0
-        ? (_grades.fold(0.0, (acc, g) => acc + (g['final_score'] ?? 0.0)) / total).toStringAsFixed(1)
+        ? (_grades.fold(0.0, (acc, g) => acc + _parseDouble(g['final_score'])) / total).toStringAsFixed(1)
         : '0';
 
     return Scaffold(
@@ -1458,11 +1476,12 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                     separatorBuilder: (_, _) => const SizedBox(height: 10),
                     itemBuilder: (ctx, index) {
                       final item = _grades[index];
-                      final name = item['full_name'] ?? 'សិស្ស';
-                      final attScore = (item['attendance_score'] as num?)?.toDouble() ??
-                          ((item['attendance_rate'] ?? 0.0) * 100).toDouble();
-                      final tScore = item['teacher_score'] ?? 0;
-                      final fScore = item['final_score'] ?? 0;
+                      final name = item['full_name']?.toString() ?? 'សិស្ស';
+                      final attScore = item['attendance_score'] != null
+                          ? _parseDouble(item['attendance_score'])
+                          : _parseDouble(item['attendance_rate']) * 100.0;
+                      final tScore = _parseDouble(item['teacher_score']);
+                      final fScore = _parseDouble(item['final_score']);
                       final rank = index + 1;
 
                       return Container(
