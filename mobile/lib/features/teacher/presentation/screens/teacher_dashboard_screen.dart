@@ -82,15 +82,22 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cardBg = AppColors.cardOf(context);
+    final borderCol = AppColors.borderOf(context);
+    final textPrimary = AppColors.textPrimaryOf(context);
+    final textSecondary = AppColors.textSecondaryOf(context);
+    final textMuted = AppColors.textMutedOf(context);
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.bgOf(context),
       appBar: AppBar(
-        title: Text('កាលវិភាគបង្រៀន', style: AppTypography.titleMedium),
-        backgroundColor: Colors.white,
+        title: Text('កាលវិភាគបង្រៀន', style: AppTypography.titleMedium.copyWith(color: textPrimary)),
+        backgroundColor: cardBg,
         elevation: 0,
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, color: AppColors.border),
+        iconTheme: IconThemeData(color: textPrimary),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Divider(height: 1, color: borderCol),
         ),
         actions: [
           IconButton(
@@ -112,12 +119,12 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                 );
               }
             },
-            icon: const Icon(LucideIcons.refreshCw, size: 18),
+            icon: Icon(LucideIcons.refreshCw, size: 18, color: textPrimary),
           ),
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: _loadSlots,
+        onRefresh: () => _loadSlots(),
         color: AppColors.primary,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -144,15 +151,15 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Text('ថ្នាក់រៀនថ្ងៃនេះ', style: AppTypography.titleMedium),
+                      Text('ថ្នាក់រៀនថ្ងៃនេះ', style: AppTypography.titleMedium.copyWith(color: textPrimary)),
                     ],
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryLight,
+                      color: AppColors.primaryLightOf(context),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.primaryBorder),
+                      border: Border.all(color: borderCol),
                     ),
                     child: Text(
                       _slots.isNotEmpty ? '${_slots.length} ថ្នាក់' : '២ ថ្នាក់',
@@ -221,19 +228,20 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                     width: 4,
                     height: 16,
                     decoration: BoxDecoration(
-                      color: AppColors.textMuted,
+                      color: textMuted,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Text(
                     'ថ្នាក់រៀនផ្សេងទៀតក្នុងសប្តាហ៍',
-                    style: AppTypography.titleSmall.copyWith(color: AppColors.textSecondary),
+                    style: AppTypography.titleSmall.copyWith(color: textSecondary),
                   ),
                 ],
               ),
               const SizedBox(height: 12),
               _buildSimpleClassTile(
+                context,
                 grade: 'Grade 11B',
                 gradeKhmer: 'ថ្នាក់ ១១ ខ',
                 subject: 'គណិតវិទ្យា (Mathematics)',
@@ -350,15 +358,20 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
     required int studentCount,
     bool isCompleted = false,
   }) {
+    final cardBg = AppColors.cardOf(context);
+    final borderCol = AppColors.borderOf(context);
+    final textPrimary = AppColors.textPrimaryOf(context);
+    final textMuted = AppColors.textMutedOf(context);
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBg,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: isCompleted ? AppColors.border : AppColors.primaryBorder,
+          color: isCompleted ? borderCol : AppColors.primaryBorder,
           width: 1.2,
         ),
-        boxShadow: AppColors.cardShadow,
+        boxShadow: AppColors.cardShadowOf(context),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(18),
@@ -400,11 +413,11 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                         children: [
                           Row(
                             children: [
-                              Text(grade, style: AppTypography.titleMedium),
+                              Text(grade, style: AppTypography.titleMedium.copyWith(color: textPrimary)),
                               const SizedBox(width: 8),
                               Text(
                                 gradeKhmer,
-                                style: AppTypography.bodyMedium.copyWith(color: AppColors.textMuted),
+                                style: AppTypography.bodyMedium.copyWith(color: textMuted),
                               ),
                             ],
                           ),
@@ -419,10 +432,10 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: isCompleted ? AppColors.successBg : AppColors.warningBg,
+                        color: isCompleted ? AppColors.successBgOf(context) : AppColors.warningBgOf(context),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: isCompleted ? AppColors.successBorder : AppColors.warningBorder,
+                          color: isCompleted ? AppColors.successBorderOf(context) : AppColors.warningBorderOf(context),
                         ),
                       ),
                       child: Row(
@@ -431,13 +444,13 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                           Icon(
                             isCompleted ? LucideIcons.checkCircle2 : LucideIcons.clock,
                             size: 13,
-                            color: isCompleted ? AppColors.successText : AppColors.warningText,
+                            color: isCompleted ? AppColors.successTextOf(context) : AppColors.warningTextOf(context),
                           ),
                           const SizedBox(width: 5),
                           Text(
                             isCompleted ? 'បានស្រង់រួច' : 'មិនទាន់ស្រង់',
                             style: AppTypography.captionBold.copyWith(
-                              color: isCompleted ? AppColors.successText : AppColors.warningText,
+                              color: isCompleted ? AppColors.successTextOf(context) : AppColors.warningTextOf(context),
                             ),
                           ),
                         ],
@@ -446,17 +459,17 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                   ],
                 ),
                 const SizedBox(height: 14),
-                const Divider(height: 1, color: AppColors.border),
+                Divider(height: 1, color: borderCol),
                 const SizedBox(height: 12),
 
                 // Metadata Grid (Time, Room, Students)
                 Row(
                   children: [
                     Expanded(
-                      child: _buildInfoItem(LucideIcons.clock, time, iconColor: AppColors.primary),
+                      child: _buildInfoItem(context, LucideIcons.clock, time, iconColor: AppColors.primary),
                     ),
                     Expanded(
-                      child: _buildInfoItem(LucideIcons.mapPin, room, iconColor: const Color(0xFF0284C7)),
+                      child: _buildInfoItem(context, LucideIcons.mapPin, room, iconColor: const Color(0xFF0284C7)),
                     ),
                   ],
                 ),
@@ -465,6 +478,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                   children: [
                     Expanded(
                       child: _buildInfoItem(
+                        context,
                         LucideIcons.users,
                         '$studentCount នាក់ (សិស្សសរុប)',
                         iconColor: const Color(0xFF7C3AED),
@@ -498,15 +512,15 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                     label: Text(
                       isCompleted ? 'មើលវត្តមានឡើងវិញ' : 'ស្រង់វត្តមានសិស្ស',
                       style: AppTypography.labelMedium.copyWith(
-                        color: isCompleted ? AppColors.textPrimary : Colors.white,
+                        color: isCompleted ? textPrimary : Colors.white,
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isCompleted ? const Color(0xFFF8FAFC) : AppColors.primary,
-                      foregroundColor: isCompleted ? AppColors.textPrimary : Colors.white,
+                      backgroundColor: isCompleted ? AppColors.slateBgOf(context) : AppColors.primary,
+                      foregroundColor: isCompleted ? textPrimary : Colors.white,
                       elevation: isCompleted ? 0 : 2,
                       side: BorderSide(
-                        color: isCompleted ? AppColors.border : AppColors.primary,
+                        color: isCompleted ? borderCol : AppColors.primary,
                       ),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -521,23 +535,23 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
     );
   }
 
-  Widget _buildInfoItem(IconData icon, String text, {Color? iconColor}) {
+  Widget _buildInfoItem(BuildContext context, IconData icon, String text, {Color? iconColor}) {
     return Row(
       children: [
         Container(
           padding: const EdgeInsets.all(5),
           decoration: BoxDecoration(
-            color: const Color(0xFFF1F5F9),
+            color: AppColors.slateBgOf(context),
             borderRadius: BorderRadius.circular(6),
           ),
-          child: Icon(icon, size: 13, color: iconColor ?? AppColors.textSecondary),
+          child: Icon(icon, size: 13, color: iconColor ?? AppColors.textSecondaryOf(context)),
         ),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
             text,
             style: AppTypography.bodySmall.copyWith(
-              color: AppColors.textSecondary,
+              color: AppColors.textSecondaryOf(context),
               fontWeight: FontWeight.w500,
             ),
             overflow: TextOverflow.ellipsis,
@@ -547,18 +561,25 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
     );
   }
 
-  Widget _buildSimpleClassTile({
+  Widget _buildSimpleClassTile(
+    BuildContext context, {
     required String grade,
     required String gradeKhmer,
     required String subject,
     required String schedule,
   }) {
+    final cardBg = AppColors.cardOf(context);
+    final borderCol = AppColors.borderOf(context);
+    final textPrimary = AppColors.textPrimaryOf(context);
+    final textSecondary = AppColors.textSecondaryOf(context);
+    final textMuted = AppColors.textMutedOf(context);
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-        boxShadow: AppColors.cardShadow,
+        border: Border.all(color: borderCol),
+        boxShadow: AppColors.cardShadowOf(context),
       ),
       child: Material(
         color: Colors.transparent,
@@ -584,7 +605,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryLight,
+                    color: AppColors.primaryLightOf(context),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(LucideIcons.bookOpen, size: 20, color: AppColors.primary),
@@ -596,33 +617,33 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                     children: [
                       Row(
                         children: [
-                          Text(grade, style: AppTypography.titleSmall),
+                          Text(grade, style: AppTypography.titleSmall.copyWith(color: textPrimary)),
                           const SizedBox(width: 6),
                           Text(
                             gradeKhmer,
-                            style: AppTypography.caption,
+                            style: AppTypography.caption.copyWith(color: textMuted),
                           ),
                         ],
                       ),
                       const SizedBox(height: 2),
-                      Text(subject, style: AppTypography.bodySmall),
+                      Text(subject, style: AppTypography.bodySmall.copyWith(color: textSecondary)),
                     ],
                   ),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
+                    color: AppColors.slateBgOf(context),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: borderCol),
                   ),
                   child: Text(
                     schedule,
-                    style: AppTypography.captionBold.copyWith(color: AppColors.textSecondary),
+                    style: AppTypography.captionBold.copyWith(color: textSecondary),
                   ),
                 ),
                 const SizedBox(width: 4),
-                const Icon(LucideIcons.chevronRight, size: 16, color: AppColors.textSubtle),
+                Icon(LucideIcons.chevronRight, size: 16, color: AppColors.textSubtleOf(context)),
               ],
             ),
           ),

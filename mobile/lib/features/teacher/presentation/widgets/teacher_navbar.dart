@@ -20,11 +20,21 @@ class TeacherMainShell extends StatefulWidget {
 class _TeacherMainShellState extends State<TeacherMainShell> {
   late int _currentIndex;
   final AuthService _authService = AuthService();
+  late final List<Widget> _screens;
 
   @override
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex;
+    _screens = [
+      const TeacherDashboardScreen(),
+      const TeacherStudentsScreen(),
+      const TeacherReportsScreen(),
+      TeacherSettingsScreen(
+        onSignOut: _handleSignOut,
+        onSwitchToAdminPortal: _handleSwitchToAdmin,
+      ),
+    ];
   }
 
   void _handleSignOut() async {
@@ -43,21 +53,11 @@ class _TeacherMainShellState extends State<TeacherMainShell> {
     final isDark = AppColors.isDark(context);
     final cardBg = Theme.of(context).cardColor;
 
-    final List<Widget> screens = [
-      const TeacherDashboardScreen(),
-      const TeacherStudentsScreen(),
-      const TeacherReportsScreen(),
-      TeacherSettingsScreen(
-        onSignOut: _handleSignOut,
-        onSwitchToAdminPortal: _handleSwitchToAdmin,
-      ),
-    ];
-
     return Scaffold(
       backgroundColor: AppColors.bgOf(context),
       body: IndexedStack(
         index: _currentIndex,
-        children: screens,
+        children: _screens,
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(

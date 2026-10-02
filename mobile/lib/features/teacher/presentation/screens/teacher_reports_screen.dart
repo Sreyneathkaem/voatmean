@@ -236,9 +236,9 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setModalState) => Container(
           padding: const EdgeInsets.all(22),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          decoration: BoxDecoration(
+            color: AppColors.cardOf(context),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -249,7 +249,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.border,
+                    color: AppColors.borderOf(context),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -269,19 +269,19 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                         child: const Icon(LucideIcons.calendar, color: AppColors.primary, size: 20),
                       ),
                       const SizedBox(width: 10),
-                      Text('ជ្រើសរើសថ្នាក់ មុខវិជ្ជា និងខែ', style: AppTypography.titleMedium),
+                      Text('ជ្រើសរើសថ្នាក់ មុខវិជ្ជា និងខែ', style: AppTypography.titleMedium.copyWith(color: AppColors.textPrimaryOf(context))),
                     ],
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(ctx),
-                    icon: const Icon(LucideIcons.x, size: 20),
+                    icon: Icon(LucideIcons.x, size: 20, color: AppColors.textPrimaryOf(context)),
                   ),
                 ],
               ),
               const SizedBox(height: 14),
 
               // Class selection chips
-              Text('ជ្រើសរើសថ្នាក់រៀន (Homeroom Class)៖', style: AppTypography.captionBold),
+              Text('ជ្រើសរើសថ្នាក់រៀន (Homeroom Class)៖', style: AppTypography.captionBold.copyWith(color: AppColors.textPrimaryOf(context))),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
@@ -289,9 +289,16 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                 children: _knownClasses.keys.map((cName) {
                   final isSel = cName == _selectedClassName;
                   return ChoiceChip(
-                    label: Text(cName, style: AppTypography.captionBold),
+                    label: Text(
+                      cName,
+                      style: AppTypography.captionBold.copyWith(
+                        color: isSel ? AppColors.primary : AppColors.textPrimaryOf(context),
+                      ),
+                    ),
                     selected: isSel,
                     selectedColor: AppColors.primaryLight,
+                    backgroundColor: Theme.of(context).brightness == Brightness.dark ? AppColors.darkCard : Colors.white,
+                    side: BorderSide(color: isSel ? AppColors.primary : AppColors.borderOf(context)),
                     onSelected: (val) {
                       if (val) {
                         setState(() {
@@ -307,7 +314,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
               const SizedBox(height: 14),
 
               // Subject selection chips
-              Text('ជ្រើសរើសមុខវិជ្ជា (Subject)៖', style: AppTypography.captionBold),
+              Text('ជ្រើសរើសមុខវិជ្ជា (Subject)៖', style: AppTypography.captionBold.copyWith(color: AppColors.textPrimaryOf(context))),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
@@ -315,9 +322,16 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                 children: _knownSubjects.keys.map((sName) {
                   final isSel = sName == _selectedSubjectName;
                   return ChoiceChip(
-                    label: Text(sName, style: AppTypography.captionBold),
+                    label: Text(
+                      sName,
+                      style: AppTypography.captionBold.copyWith(
+                        color: isSel ? AppColors.primary : AppColors.textPrimaryOf(context),
+                      ),
+                    ),
                     selected: isSel,
                     selectedColor: AppColors.primaryLight,
+                    backgroundColor: Theme.of(context).brightness == Brightness.dark ? AppColors.darkCard : Colors.white,
+                    side: BorderSide(color: isSel ? AppColors.primary : AppColors.borderOf(context)),
                     onSelected: (val) {
                       if (val) {
                         setState(() {
@@ -333,14 +347,14 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
               const SizedBox(height: 14),
 
               // Month list selector
-              Text('ជ្រើសរើសខែសិក្សា៖', style: AppTypography.captionBold),
+              Text('ជ្រើសរើសខែសិក្សា៖', style: AppTypography.captionBold.copyWith(color: AppColors.textPrimaryOf(context))),
               const SizedBox(height: 8),
               ConstrainedBox(
                 constraints: const BoxConstraints(maxHeight: 220),
                 child: ListView.separated(
                   shrinkWrap: true,
                   itemCount: _months.length,
-                  separatorBuilder: (_, _) => const Divider(height: 1, color: AppColors.border),
+                  separatorBuilder: (_, _) => Divider(height: 1, color: AppColors.borderOf(context)),
                   itemBuilder: (ctx, idx) {
                     final m = _months[idx];
                     final isSelected = m == _selectedMonthName;
@@ -350,7 +364,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                       title: Text(
                         m,
                         style: AppTypography.bodyMedium.copyWith(
-                          color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                          color: isSelected ? AppColors.primary : AppColors.textPrimaryOf(context),
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                         ),
                       ),
@@ -397,9 +411,9 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
             top: 20,
             bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
           ),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          decoration: BoxDecoration(
+            color: AppColors.cardOf(context),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: SingleChildScrollView(
             child: Column(
@@ -411,7 +425,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: AppColors.border,
+                      color: AppColors.borderOf(context),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -434,7 +448,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('កំណត់ការកាត់ពិន្ទុវត្តមាន', style: AppTypography.titleMedium),
+                            Text('កំណត់ការកាត់ពិន្ទុវត្តមាន', style: AppTypography.titleMedium.copyWith(color: AppColors.textPrimaryOf(context))),
                             Text(
                               'មុខវិជ្ជា៖ $_selectedSubjectName',
                               style: AppTypography.caption.copyWith(color: AppColors.textMuted),
@@ -444,7 +458,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                       ],
                     ),
                     IconButton(
-                      icon: const Icon(LucideIcons.x, size: 20),
+                      icon: Icon(LucideIcons.x, size: 20, color: AppColors.textPrimaryOf(context)),
                       onPressed: () => Navigator.pop(ctx),
                     ),
                   ],
@@ -452,7 +466,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                 const SizedBox(height: 12),
                 Text(
                   'កំណត់កម្រិតកាត់ពិន្ទុសម្រាប់សិស្សសុំច្បាប់ មកយឺត និងទម្ងន់ពិន្ទុរួមនៃមុខវិជ្ជា៖',
-                  style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary),
+                  style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondaryOf(context)),
                 ),
                 const SizedBox(height: 16),
 
@@ -511,9 +525,9 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: AppColors.slateBg,
+                    color: Theme.of(context).brightness == Brightness.dark ? AppColors.darkCard : AppColors.slateBg,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: AppColors.borderOf(context)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -524,7 +538,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                           Expanded(
                             child: Text(
                               'ទម្ងន់ពិន្ទុចុងក្រោយ (Formula Blend)',
-                              style: AppTypography.labelMedium,
+                              style: AppTypography.labelMedium.copyWith(color: AppColors.textPrimaryOf(context)),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -661,9 +675,9 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
             top: 20,
             bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
           ),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          decoration: BoxDecoration(
+            color: AppColors.cardOf(context),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -673,7 +687,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.border,
+                    color: AppColors.borderOf(context),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -696,7 +710,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('បញ្ចូលពិន្ទុមុខវិជ្ជាប្រចាំខែ', style: AppTypography.titleMedium),
+                          Text('បញ្ចូលពិន្ទុមុខវិជ្ជាប្រចាំខែ', style: AppTypography.titleMedium.copyWith(color: AppColors.textPrimaryOf(context))),
                           Text(
                             '$_selectedSubjectName • $_selectedClassName • $_selectedMonthName',
                             style: AppTypography.caption.copyWith(color: AppColors.textMuted),
@@ -706,7 +720,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                     ],
                   ),
                   IconButton(
-                    icon: const Icon(LucideIcons.x, size: 20),
+                    icon: Icon(LucideIcons.x, size: 20, color: AppColors.textPrimaryOf(context)),
                     onPressed: () => Navigator.pop(ctx),
                   ),
                 ],
@@ -715,9 +729,9 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: AppColors.slateBg,
+                  color: Theme.of(context).brightness == Brightness.dark ? AppColors.darkCard : AppColors.slateBg,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: AppColors.borderOf(context)),
                 ),
                 child: Row(
                   children: [
@@ -726,7 +740,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                     Expanded(
                       child: Text(
                         'បញ្ចូលពិន្ទុមុខវិជ្ជា (០-១០០)។ ពិន្ទុរួមនឹងត្រូវបានគណនាដោយស្វ័យប្រវត្តិតាមទម្ងន់វត្តមាន & ប្រលង។',
-                        style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                        style: AppTypography.caption.copyWith(color: AppColors.textSecondaryOf(context)),
                       ),
                     ),
                   ],
@@ -738,7 +752,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
               Expanded(
                 child: ListView.separated(
                   itemCount: _grades.length,
-                  separatorBuilder: (_, _) => const Divider(height: 1, color: AppColors.border),
+                  separatorBuilder: (_, _) => Divider(height: 1, color: AppColors.borderOf(context)),
                   itemBuilder: (ctx, idx) {
                     final item = _grades[idx];
                     final sId = item['student_id']?.toString() ?? '';
@@ -775,7 +789,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(name, style: AppTypography.labelMedium),
+                                Text(name, style: AppTypography.labelMedium.copyWith(color: AppColors.textPrimaryOf(context))),
                                 const SizedBox(height: 2),
                                 Text(
                                   'វត្តមាន៖ ${attScore.toStringAsFixed(0)}%  •  ពិន្ទុរួមបណ្តោះអាសន្ន៖ ${previewFinal.toStringAsFixed(1)}',
@@ -798,10 +812,10 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                                 hintStyle: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
                                 contentPadding: const EdgeInsets.symmetric(vertical: 8),
                                 filled: true,
-                                fillColor: AppColors.slateBg,
+                                fillColor: Theme.of(context).brightness == Brightness.dark ? AppColors.darkCard : AppColors.slateBg,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(color: AppColors.border),
+                                  borderSide: BorderSide(color: AppColors.borderOf(context)),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
@@ -915,9 +929,9 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
             top: 22,
             bottom: MediaQuery.of(ctx).viewInsets.bottom + 22,
           ),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          decoration: BoxDecoration(
+            color: AppColors.cardOf(context),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -928,7 +942,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.border,
+                    color: AppColors.borderOf(context),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -943,7 +957,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                       color: rank == 1
                           ? const Color(0xFFFEF3C7)
                           : rank == 2
-                              ? const Color(0xFFF1F5F9)
+                              ? (Theme.of(context).brightness == Brightness.dark ? AppColors.darkCard : const Color(0xFFF1F5F9))
                               : const Color(0xFFFFEDD5),
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -954,7 +968,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                           color: rank == 1
                               ? const Color(0xFFB45309)
                               : rank == 2
-                                  ? AppColors.textSecondary
+                                  ? AppColors.textSecondaryOf(context)
                                   : const Color(0xFFC2410C),
                           fontWeight: FontWeight.bold,
                         ),
@@ -966,7 +980,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(name, style: AppTypography.titleMedium),
+                        Text(name, style: AppTypography.titleMedium.copyWith(color: AppColors.textPrimaryOf(context))),
                         const SizedBox(height: 2),
                         Text(
                           'អត្តលេខ៖ $studentId • $_selectedClassName',
@@ -977,7 +991,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(ctx),
-                    icon: const Icon(LucideIcons.x, size: 20),
+                    icon: Icon(LucideIcons.x, size: 20, color: AppColors.textPrimaryOf(context)),
                   ),
                 ],
               ),
@@ -987,16 +1001,16 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.slateBg,
+                  color: Theme.of(context).brightness == Brightness.dark ? AppColors.darkCard : AppColors.slateBg,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: AppColors.borderOf(context)),
                 ),
                 child: Column(
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('អត្រាវត្តមានសរុប', style: AppTypography.bodySmall),
+                        Text('អត្រាវត្តមានសរុប', style: AppTypography.bodySmall.copyWith(color: AppColors.textPrimaryOf(context))),
                         Text(
                           '$attScore% (វត្តមាន $presentCount, ច្បាប់ $permCount, យឺត $lateCount, អវត្តមាន $absentCount)',
                           style: AppTypography.captionBold.copyWith(color: AppColors.successText),
@@ -1004,12 +1018,12 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                       ],
                     ),
                     const SizedBox(height: 10),
-                    const Divider(height: 1, color: AppColors.border),
+                    Divider(height: 1, color: AppColors.borderOf(context)),
                     const SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('ពិន្ទុមុខវិជ្ជា (Subject Score)', style: AppTypography.bodySmall),
+                        Text('ពិន្ទុមុខវិជ្ជា (Subject Score)', style: AppTypography.bodySmall.copyWith(color: AppColors.textPrimaryOf(context))),
                         Row(
                           children: [
                             SizedBox(
@@ -1022,9 +1036,12 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                                 style: AppTypography.captionBold.copyWith(color: AppColors.primary),
                                 decoration: InputDecoration(
                                   filled: true,
-                                  fillColor: Colors.white,
+                                  fillColor: Theme.of(context).brightness == Brightness.dark ? AppColors.darkSurface : Colors.white,
                                   contentPadding: const EdgeInsets.symmetric(vertical: 4),
-                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(color: AppColors.borderOf(context)),
+                                  ),
                                 ),
                               ),
                             ),
@@ -1035,12 +1052,12 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                       ],
                     ),
                     const SizedBox(height: 10),
-                    const Divider(height: 1, color: AppColors.border),
+                    Divider(height: 1, color: AppColors.borderOf(context)),
                     const SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('ពិន្ទុសរុបគិតរួម (Final Score)', style: AppTypography.titleSmall),
+                        Text('ពិន្ទុសរុបគិតរួម (Final Score)', style: AppTypography.titleSmall.copyWith(color: AppColors.textPrimaryOf(context))),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
@@ -1126,9 +1143,9 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.slateBg,
+        color: Theme.of(context).brightness == Brightness.dark ? AppColors.darkCard : AppColors.slateBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.borderOf(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1137,7 +1154,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: Text(title, style: AppTypography.labelMedium),
+                child: Text(title, style: AppTypography.labelMedium.copyWith(color: AppColors.textPrimaryOf(context))),
               ),
               const SizedBox(width: 8),
               Container(
@@ -1187,14 +1204,15 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
         : '0';
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.bgOf(context),
       appBar: AppBar(
-        title: Text('របាយការណ៍ និងពិន្ទុ', style: AppTypography.titleMedium),
-        backgroundColor: Colors.white,
+        title: Text('របាយការណ៍ និងពិន្ទុ', style: AppTypography.titleMedium.copyWith(color: AppColors.textPrimaryOf(context))),
+        backgroundColor: AppColors.cardOf(context),
         elevation: 0,
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, color: AppColors.border),
+        iconTheme: IconThemeData(color: AppColors.textPrimaryOf(context)),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Divider(height: 1, color: AppColors.borderOf(context)),
         ),
         actions: [
           IconButton(
@@ -1205,7 +1223,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
           IconButton(
             tooltip: 'ផ្ទុកឡើងវិញ',
             onPressed: _loadGrades,
-            icon: const Icon(LucideIcons.refreshCw, size: 18),
+            icon: Icon(LucideIcons.refreshCw, size: 18, color: AppColors.textPrimaryOf(context)),
           ),
         ],
       ),
@@ -1219,10 +1237,10 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                   // 1. Class, Subject & Month Selector Card
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.cardOf(context),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.border),
-                      boxShadow: AppColors.cardShadow,
+                      border: Border.all(color: AppColors.borderOf(context)),
+                      boxShadow: Theme.of(context).brightness == Brightness.dark ? [] : AppColors.cardShadow,
                     ),
                     padding: const EdgeInsets.all(14),
                     child: Row(
@@ -1261,7 +1279,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                                         Flexible(
                                           child: Text(
                                             _selectedSubjectName,
-                                            style: AppTypography.titleSmall,
+                                            style: AppTypography.titleSmall.copyWith(color: AppColors.textPrimaryOf(context)),
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
@@ -1285,13 +1303,13 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                             decoration: BoxDecoration(
-                              color: AppColors.slateBg,
+                              color: Theme.of(context).brightness == Brightness.dark ? AppColors.darkCard : AppColors.slateBg,
                               borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: AppColors.border),
+                              border: Border.all(color: AppColors.borderOf(context)),
                             ),
                             child: Row(
                               children: [
-                                Text('ប្តូរ', style: AppTypography.captionBold.copyWith(color: AppColors.textPrimary)),
+                                Text('ប្តូរ', style: AppTypography.captionBold.copyWith(color: AppColors.textPrimaryOf(context))),
                                 const SizedBox(width: 4),
                                 const Icon(LucideIcons.chevronDown, size: 14, color: AppColors.textSecondary),
                               ],
@@ -1335,10 +1353,10 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.cardOf(context),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.border),
-                      boxShadow: AppColors.cardShadow,
+                      border: Border.all(color: AppColors.borderOf(context)),
+                      boxShadow: Theme.of(context).brightness == Brightness.dark ? [] : AppColors.cardShadow,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1350,7 +1368,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                               children: [
                                 const Icon(LucideIcons.scale, size: 16, color: AppColors.primary),
                                 const SizedBox(width: 6),
-                                Text('រូបមន្តគិតពិន្ទុ និងការកាត់ពិន្ទុ', style: AppTypography.labelMedium),
+                                Text('រូបមន្តគិតពិន្ទុ និងការកាត់ពិន្ទុ', style: AppTypography.labelMedium.copyWith(color: AppColors.textPrimaryOf(context))),
                               ],
                             ),
                             InkWell(
@@ -1457,7 +1475,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Text('លទ្ធផលពិន្ទុប្រចាំខែ', style: AppTypography.titleSmall),
+                          Text('លទ្ធផលពិន្ទុប្រចាំខែ', style: AppTypography.titleSmall.copyWith(color: AppColors.textPrimaryOf(context))),
                         ],
                       ),
                       Text(
@@ -1486,10 +1504,10 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
 
                       return Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: AppColors.cardOf(context),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColors.border),
-                          boxShadow: AppColors.cardShadow,
+                          border: Border.all(color: AppColors.borderOf(context)),
+                          boxShadow: Theme.of(context).brightness == Brightness.dark ? [] : AppColors.cardShadow,
                         ),
                         child: Material(
                           color: Colors.transparent,
@@ -1508,15 +1526,15 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                                       color: rank == 1
                                           ? const Color(0xFFFEF3C7)
                                           : rank == 2
-                                              ? const Color(0xFFF1F5F9)
+                                              ? (Theme.of(context).brightness == Brightness.dark ? AppColors.darkCard : const Color(0xFFF1F5F9))
                                               : rank == 3
                                                   ? const Color(0xFFFFEDD5)
-                                                  : AppColors.slateBg,
+                                                  : (Theme.of(context).brightness == Brightness.dark ? AppColors.darkCard : AppColors.slateBg),
                                       shape: BoxShape.circle,
                                       border: Border.all(
                                         color: rank == 1
                                             ? const Color(0xFFFDE68A)
-                                            : AppColors.border,
+                                            : AppColors.borderOf(context),
                                       ),
                                     ),
                                     child: Center(
@@ -1525,7 +1543,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                                         style: AppTypography.labelSmall.copyWith(
                                           color: rank == 1
                                               ? const Color(0xFFB45309)
-                                              : AppColors.textPrimary,
+                                              : AppColors.textPrimaryOf(context),
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -1538,7 +1556,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text(name, style: AppTypography.titleSmall),
+                                        Text(name, style: AppTypography.titleSmall.copyWith(color: AppColors.textPrimaryOf(context))),
                                         const SizedBox(height: 3),
                                         Row(
                                           children: [
@@ -1641,13 +1659,14 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
     required Color bgColor,
     required Color borderColor,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: bgColor,
+        color: isDark ? AppColors.darkCard : bgColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor),
-        boxShadow: AppColors.cardShadow,
+        border: Border.all(color: isDark ? AppColors.darkBorder : borderColor),
+        boxShadow: isDark ? [] : AppColors.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1655,7 +1674,7 @@ class _TeacherReportsScreenState extends State<TeacherReportsScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(label, style: AppTypography.captionBold.copyWith(color: color)),
+              Text(label, style: AppTypography.captionBold.copyWith(color: isDark ? AppColors.darkTextPrimary : color)),
               Icon(icon, size: 18, color: color),
             ],
           ),

@@ -2,27 +2,30 @@ import 'package:flutter/foundation.dart';
 import 'package:voatmean_mobile/core/services/api_service.dart';
 
 class TeacherService {
-  final ApiService _apiService = ApiService();
+  static final TeacherService _instance = TeacherService._internal();
+  factory TeacherService() => _instance;
+  TeacherService._internal();
 
-  /// Gets the teacher's assigned timetable slots
-  Future<List<Map<String, dynamic>>> getMySlots() async {
+  final ApiService _apiService = ApiService();
+  List<Map<String, dynamic>>? _cachedSlots;
+  final Map<String, List<Map<String, dynamic>>> _cachedStudentsMap = {};
+  final Map<String, List<Map<String, dynamic>>> _cachedGradesMap = {};
+
+  /// Gets the teacher's assigned timetable slots with instant caching
+  Future<List<Map<String, dynamic>>> getMySlots({bool forceRefresh = false}) async {
+    if (!forceRefresh && _cachedSlots != null && _cachedSlots!.isNotEmpty) {
+      return _cachedSlots!;
+    }
     try {
       final response = await _apiService.dio.get('/api/timetable/mine');
       if (response.statusCode == 200 && response.data is List) {
-        return List<Map<String, dynamic>>.from(response.data);
+        _cachedSlots = List<Map<String, dynamic>>.from(response.data);
+        return _cachedSlots!;
       }
     } catch (e) {
-      debugPrint('TeacherService: Error fetching my slots (/mine): $e');
-      try {
-        final fallback = await _apiService.dio.get('/api/timetable/my-slots');
-        if (fallback.statusCode == 200 && fallback.data is List) {
-          return List<Map<String, dynamic>>.from(fallback.data);
-        }
-      } catch (e2) {
-        debugPrint('TeacherService: Error fetching my slots (/my-slots): $e2');
-      }
+      debugPrint('TeacherService: Error fetching my slots: $e');
     }
-    return [];
+    return _cachedSlots ?? [];
   }
 
   /// Gets the student roster for a specific slot
@@ -69,50 +72,46 @@ class TeacherService {
     }
   }
 
-  /// Gets students by class ID
-  Future<List<Map<String, dynamic>>> getStudentsByClass(String classId) async {
+  /// Gets students by class ID with caching
+  Future<List<Map<String, dynamic>>> getStudentsByClass(String classId, {bool forceRefresh = false}) async {
+    if (!forceRefresh && _cachedStudentsMap.containsKey(classId) && _cachedStudentsMap[classId]!.isNotEmpty) {
+      return _cachedStudentsMap[classId]!;
+    }
     try {
       final response = await _apiService.dio.get('/api/students/class/$classId');
       if (response.statusCode == 200 && response.data is List) {
-        return List<Map<String, dynamic>>.from(response.data);
+        final list = List<Map<String, dynamic>>.from(response.data);
+        _cachedStudentsMap[classId] = list;
+        return list;
       }
     } catch (e) {
       debugPrint('TeacherService: Error fetching students via /students/class/: $e');
-      try {
-        final fallback = await _apiService.dio.get('/api/students/$classId');
-        if (fallback.statusCode == 200 && fallback.data is List) {
-          return List<Map<String, dynamic>>.from(fallback.data);
-        }
-      } catch (e2) {
-        debugPrint('TeacherService: Error fetching students via /students/: $e2');
-      }
     }
-    return [];
+    return _cachedStudentsMap[classId] ?? [];
   }
 
-  /// Gets monthly student scores and attendance summary for report screen
+  /// Gets monthly student scores and attendance summary with caching
   Future<List<Map<String, dynamic>>> getMonthlyGrades({
     required String classId,
     required String subjectId,
     required String month,
+    bool forceRefresh = false,
   }) async {
+    final key = '$classId-$subjectId-$month';
+    if (!forceRefresh && _cachedGradesMap.containsKey(key) && _cachedGradesMap[key]!.isNotEmpty) {
+      return _cachedGradesMap[key]!;
+    }
     try {
       final response = await _apiService.dio.get('/api/scores/monthly/$classId/$subjectId/$month');
       if (response.statusCode == 200 && response.data is List) {
-        return List<Map<String, dynamic>>.from(response.data);
+        final list = List<Map<String, dynamic>>.from(response.data);
+        _cachedGradesMap[key] = list;
+        return list;
       }
     } catch (e) {
       debugPrint('TeacherService: Error fetching monthly grades via /monthly/: $e');
-      try {
-        final fallback = await _apiService.dio.get('/api/scores/final/$classId/$subjectId/$month');
-        if (fallback.statusCode == 200 && fallback.data is List) {
-          return List<Map<String, dynamic>>.from(fallback.data);
-        }
-      } catch (e2) {
-        debugPrint('TeacherService: Error fetching monthly grades via /final/: $e2');
-      }
     }
-    return [];
+    return _cachedGradesMap[key] ?? [];
   }
 
   /// Upserts a subject score for a student

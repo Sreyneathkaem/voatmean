@@ -234,23 +234,24 @@ class _AttendanceMarkingScreenState extends State<AttendanceMarkingScreen> {
     int permissionCount = _students.where((s) => s['status'] == AttendanceStatus.permission).length;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.bgOf(context),
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.grade, style: AppTypography.titleMedium),
+            Text(widget.grade, style: AppTypography.titleMedium.copyWith(color: AppColors.textPrimaryOf(context))),
             Text(
               widget.subject,
               style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
             ),
           ],
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.cardOf(context),
         elevation: 0,
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, color: AppColors.border),
+        iconTheme: IconThemeData(color: AppColors.textPrimaryOf(context)),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Divider(height: 1, color: AppColors.borderOf(context)),
         ),
         actions: [
           TextButton.icon(
@@ -270,7 +271,7 @@ class _AttendanceMarkingScreenState extends State<AttendanceMarkingScreen> {
               children: [
                 // 1. Metric Counter Bar
                 _buildSummaryBar(presentCount, lateCount, absentCount, permissionCount),
-                const Divider(height: 1, color: AppColors.border),
+                Divider(height: 1, color: AppColors.borderOf(context)),
 
                 // 2. Student Attendance List
                 Expanded(
@@ -295,7 +296,7 @@ class _AttendanceMarkingScreenState extends State<AttendanceMarkingScreen> {
   Widget _buildSummaryBar(int p, int l, int a, int perm) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      color: Colors.white,
+      color: AppColors.cardOf(context),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -309,11 +310,13 @@ class _AttendanceMarkingScreenState extends State<AttendanceMarkingScreen> {
   }
 
   Widget _buildSummaryItem(String label, int count, Color color, Color bg) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: bg,
+        color: isDark ? AppColors.darkCard : bg,
         borderRadius: BorderRadius.circular(10),
+        border: isDark ? Border.all(color: AppColors.darkBorder) : null,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -362,10 +365,10 @@ class _AttendanceMarkingScreenState extends State<AttendanceMarkingScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.cardOf(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-        boxShadow: AppColors.cardShadow,
+        border: Border.all(color: AppColors.borderOf(context)),
+        boxShadow: Theme.of(context).brightness == Brightness.dark ? [] : AppColors.cardShadow,
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
@@ -396,7 +399,7 @@ class _AttendanceMarkingScreenState extends State<AttendanceMarkingScreen> {
               children: [
                 Row(
                   children: [
-                    Text(nameKhmer, style: AppTypography.titleSmall),
+                    Text(nameKhmer, style: AppTypography.titleSmall.copyWith(color: AppColors.textPrimaryOf(context))),
                     const SizedBox(width: 6),
                     Text(
                       '#$rollNumber',
@@ -409,7 +412,7 @@ class _AttendanceMarkingScreenState extends State<AttendanceMarkingScreen> {
                     student['name'].toString().trim() != nameKhmer.trim())
                   Text(
                     student['name'].toString().trim(),
-                    style: AppTypography.caption,
+                    style: AppTypography.caption.copyWith(color: AppColors.textSecondaryOf(context)),
                   ),
               ],
             ),
@@ -440,10 +443,10 @@ class _AttendanceMarkingScreenState extends State<AttendanceMarkingScreen> {
         width: 34,
         height: 34,
         decoration: BoxDecoration(
-          color: isSelected ? color : Colors.white,
+          color: isSelected ? color : AppColors.cardOf(context),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected ? color : AppColors.border,
+            color: isSelected ? color : AppColors.borderOf(context),
             width: isSelected ? 1.5 : 1,
           ),
           boxShadow: isSelected
@@ -472,9 +475,9 @@ class _AttendanceMarkingScreenState extends State<AttendanceMarkingScreen> {
   Widget _buildSubmitButton() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: AppColors.border)),
+      decoration: BoxDecoration(
+        color: AppColors.cardOf(context),
+        border: Border(top: BorderSide(color: AppColors.borderOf(context))),
       ),
       child: SafeArea(
         top: false,

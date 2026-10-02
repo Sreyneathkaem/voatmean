@@ -22,6 +22,10 @@ class AppColors {
   static const Color borderDark = Color(0xFF334155); // slate-700
   static const Color borderHoverDark = Color(0xFF475569); // slate-600
   static const Color cardBorderDark = Color(0xFF334155);
+  static const Color darkCard = cardDark;
+  static const Color darkBorder = borderDark;
+  static const Color darkSurface = cardDark;
+  static const Color darkTextPrimary = Color(0xFFF8FAFC);
 
   // Typography (Light Mode)
   static const Color textPrimary = Color(0xFF0F172A); // slate-900

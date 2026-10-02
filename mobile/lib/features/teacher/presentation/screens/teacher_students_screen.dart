@@ -206,9 +206,9 @@ class _TeacherStudentsScreenState extends State<TeacherStudentsScreen> {
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
         padding: const EdgeInsets.all(22),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        decoration: BoxDecoration(
+          color: AppColors.cardOf(context),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -399,9 +399,9 @@ class _TeacherStudentsScreenState extends State<TeacherStudentsScreen> {
           padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
           child: Container(
             padding: const EdgeInsets.all(22),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            decoration: BoxDecoration(
+              color: AppColors.cardOf(context),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
             ),
             child: SingleChildScrollView(
               child: Column(
@@ -610,16 +610,21 @@ class _TeacherStudentsScreenState extends State<TeacherStudentsScreen> {
   @override
   Widget build(BuildContext context) {
     final filtered = _filteredStudents;
+    final cardBg = AppColors.cardOf(context);
+    final borderCol = AppColors.borderOf(context);
+    final textPrimary = AppColors.textPrimaryOf(context);
+    final textSecondary = AppColors.textSecondaryOf(context);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.bgOf(context),
       appBar: AppBar(
-        title: Text('បញ្ជីសិស្ស', style: AppTypography.titleMedium),
-        backgroundColor: Colors.white,
+        title: Text('បញ្ជីសិស្ស', style: AppTypography.titleMedium.copyWith(color: textPrimary)),
+        backgroundColor: cardBg,
         elevation: 0,
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, color: AppColors.border),
+        iconTheme: IconThemeData(color: textPrimary),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Divider(height: 1, color: borderCol),
         ),
         actions: [
           IconButton(
@@ -643,7 +648,7 @@ class _TeacherStudentsScreenState extends State<TeacherStudentsScreen> {
                 );
               }
             },
-            icon: const Icon(LucideIcons.refreshCw, size: 18),
+            icon: Icon(LucideIcons.refreshCw, size: 18, color: textPrimary),
           ),
         ],
       ),
@@ -652,27 +657,27 @@ class _TeacherStudentsScreenState extends State<TeacherStudentsScreen> {
           // 1. Search Bar & Class Filter
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            color: Colors.white,
+            color: cardBg,
             child: Column(
               children: [
                 TextField(
                   controller: _searchController,
                   onChanged: (val) => setState(() => _searchQuery = val),
-                  style: AppTypography.bodyMedium,
+                  style: AppTypography.bodyMedium.copyWith(color: textPrimary),
                   decoration: InputDecoration(
                     prefixIcon: const Icon(LucideIcons.search, size: 18, color: AppColors.textSubtle),
                     hintText: 'ស្វែងរកតាមឈ្មោះ អត្តលេខ ឬលេខទូរស័ព្ទ...',
                     hintStyle: AppTypography.bodySmall.copyWith(color: AppColors.textSubtle),
                     filled: true,
-                    fillColor: AppColors.slateBg,
+                    fillColor: AppColors.slateBgOf(context),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide: BorderSide(color: borderCol),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide: BorderSide(color: borderCol),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -703,9 +708,9 @@ class _TeacherStudentsScreenState extends State<TeacherStudentsScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppColors.primaryLight,
+                        color: AppColors.primaryLightOf(context),
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: AppColors.primaryBorder),
+                        border: Border.all(color: borderCol),
                       ),
                       child: Text(
                         '${filtered.length} នាក់',
@@ -717,7 +722,7 @@ class _TeacherStudentsScreenState extends State<TeacherStudentsScreen> {
               ],
             ),
           ),
-          const Divider(height: 1, color: AppColors.border),
+          Divider(height: 1, color: borderCol),
 
           // 2. Student List
           Expanded(
@@ -749,10 +754,10 @@ class _TeacherStudentsScreenState extends State<TeacherStudentsScreen> {
 
                           return Container(
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: cardBg,
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: AppColors.border),
-                              boxShadow: AppColors.cardShadow,
+                              border: Border.all(color: borderCol),
+                              boxShadow: AppColors.cardShadowOf(context),
                             ),
                             child: Material(
                               color: Colors.transparent,
@@ -776,7 +781,7 @@ class _TeacherStudentsScreenState extends State<TeacherStudentsScreen> {
                                         radius: 20,
                                         backgroundColor: isFemale
                                             ? const Color(0xFFFDF2F8)
-                                            : AppColors.primaryLight,
+                                            : AppColors.primaryLightOf(context),
                                         child: Text(
                                           nameKhmer.isNotEmpty ? nameKhmer.substring(0, 1) : 'S',
                                           style: AppTypography.titleSmall.copyWith(
@@ -799,7 +804,7 @@ class _TeacherStudentsScreenState extends State<TeacherStudentsScreen> {
                                                 Expanded(
                                                   child: Text(
                                                     nameKhmer,
-                                                    style: AppTypography.titleSmall,
+                                                    style: AppTypography.titleSmall.copyWith(color: textPrimary),
                                                     overflow: TextOverflow.ellipsis,
                                                   ),
                                                 ),
@@ -807,14 +812,14 @@ class _TeacherStudentsScreenState extends State<TeacherStudentsScreen> {
                                                 Container(
                                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                                   decoration: BoxDecoration(
-                                                    color: AppColors.slateBg,
+                                                    color: AppColors.slateBgOf(context),
                                                     borderRadius: BorderRadius.circular(6),
-                                                    border: Border.all(color: AppColors.border),
+                                                    border: Border.all(color: borderCol),
                                                   ),
                                                   child: Text(
                                                     '#$rollNumber',
                                                     style: AppTypography.captionBold.copyWith(
-                                                      color: AppColors.textSecondary,
+                                                      color: textSecondary,
                                                       fontSize: 11,
                                                     ),
                                                   ),
@@ -842,7 +847,7 @@ class _TeacherStudentsScreenState extends State<TeacherStudentsScreen> {
                                                 const SizedBox(width: 6),
                                                 Text(
                                                   className,
-                                                  style: AppTypography.caption.copyWith(color: AppColors.textMuted),
+                                                  style: AppTypography.caption.copyWith(color: AppColors.textMutedOf(context)),
                                                 ),
                                               ],
                                             ),
@@ -859,9 +864,9 @@ class _TeacherStudentsScreenState extends State<TeacherStudentsScreen> {
                                           child: Container(
                                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                                             decoration: BoxDecoration(
-                                              color: const Color(0xFFF1F5F9),
+                                              color: AppColors.slateBgOf(context),
                                               borderRadius: BorderRadius.circular(8),
-                                              border: Border.all(color: AppColors.border),
+                                              border: Border.all(color: borderCol),
                                             ),
                                             child: Row(
                                               mainAxisSize: MainAxisSize.min,
@@ -870,7 +875,7 @@ class _TeacherStudentsScreenState extends State<TeacherStudentsScreen> {
                                                 const SizedBox(width: 4),
                                                 Text(
                                                   phone,
-                                                  style: AppTypography.captionBold.copyWith(color: AppColors.textPrimary, fontSize: 11),
+                                                  style: AppTypography.captionBold.copyWith(color: textPrimary, fontSize: 11),
                                                 ),
                                               ],
                                             ),
@@ -878,7 +883,7 @@ class _TeacherStudentsScreenState extends State<TeacherStudentsScreen> {
                                         ),
                                       ],
                                       const SizedBox(width: 6),
-                                      const Icon(LucideIcons.chevronRight, size: 16, color: AppColors.textSubtle),
+                                      Icon(LucideIcons.chevronRight, size: 16, color: AppColors.textSubtleOf(context)),
                                     ],
                                   ),
                                 ),
@@ -895,24 +900,26 @@ class _TeacherStudentsScreenState extends State<TeacherStudentsScreen> {
 
   Widget _buildFilterChip(String label, String value) {
     final isSelected = _selectedClass == value;
+    final cardBg = AppColors.cardOf(context);
+    final borderCol = AppColors.borderOf(context);
     return InkWell(
       onTap: () => setState(() => _selectedClass = value),
       borderRadius: BorderRadius.circular(10),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.white,
+          color: isSelected ? AppColors.primary : cardBg,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.border,
+            color: isSelected ? AppColors.primary : borderCol,
             width: isSelected ? 1.5 : 1,
           ),
-          boxShadow: isSelected ? AppColors.cardShadow : null,
+          boxShadow: isSelected ? AppColors.cardShadowOf(context) : null,
         ),
         child: Text(
           label,
           style: AppTypography.captionBold.copyWith(
-            color: isSelected ? Colors.white : AppColors.textSecondary,
+            color: isSelected ? Colors.white : AppColors.textSecondaryOf(context),
           ),
         ),
       ),
